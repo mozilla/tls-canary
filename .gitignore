@@ -1,0 +1,8 @@
+.Python
+bin
+lib
+include
+*.pyc
+.idea
+pip-selfcheck.json
+*.egg-info

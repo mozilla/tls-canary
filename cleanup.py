@@ -1,0 +1,38 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this file,
+# You can obtain one at http://mozilla.org/MPL/2.0/.
+
+import atexit
+import signal
+
+
+_cleanup_done = False
+
+
+def init():
+    """Register cleanup handler"""
+
+    print "Registering cleanup handler"
+
+    global _cleanup_done
+    _cleanup_done = False
+
+    # Will be OS-specific, see https://docs.python.org/2/library/signal.html
+    atexit.register(cleanup_handler)
+    signal.signal(signal.SIGTERM, cleanup_handler)
+    signal.signal(signal.SIGHUP, cleanup_handler)
+
+
+def cleanup_handler():
+    """The cleanup handler that runs when process terminates"""
+    print "Cleanup handler called"
+    global _cleanup_done
+    if not _cleanup_done:
+        _cleanup_done = True
+        for child in CleanUp.__subclasses__():
+            child.at_exit()
+
+
+class CleanUp(object):
+    """When process terminates, .at_exit() is called on every subclass."""
+    pass
