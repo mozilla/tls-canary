@@ -6,7 +6,8 @@ import os
 import sys
 import time
 import urllib2
-import math
+
+import progress_bar
 
 
 class FirefoxDownloader(object):
@@ -73,6 +74,11 @@ class FirefoxDownloader(object):
                     os.remove(filename)
 
             print 'Downloading `%s` to %s' % (url, filename)
+            if sys.stdout.isatty():
+                progress = progress_bar.ProgressBar(0, file_size, show_percent=True,
+                                                    show_boundary=True)
+            else:
+                progress = None
             downloaded_size = 0
             chunk_size = 32 * 1024
             with open(filename, 'wb') as fp:
@@ -85,18 +91,18 @@ class FirefoxDownloader(object):
                     fp.write(chunk)
 
                     # Update status if stdout is a terminal
-                    if sys.stdout.isatty():
-                        percent = int(math.floor((1.0 * downloaded_size / file_size) * 100.0))
+                    if progress is not None:
+                        progress.set(downloaded_size)
                         now = time.time()
                         if now > next_status_update:
-                            next_status_update = now + 0.5  # Twice per second
-                            sys.stdout.write('\r%d/%d %d%%'
-                                             % (downloaded_size, file_size, percent))
+                            next_status_update = now + 0.1  # 10 times per second
+                            sys.stdout.write('\r%s' % progress)
                             sys.stdout.flush()
 
                 # The final status update
                 if sys.stdout.isatty():
-                    sys.stdout.write('\r%d/%d %d%%' % (downloaded_size, file_size, 100))
+                    sys.stdout.write('\r%s\n' % progress)
+                    sys.stdout.flush()
 
         except urllib2.HTTPError, err:
             if os.path.isfile(filename):
