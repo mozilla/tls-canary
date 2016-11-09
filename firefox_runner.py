@@ -2,49 +2,77 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import logging
+import os
 from Queue import Queue, Empty
 import subprocess
 from threading import Thread
 import time
 
 
+logger = logging.getLogger(__name__)
+
+
 def read_from_worker(worker, queue):
-    print 'Reader thread started for worker', worker
+    logger.debug('Reader thread started for worker %s' % worker)
     for line in iter(worker.stdout.readline, b''):
-        queue.put(line.rstrip('\n'))
-    print 'Reader thread finished for worker', worker
+        line = line.strip()  # Remove trailing newline
+        if line.startswith("OK:") or line.startswith("ERROR:"):
+            queue.put(line)
+        else:
+            logger.warning("Unexpected script output: %s" % line)
+    logger.debug('Reader thread finished for worker %s' % worker)
     worker.stdout.close()
 
 
 class FirefoxRunner(object):
-    def __init__(self, exe_file, workers=None):
+    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=None):
         self._exe_file = exe_file
-        if workers is None:
+        self.work_list = Queue(maxsize=len(work_list))
+        for row in work_list:
+            self.work_list.put(row)
+        self.work_dir = work_dir
+        self.data_dir = data_dir
+        if num_workers is None:
             self._num_workers = 10
         else:
-            self._num_workers = workers
+            self._num_workers = num_workers
         self.workers = []
-        self.results = Queue()
+        self.results = Queue(maxsize=len(work_list))
 
     def maintain_worker_queue(self):
         for worker in self.workers:
             ret = worker.poll()
             if ret is not None:
-                print 'Worker terminated with return code %d' % ret
+                logger.debug('Worker terminated with return code %d' % ret)
                 self.workers.remove(worker)
         while len(self.workers) < self._num_workers:
+            if self.work_list.empty():
+                return
+            rank, url = self.work_list.get()
+            rank_url = "%d,%s" % (rank, url)
+            cmd = [self._exe_file,
+                   '-xpcshell',
+                   os.path.join(self.data_dir, "js", "scan_url.js"),
+                   '-u=%s' % rank_url,
+                   '-d=%s' % self.data_dir]
+            logger.debug("Command executed: %s" % ' '.join(cmd))
             worker = subprocess.Popen(
-                [self._exe_file, '-xpcshell', '-v', '180', '/tmp/test.js'],
+                cmd,
+                cwd=self.data_dir,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 bufsize=1)  # `1` means line-buffered
             self.workers.append(worker)
             # Spawn a reader thread, because stdio reads are blocking
-            reader = Thread(target=read_from_worker, args=(worker, self.results))
+            reader = Thread(target=read_from_worker, name="Reader_"+rank_url, args=(worker, self.results))
             reader.daemon = True  # Thread dies with worker
             reader.start()
-            print 'Spawned worker, now %d in queue' % len(self.workers)
+            logger.debug('Spawned worker, now %d in queue' % len(self.workers))
+
+    def is_done(self):
+        return len(self.workers) == 0 and self.work_list.empty()
 
     def get_result(self):
         """Read from result queue. Returns None if empty."""
@@ -59,7 +87,7 @@ class FirefoxRunner(object):
             for worker in self.workers:
                 ret = worker.poll()
                 if ret is not None:
-                    print 'Worker terminated with return code %d' % ret
+                    logger.debug('Worker terminated with return code %d' % ret)
                     self.workers.remove(worker)
             if len(self.workers) == 0:
                 break
@@ -79,4 +107,4 @@ class FirefoxRunner(object):
         self._wait_for_remaining_workers(5)
 
         if len(self.workers) != 0:
-            print 'There are %d non-terminating workers remaining' % len(self.workers)
+            logger.warning('There are %d non-terminating workers remaining' % len(self.workers))

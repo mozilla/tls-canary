@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import csv
 import os
 
 __datasets = {
@@ -11,27 +12,36 @@ __datasets = {
     'pulse': 'pulse_top_sites_list.csv',
     'smoke': 'smoke_list.csv',
     'test': 'test_url_list.csv',
-    'top': 'top-1m.csv'
+    'top1m': 'top-1m.csv'
 }
 
 
 def list():
-    datasets = __datasets.keys()
-    datasets.sort()
-    return datasets
+    dataset_list = __datasets.keys()
+    dataset_list.sort()
+    dataset_default = "alexa"
+    assert dataset_default in dataset_list
+    return dataset_list, dataset_default
 
 
-def iter(datasets):
-    if type(datasets) == str:
-        datasets = [datasets]
-    for dataset in datasets:
-        if dataset.endswith('.csv'):
-            csv_file = os.path.abspath(dataset)
-        else:
-            csv_file = self.__datasets[dataset]
-        with open(csv_file, 'r') as f:
-            for nr, url in csv.reader(csv_file):
-                yield nr, url
+def iter(dataset, data_dir):
+    if dataset.endswith('.csv'):
+        csv_file_name = os.path.abspath(dataset)
+    else:
+        csv_file_name = __datasets[dataset]
+    with open(os.path.join(data_dir, csv_file_name)) as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            assert 0 <= len(row) <= 2
+            if len(row) == 2:
+                rank, url = row
+                yield int(rank), url
+            elif len(row) == 1:
+                rank = 0
+                url = row[0]
+                yield int(rank), url
+            else:
+                continue
 
 
 class URLStore(object):
@@ -50,8 +60,8 @@ class URLStore(object):
 
     def __iter__(self):
         """Iterate all active URLs in store."""
-        for nr, url in self.__urls:
-            yield nr, url
+        for rank, url in self.__urls:
+            yield rank, url
 
     @staticmethod
     def list():
@@ -60,7 +70,10 @@ class URLStore(object):
 
     def load(self, datasets):
         """Load datasets arrayinto active URL store."""
-        for nr, url in iter(datasets):
-            self.__urls.append((nr, url))
-        self.__loaded_datasets.append(datasets)
+        if type(datasets) == str:
+            datasets = [datasets]
+        for dataset in datasets:
+            for nr, url in iter(dataset, self.__data_dir):
+                self.__urls.append((nr, url))
+            self.__loaded_datasets.append(dataset)
 

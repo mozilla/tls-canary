@@ -5,8 +5,9 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
+import logging
+import coloredlogs
 import os
-import random
 import shutil
 import sys
 import tempfile
@@ -19,9 +20,20 @@ import firefox_runner as fr
 import url_store as us
 
 
+# Initialize coloredlogs
+logger = logging.getLogger(__name__)
+coloredlogs.DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s"
+coloredlogs.install(level='INFO')
+
+
 def get_argparser():
     home = os.path.expanduser('~')
-    parser = argparse.ArgumentParser()
+    testset_choice, testset_default = us.URLStore.list()
+    testset_choice.append('list')
+    release_choice, _, test_default, base_default = fd.FirefoxDownloader.list()
+
+    parser = argparse.ArgumentParser(prog="tls_canary")
+    parser.add_argument('--version', action = 'version', version = '%(prog)s 0.1')
     parser.add_argument('-d', '--debug',
                         help='Enable debug',
                         action='store_true',
@@ -30,33 +42,40 @@ def get_argparser():
                         help='Path to working directory',
                         type=os.path.abspath,
                         action='store',
-                        default=home+"/.tlscanary")
-    parser.add_argument('-s', '--source',
-                        help='URL test set directory',
+                        default='%s/.tlscanary' % home)
+    parser.add_argument('-j', '--parallel',
+                        help='Number of parallel worker instances (default: 25)',
+                        type=int,
                         action='store',
-                        default='alexa')
+                        default=25)
     parser.add_argument('-t', '--test',
-                        help='Firefox version to test',
+                        help='Firefox version to test (default: `%s`)' % test_default,
+                        choices=release_choice,
                         action='store',
-                        default='nightly')
+                        default=test_default)
     parser.add_argument('-b', '--base',
-                        help='Firefox version to test against',
+                        help='Firefox base version to test against (default: `%s`)' % base_default,
+                        choices=release_choice,
                         action='store',
-                        default='release')
-    parser.add_argument('tests',
-                        metavar='TEST',
-                        help='Tests to run',
-                        nargs='*')
+                        default=base_default)
+    parser.add_argument('testset',
+                        metavar='TESTSET',
+                        help='Test set to run. Use `list` for info. (default: `%s`)' % testset_default,
+                        choices=testset_choice,
+                        action='store',
+                        nargs='?',
+                        default=testset_default)
     return parser
 
 
 tmp_dir = None
 module_dir = None
 
+
 def create_tempdir():
     global tmp_dir
     tmp_dir = tempfile.mkdtemp(prefix='tlscanary_')
-    print 'Creating temp dir `%s`' % tmp_dir
+    logger.debug('Creating temp dir `%s`' % tmp_dir)
     return tmp_dir
 
 
@@ -65,28 +84,55 @@ class RemoveTempDir(cleanup.CleanUp):
     def at_exit():
         global tmp_dir
         if tmp_dir is not None:
-            print 'Removing temp dir `%s`' % tmp_dir
+            logger.debug('Removing temp dir `%s`' % tmp_dir)
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+def run_test(exe_file, url_list, work_dir, module_dir, num_workers):
+    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers)
+    run_errors = set()
+    try:
+        while True:
+            # Spawn new workers if necessary
+            runner.maintain_worker_queue()
+            # Check result queue
+            while True:
+                result = runner.get_result()
+                if result is None:
+                    break
+                logger.info("Test result: %s" % result)
+                if result.startswith("ERROR:"):
+                    rank, url = result.lstrip("ERROR: ").split(',')
+                    run_errors.add((int(rank), url))
+            # Break if all urls have been worked
+            if runner.is_done():
+                break
+
+            time.sleep(0.05)
+
+    except KeyboardInterrupt:
+        logger.critical('User abort')
+        runner.terminate_workers()
+        sys.exit(1)
+
+    return run_errors
+
+
 def run_tests(args):
-    global tmp_dir, module_dir
+    global logger, tmp_dir, module_dir
     create_tempdir()
     module_dir = os.path.split(__file__)[0]
-    data_dir = os.path.join(module_dir, 'data')
+    sources_dir = os.path.join(module_dir, 'sources')
 
-    print args
-    print os.path.split(__file__)
-    
+    logger.debug("Command arguments: %s" % args)
+
     if sys.platform == 'darwin':
         platform = 'osx'
     else:
-        print 'Unsupported platform: %s' % sys.platform
+        logger.error('Unsupported platform: %s' % sys.platform)
         sys.exit(5)
-    print 'Detected platform: %s' % platform
+    logger.info('Detected platform: %s' % platform)
 
-    urldb = us.URLStore(data_dir)
-    print 'Available URL databases: %s' % ', '.join(urldb.list())
 
     # Download Firefox archives
     fdl = fd.FirefoxDownloader(args.workdir, cache_timeout=1*60*60)
@@ -105,44 +151,65 @@ def run_tests(args):
     if test_exe_file is None:
         sys.exit(-1)
 
-    print 'Testing `%s` against baseline `%s`' % (base_exe_file, test_exe_file)
+    # Compile the set of URLs to test
+    urldb = us.URLStore(sources_dir)
+    urldb.load(args.testset)
+    url_set = set(urldb)
+    logger.info("%d URLs in test set" % len(url_set))
 
-    test_runner = fr.FirefoxRunner(test_exe_file, 10)
+    logger.debug("Testing `%s` against baseline `%s`" % (base_exe_file, test_exe_file))
 
-    run_until = time.time() + 10
-    idn = 0
-    try:
-        while time.time() < run_until:
-            test_runner.maintain_worker_queue()
+    # Run two passes against the test candidate
+    logger.info("Starting first test candidate pass against %d URLs" % len(url_set))
+    test_run_errors = run_test(test_exe_file, url_set, args.workdir, module_dir, args.parallel)
+    # Second pass slower, to weed out spurious errors
+    logger.info("Starting second test candidate pass against %d error URLs" % len(test_run_errors))
+    test_run_errors = run_test(test_exe_file, test_run_errors, args.workdir, module_dir, min(args.parallel, 10))
+    logger.info("Second test candidate pass yielded %d error URLs" % len(test_run_errors))
+    logger.debug("Test candidate errors: %s" % ' '.join(["%d,%s" % (r,u) for r,u in test_run_errors]))
 
-            for worker in test_runner.workers:
-                task = '%d:%d+%d\n' % (idn, random.randint(1, 100),
-                                       random.randint(1, 100))
-                worker.stdin.write(task)
-                idn += 1
-                print worker, 'task:', task,
+    # Run two passes against the baseline candidate
+    logger.info("Starting first baseline candidate pass against %d URLs" % len(url_set))
+    base_run_errors = run_test(base_exe_file, url_set, args.workdir, module_dir, args.parallel)
+    # Second pass slower, to weed out spurious errors
+    logger.info("Starting second baseline candidate pass against %d error URLs" % len(base_run_errors))
+    base_run_errors = run_test(base_exe_file, base_run_errors, args.workdir, module_dir, min(args.parallel, 10))
+    logger.info("Second baseline candidate pass yielded %d error URLs" % len(base_run_errors))
+    logger.debug("Baseline candidate errors: %s" % ' '.join(["%d,%s" % (r,u) for r,u in base_run_errors]))
 
-            while True:
-                result = test_runner.get_result()
-                if result is None:
-                    break
-                print "Result in main:", result
+    # We're interested in those errors from the test candidate run
+    # that are not present in the baseline candidate run.
+    new_errors = test_run_errors.difference(base_run_errors)
+    logger.info("New errors: %s" % ' '.join(["%d,%s" % (r,u) for r,u in new_errors]))
 
-            time.sleep(0.05)
-    except KeyboardInterrupt:
-        print 'User abort'
-
-    test_runner.terminate_workers()
 
     return True
 
 
 # This is the entry point used in setup.py
-
 def main():
+
     cleanup.init()
 
     parser = get_argparser()
     args = parser.parse_args()
 
-    return run_tests(args)
+    if args.debug:
+        coloredlogs.install(level='DEBUG')
+
+    # If 'list' is specified as test, list available test sets, builds, and platforms
+    if args.testset == "list":
+        testset_list, testset_default = us.URLStore.list()
+        testset_list[testset_list.index(testset_default)] = testset_default + "(default)"
+        build_list, platform_list, _, _ = fd.FirefoxDownloader.list()
+        print "Available test sets: %s" % ' '.join(testset_list)
+        print "Available builds: %s" % ' '.join(build_list)
+        print "Available platforms: %s" % ' '.join(platform_list)
+        sys.exit(1)
+
+    try:
+        result = run_tests(args)
+    except KeyboardInterrupt:
+        logger.critical("\nUser interrupt. Quitting...")
+
+    return result

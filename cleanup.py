@@ -12,7 +12,7 @@ _cleanup_done = False
 def init():
     """Register cleanup handler"""
 
-    print "Registering cleanup handler"
+    # print "Registering cleanup handler"
 
     global _cleanup_done
     _cleanup_done = False
@@ -25,7 +25,7 @@ def init():
 
 def cleanup_handler():
     """The cleanup handler that runs when process terminates"""
-    print "Cleanup handler called"
+    # print "Cleanup handler called"
     global _cleanup_done
     if not _cleanup_done:
         _cleanup_done = True

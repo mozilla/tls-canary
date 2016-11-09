@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import logging
 import os
 import sys
 import time
@@ -9,6 +10,7 @@ import urllib2
 
 import progress_bar
 
+logger = logging.getLogger(__name__)
 
 class FirefoxDownloader(object):
 
@@ -29,6 +31,15 @@ class FirefoxDownloader(object):
         'win32':   {'platform': 'win', 'extension': 'exe'}
     }
 
+    @staticmethod
+    def list():
+        build_list = FirefoxDownloader._build_urls.keys()
+        platform_list = FirefoxDownloader._platforms.keys()
+        test_default = "nightly"
+        base_default = "release"
+        assert test_default in build_list and base_default in build_list
+        return build_list, platform_list, test_default, base_default
+
     def __init__(self, workdir, cache_timeout=4*60*60):
         self.workdir = workdir
         self.download_cache = os.path.join(workdir, 'download_cache')
@@ -36,7 +47,7 @@ class FirefoxDownloader(object):
 
         # Create cache directory if necessary
         if not os.path.exists(self.download_cache):
-            print('Creating cache directory %s' % self.download_cache)
+            logger.debug('Creating cache directory %s' % self.download_cache)
             os.makedirs(self.download_cache, mode=0755)
 
     def purge_cache(self):
@@ -50,7 +61,7 @@ class FirefoxDownloader(object):
                 full_name = os.path.join(root, file_name)
                 mtime = os.path.getmtime(full_name)  # Modification time as epoch
                 if mtime < stale_limit:
-                    print 'Purging stale cache file `%s`' % full_name
+                    logger.debug('Purging stale cache file `%s`' % full_name)
                     os.remove(full_name)
 
     @staticmethod
@@ -67,13 +78,13 @@ class FirefoxDownloader(object):
             if os.path.isfile(filename):
                 if os.stat(filename).st_size == file_size:
                     req.close()
-                    print 'Skipping download using cached file `%s`' % filename
+                    logger.info('Skipping download using cached file `%s`' % filename)
                     return filename
                 else:
-                    print 'Purging incomplete or obsolete cache file `%s`' % filename
+                    logger.warning('Purging incomplete or obsolete cache file `%s`' % filename)
                     os.remove(filename)
 
-            print 'Downloading `%s` to %s' % (url, filename)
+            logger.info('Downloading `%s` to %s' % (url, filename))
             if sys.stdout.isatty():
                 progress = progress_bar.ProgressBar(0, file_size, show_percent=True,
                                                     show_boundary=True)
@@ -107,24 +118,27 @@ class FirefoxDownloader(object):
         except urllib2.HTTPError, err:
             if os.path.isfile(filename):
                 os.remove(filename)
-            print 'HTTP error:', err.code, url
+            logger.error('HTTP error: %s, %s' % (err.code, url))
             return None
 
         except urllib2.URLError, err:
             if os.path.isfile(filename):
                 os.remove(filename)
-            print 'URL error:', err.reason, url
+            logger.error('URL error: %s, %s' % (err.reason, url))
             return None
 
         except KeyboardInterrupt:
             if os.path.isfile(filename):
                 os.remove(filename)
-            print '\nDownload interrupted'
+            if sys.stdout.isatty():
+                print
+            logger.critical('Download interrupted by user')
             return None
 
         return filename
 
     def download(self, release, platform, use_cache=True):
+
         if release not in self._build_urls:
             raise Exception("Failed to download unknown release `%s`" % release)
         if platform not in self._platforms:
