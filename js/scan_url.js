@@ -75,13 +75,13 @@ for (var i=0;i<arguments.length;i++)
     var temp = host.split(",");
     if (temp.length > 1)
     {
-      rank = temp[0];
+      rank = parseInt(temp[0]);
       host = temp[1];
     }
   }
   if (arguments[i].indexOf("-r=") != -1)
   {
-    rank = arguments[i].split("-r=")[1];
+    rank = parseInt(arguments[i].split("-r=")[1]);
   }
   if (arguments[i].indexOf("-p=") != -1)
   {
@@ -472,15 +472,26 @@ function loadURI(uri) {
     let currentError = error ? getErrorType(error) : null;
     analyzeSecurityInfo(xhr, currentError, hostname, error);
     if (error) {
-      var msg = test_obj.site_info.rank + "," + test_obj.site_info.uri;
       if (print_json) {
-        dump ("ERROR: " + msg + " " + JSON.stringify(test_obj) + "\n");
+        dump(JSON.stringify({
+          error: true,
+          rank: test_obj.site_info.rank,
+          url: test_obj.site_info.uri,
+          test_obj: test_obj
+        }) + "\n");
       } else {
-        dump("ERROR: " + msg + "\n");
+        dump(JSON.stringify({
+          error: true,
+          rank: test_obj.site_info.rank,
+          url: test_obj.site_info.uri
+        }) + "\n");
       }
     } else {
-      var msg = test_obj.site_info.rank + "," + test_obj.site_info.uri;
-      dump("OK: " + msg + "\n");
+      dump(JSON.stringify({
+        error: false,
+        rank: test_obj.site_info.rank,
+        url: test_obj.site_info.uri
+      }) + "\n");
     }
   }
   function handleResult(err, xhr) {
@@ -521,7 +532,7 @@ function createTestObject()
   var o = {};
   o.site_info = {};
   o.site_info.uri= host;
-  o.site_info.rank=rank.toString();
+  o.site_info.rank=rank;
   o.site_info.connectionSpeed = new Date().getTime();
   o.site_info.timestamp= new Date().getTime().toString();
   

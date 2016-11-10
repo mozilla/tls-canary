@@ -88,8 +88,8 @@ class RemoveTempDir(cleanup.CleanUp):
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-def run_test(exe_file, url_list, work_dir, module_dir, num_workers):
-    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers)
+def run_test(exe_file, url_list, work_dir, module_dir, num_workers, get_certs=False):
+    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers, get_certs)
     run_errors = set()
     try:
         while True:
@@ -101,9 +101,8 @@ def run_test(exe_file, url_list, work_dir, module_dir, num_workers):
                 if result is None:
                     break
                 logger.info("Test result: %s" % result)
-                if result.startswith("ERROR:"):
-                    rank, url = result.lstrip("ERROR: ").split(',')
-                    run_errors.add((int(rank), url))
+                if "error" in result and result["error"]:
+                    run_errors.add((int(result["rank"]), result["url"]))
             # Break if all urls have been worked
             if runner.is_done():
                 break
@@ -147,9 +146,11 @@ def run_tests(args):
     base_extract_dir, base_exe_file = fe.extract(platform, base_archive_file, tmp_dir)
     if base_exe_file is None:
         sys.exit(-1)
+    logger.debug("Testing candidate executable is `%s`" % base_exe_file)
     test_extract_dir, test_exe_file = fe.extract(platform, test_archive_file, tmp_dir)
     if test_exe_file is None:
         sys.exit(-1)
+    logger.debug("Baseline candidate executable is `%s`" % test_exe_file)
 
     # Compile the set of URLs to test
     urldb = us.URLStore(sources_dir)

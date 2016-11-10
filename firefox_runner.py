@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import json
 import logging
 import os
 from Queue import Queue, Empty
@@ -16,17 +17,16 @@ logger = logging.getLogger(__name__)
 def read_from_worker(worker, queue):
     logger.debug('Reader thread started for worker %s' % worker)
     for line in iter(worker.stdout.readline, b''):
-        line = line.strip()  # Remove trailing newline
-        if line.startswith("OK:") or line.startswith("ERROR:"):
-            queue.put(line)
-        else:
-            logger.warning("Unexpected script output: %s" % line)
+        try:
+            queue.put(json.loads(line))
+        except ValueError:
+            logger.warning("Unexpected script output: %s" % line.strip())
     logger.debug('Reader thread finished for worker %s' % worker)
     worker.stdout.close()
 
 
 class FirefoxRunner(object):
-    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=None):
+    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=None, get_certs=False):
         self._exe_file = exe_file
         self.work_list = Queue(maxsize=len(work_list))
         for row in work_list:
@@ -39,6 +39,7 @@ class FirefoxRunner(object):
             self._num_workers = num_workers
         self.workers = []
         self.results = Queue(maxsize=len(work_list))
+        self._get_certs = get_certs
 
     def maintain_worker_queue(self):
         for worker in self.workers:
@@ -56,7 +57,10 @@ class FirefoxRunner(object):
                    os.path.join(self.data_dir, "js", "scan_url.js"),
                    '-u=%s' % rank_url,
                    '-d=%s' % self.data_dir]
-            logger.debug("Command executed: %s" % ' '.join(cmd))
+            if self._get_certs:
+                cmd.append("-j=true")
+                cmd.append("-c=/tmp/")
+            logger.debug("Executing shell command `%s`" % ' '.join(cmd))
             worker = subprocess.Popen(
                 cmd,
                 cwd=self.data_dir,

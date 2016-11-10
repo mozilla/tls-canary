@@ -78,7 +78,7 @@ class FirefoxDownloader(object):
             if os.path.isfile(filename):
                 if os.stat(filename).st_size == file_size:
                     req.close()
-                    logger.info('Skipping download using cached file `%s`' % filename)
+                    logger.warning('Skipping download using cached file `%s`' % filename)
                     return filename
                 else:
                     logger.warning('Purging incomplete or obsolete cache file `%s`' % filename)
