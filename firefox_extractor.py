@@ -67,6 +67,11 @@ def _osx_extract(archive_file, tmp_dir):
         _osx_unmount_dmg(mount_dir)
         raise err
 
+    except KeyboardInterrupt, err:
+        logger.error('User abort. Detaching image from mount point `%s`' % (mount_dir))
+        _osx_unmount_dmg(mount_dir)
+        raise err
+
     logger.debug('Detaching image from mount point `%s`' % (mount_dir))
     _osx_unmount_dmg(mount_dir)
 

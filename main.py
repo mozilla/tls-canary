@@ -73,7 +73,6 @@ module_dir = None
 
 
 def create_tempdir():
-    global tmp_dir
     tmp_dir = tempfile.mkdtemp(prefix='tlscanary_')
     logger.debug('Creating temp dir `%s`' % tmp_dir)
     return tmp_dir
@@ -88,8 +87,8 @@ class RemoveTempDir(cleanup.CleanUp):
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-def run_test(exe_file, url_list, work_dir, module_dir, num_workers, get_certs=False):
-    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers, get_certs)
+def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, cert_dir=None):
+    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers, info, cert_dir)
     run_errors = set()
     try:
         while True:
@@ -117,13 +116,8 @@ def run_test(exe_file, url_list, work_dir, module_dir, num_workers, get_certs=Fa
     return run_errors
 
 
-def run_tests(args):
-    global logger, tmp_dir, module_dir
-    create_tempdir()
-    module_dir = os.path.split(__file__)[0]
-    sources_dir = os.path.join(module_dir, 'sources')
-
-    logger.debug("Command arguments: %s" % args)
+def get_test_candidates(args):
+    global logger, tmp_dir
 
     if sys.platform == 'darwin':
         platform = 'osx'
@@ -132,25 +126,35 @@ def run_tests(args):
         sys.exit(5)
     logger.info('Detected platform: %s' % platform)
 
-
-    # Download Firefox archives
+    # Download and extract Firefox archives
     fdl = fd.FirefoxDownloader(args.workdir, cache_timeout=1*60*60)
-    base_archive_file = fdl.download(args.base, platform)
-    if base_archive_file is None:
-        sys.exit(-1)
+
+    # Download test candidate
     test_archive_file = fdl.download(args.test, platform)
     if test_archive_file is None:
         sys.exit(-1)
-
-    # Extract firefox archives
-    base_extract_dir, base_exe_file = fe.extract(platform, base_archive_file, tmp_dir)
-    if base_exe_file is None:
-        sys.exit(-1)
-    logger.debug("Testing candidate executable is `%s`" % base_exe_file)
+    # Extract test candidate archive
     test_extract_dir, test_exe_file = fe.extract(platform, test_archive_file, tmp_dir)
     if test_exe_file is None:
         sys.exit(-1)
-    logger.debug("Baseline candidate executable is `%s`" % test_exe_file)
+    logger.debug("Test candidate executable is `%s`" % test_exe_file)
+
+    # Download baseline candidate
+    base_archive_file = fdl.download(args.base, platform)
+    if base_archive_file is None:
+        sys.exit(-1)
+    # Extract baseline candidate archive
+    base_extract_dir, base_exe_file = fe.extract(platform, base_archive_file, tmp_dir)
+    if base_exe_file is None:
+        sys.exit(-1)
+    logger.debug("Baseline candidate executable is `%s`" % base_exe_file)
+
+    return test_extract_dir, test_exe_file, base_extract_dir, base_exe_file
+
+
+def run_tests(args, test_exe_file, base_exe_file):
+    global logger, tmp_dir, module_dir
+    sources_dir = os.path.join(module_dir, 'sources')
 
     # Compile the set of URLs to test
     urldb = us.URLStore(sources_dir)
@@ -158,45 +162,107 @@ def run_tests(args):
     url_set = set(urldb)
     logger.info("%d URLs in test set" % len(url_set))
 
-    logger.debug("Testing `%s` against baseline `%s`" % (base_exe_file, test_exe_file))
+    # Compile set of error URLs in three passes
+    # First pass:
+    # - Run full test set against the test candidate
+    # - Run new error set against baseline candidate
+    # - Filter for errors from test candidate but not baseline
+    logger.info("Starting first pass with %d URLs" % len(url_set))
 
-    # Run two passes against the test candidate
-    logger.info("Starting first test candidate pass against %d URLs" % len(url_set))
-    test_run_errors = run_test(test_exe_file, url_set, args.workdir, module_dir, args.parallel)
-    # Second pass slower, to weed out spurious errors
-    logger.info("Starting second test candidate pass against %d error URLs" % len(test_run_errors))
-    test_run_errors = run_test(test_exe_file, test_run_errors, args.workdir, module_dir, min(args.parallel, 10))
-    logger.info("Second test candidate pass yielded %d error URLs" % len(test_run_errors))
-    logger.debug("Test candidate errors: %s" % ' '.join(["%d,%s" % (r,u) for r,u in test_run_errors]))
+    test_error_set = run_test(test_exe_file, url_set, args.workdir, module_dir, args.parallel)
+    logger.info("First test candidate pass yielded %d error URLs" % len(test_error_set))
+    logger.debug("First test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-    # Run two passes against the baseline candidate
-    logger.info("Starting first baseline candidate pass against %d URLs" % len(url_set))
-    base_run_errors = run_test(base_exe_file, url_set, args.workdir, module_dir, args.parallel)
-    # Second pass slower, to weed out spurious errors
-    logger.info("Starting second baseline candidate pass against %d error URLs" % len(base_run_errors))
-    base_run_errors = run_test(base_exe_file, base_run_errors, args.workdir, module_dir, min(args.parallel, 10))
-    logger.info("Second baseline candidate pass yielded %d error URLs" % len(base_run_errors))
-    logger.debug("Baseline candidate errors: %s" % ' '.join(["%d,%s" % (r,u) for r,u in base_run_errors]))
+    base_error_set = run_test(base_exe_file, test_error_set, args.workdir, module_dir, args.parallel)
+    logger.info("First baseline candidate pass yielded %d error URLs" % len(base_error_set))
+    logger.debug("First baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
 
-    # We're interested in those errors from the test candidate run
-    # that are not present in the baseline candidate run.
-    new_errors = test_run_errors.difference(base_run_errors)
-    logger.info("New errors: %s" % ' '.join(["%d,%s" % (r,u) for r,u in new_errors]))
+    error_set = test_error_set.difference(base_error_set)
+
+    # Second pass:
+    # - Run error set from first pass against the test candidate
+    # - Run new error set against baseline candidate
+    # - Filter for errors from test candidate but not baseline
+    logger.info("Starting second pass with %d URLs" % len(error_set))
+
+    test_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir, args.parallel)
+    logger.info("Second test candidate pass yielded %d error URLs" % len(test_error_set))
+    logger.debug("Second test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
+
+    base_error_set = run_test(base_exe_file, test_error_set, args.workdir, module_dir, args.parallel)
+    logger.info("Second baseline candidate pass yielded %d error URLs" % len(base_error_set))
+    logger.debug("Second baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
+
+    error_set = test_error_set.difference(base_error_set)
+
+    # Third pass:
+    # - Run error set from first pass against the test candidate with less workers
+    # - Run new error set against baseline candidate with less workers
+    # - Filter for errors from test candidate but not baseline
+    logger.info("Starting third pass with %d URLs" % len(error_set))
+
+    test_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir, min(args.parallel, 10))
+    logger.info("Third test candidate pass yielded %d error URLs" % len(test_error_set))
+    logger.debug("Third test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
+
+    base_error_set = run_test(base_exe_file, test_error_set, args.workdir, module_dir, min(args.parallel, 10))
+    logger.info("Third baseline candidate pass yielded %d error URLs" % len(base_error_set))
+    logger.debug("Third baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
+
+    error_set = test_error_set.difference(base_error_set)
+
+    logger.info("Final error set is %d URLs: %s" % (len(error_set), ' '.join(["%d,%s" % (r, u) for r, u in error_set])))
+
+    # Extract JSON info for error set
+    logger.info("Extracting certificates for %d error URLs" % len(error_set))
+    final_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir, min(args.parallel, 10), True)
+
+    return final_error_set
 
 
-    return True
+def extract_certificates(args, error_set, test_exe_file):
+    global logger, tmp_dir, module_dir
+    tmp_cert_dir = os.path.join(tmp_dir, "certs")
+    os.mkdir(tmp_cert_dir)
+
+    logger.info("Extracting certificates from %d URLs to `%s`" % (len(error_set), tmp_cert_dir))
+    final_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir,
+                               min(args.parallel, 10), False, tmp_cert_dir)
+
+    if final_error_set != error_set:
+        diff_set = error_set.difference(final_error_set)
+        logger.warning("Domains dropped out of error set: %s" % diff_set)
+
+    return tmp_cert_dir
+
+
+def create_report(args, error_set, cert_dir):
+    # timestamp : 2016-11-09-16-26-08
+    # branch : Nightly
+    # description : Fx52.0a1 nightly vs Fx49.0.2 release
+    # source : Custom list
+    # test build url : https://download.mozilla.org/?product=firefox-nightly-latest&os=osx&lang=en-US
+    # release build url : https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US
+    # test build metadata : NSS 3.28 Beta, NSPR 4.13.1
+    # release build metadata : NSS 3.25, NSPR 4.12
+    # Total time : 3 minutes
+    # ++++++++++
+    logger.error("Reporting not implemented. Args: %s, %s, %s" % (error_set, cert_dir, args))
 
 
 # This is the entry point used in setup.py
 def main():
+    global logger, tmp_dir, module_dir
 
-    cleanup.init()
+    module_dir = os.path.split(__file__)[0]
 
     parser = get_argparser()
     args = parser.parse_args()
 
     if args.debug:
         coloredlogs.install(level='DEBUG')
+
+    logger.debug("Command arguments: %s" % args)
 
     # If 'list' is specified as test, list available test sets, builds, and platforms
     if args.testset == "list":
@@ -208,9 +274,18 @@ def main():
         print "Available platforms: %s" % ' '.join(platform_list)
         sys.exit(1)
 
+    cleanup.init()
+    tmp_dir = create_tempdir()
+
     try:
-        result = run_tests(args)
+        test_extract_dir, test_exe_file, base_extract_dir, \
+            base_exe_file = get_test_candidates(args)
+        error_set = run_tests(args, test_exe_file, base_exe_file)
+        cert_dir = extract_certificates(args, error_set, test_exe_file)
+        create_report(args, error_set, cert_dir)
+
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
+        return False
 
-    return result
+    return True

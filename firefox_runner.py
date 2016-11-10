@@ -26,7 +26,7 @@ def read_from_worker(worker, queue):
 
 
 class FirefoxRunner(object):
-    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=None, get_certs=False):
+    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=None, info=False, cert_dir=None):
         self._exe_file = exe_file
         self.work_list = Queue(maxsize=len(work_list))
         for row in work_list:
@@ -39,7 +39,8 @@ class FirefoxRunner(object):
             self._num_workers = num_workers
         self.workers = []
         self.results = Queue(maxsize=len(work_list))
-        self._get_certs = get_certs
+        self._info = info
+        self._cert_dir = cert_dir
 
     def maintain_worker_queue(self):
         for worker in self.workers:
@@ -57,9 +58,10 @@ class FirefoxRunner(object):
                    os.path.join(self.data_dir, "js", "scan_url.js"),
                    '-u=%s' % rank_url,
                    '-d=%s' % self.data_dir]
-            if self._get_certs:
+            if self._info:
                 cmd.append("-j=true")
-                cmd.append("-c=/tmp/")
+            if self._cert_dir is not None:
+                cmd.append("-c=%s" % self._cert_dir)
             logger.debug("Executing shell command `%s`" % ' '.join(cmd))
             worker = subprocess.Popen(
                 cmd,
