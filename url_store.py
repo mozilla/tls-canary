@@ -9,8 +9,9 @@ __datasets = {
     'alexa': 'alexa_top_sites.csv',
     'alexa5k': 'alexa_top5k_sites.csv',
     'alexa10k': 'alexa_top10k_sites.csv',
+    'alexa100k': 'alexa_top100k_sites.csv',
     'debug': 'debug.csv',
-    'google': 'google_ct_list.csv',
+    # 'google': 'google_ct_list.csv',  # disabled until cleaned
     'pulse': 'pulse_top_sites_list.csv',
     'smoke': 'smoke_list.csv',
     'test': 'test_url_list.csv',
@@ -78,4 +79,3 @@ class URLStore(object):
             for nr, url in iter(dataset, self.__data_dir):
                 self.__urls.append((nr, url))
             self.__loaded_datasets.append(dataset)
-

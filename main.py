@@ -268,11 +268,19 @@ def main():
     # If 'list' is specified as test, list available test sets, builds, and platforms
     if args.testset == "list":
         testset_list, testset_default = us.URLStore.list()
-        testset_list[testset_list.index(testset_default)] = testset_default + "(default)"
         build_list, platform_list, _, _ = fd.FirefoxDownloader.list()
-        print "Available test sets: %s" % ' '.join(testset_list)
+        urldb = us.URLStore(os.path.join(module_dir, "sources"))
         print "Available builds: %s" % ' '.join(build_list)
         print "Available platforms: %s" % ' '.join(platform_list)
+        print "Available test sets:"
+        for testset in testset_list:
+            urldb.clear()
+            urldb.load(testset)
+            if testset == testset_default:
+                default = "(default)"
+            else:
+                default = ""
+            print "  - %s [%d] %s" % (testset, len(urldb), default)
         sys.exit(1)
 
     cleanup.init()
