@@ -6,7 +6,7 @@ import atexit
 import signal
 
 
-_cleanup_done = False
+__cleanup_done = False
 
 
 def init():
@@ -14,8 +14,8 @@ def init():
 
     # print "Registering cleanup handler"
 
-    global _cleanup_done
-    _cleanup_done = False
+    global __cleanup_done
+    __cleanup_done = False
 
     # Will be OS-specific, see https://docs.python.org/2/library/signal.html
     atexit.register(cleanup_handler)
@@ -26,9 +26,9 @@ def init():
 def cleanup_handler():
     """The cleanup handler that runs when process terminates"""
     # print "Cleanup handler called"
-    global _cleanup_done
-    if not _cleanup_done:
-        _cleanup_done = True
+    global __cleanup_done
+    if not __cleanup_done:
+        __cleanup_done = True
         for child in CleanUp.__subclasses__():
             child.at_exit()
 

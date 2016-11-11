@@ -7,6 +7,8 @@ import os
 
 __datasets = {
     'alexa': 'alexa_top_sites.csv',
+    'alexa5k': 'alexa_top5k_sites.csv',
+    'alexa10k': 'alexa_top10k_sites.csv',
     'debug': 'debug.csv',
     'google': 'google_ct_list.csv',
     'pulse': 'pulse_top_sites_list.csv',

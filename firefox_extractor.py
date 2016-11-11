@@ -10,8 +10,8 @@ import shutil
 import subprocess
 import tempfile
 
-
 logger = logging.getLogger(__name__)
+
 
 # TODO: Ensure that all images are unmounted at exit.
 # Images may still be mounted when global tmp_dir is removed at exit,
@@ -20,27 +20,32 @@ logger = logging.getLogger(__name__)
 # TODO: Cache extracted files, too. Takes very long to unpack 100 MByte.
 
 
-def _osx_mount_dmg(dmg_file, mount_point):
+def __osx_mount_dmg(dmg_file, mount_point):
+    global logger
     assert('"' not in dmg_file + mount_point)
     assert(dmg_file.endswith('.dmg'))
-    cmd = 'hdiutil attach -noverify -noautoopen -noautoopenro -nobrowse -noidme -mount required ' \
-          '-quiet -mountpoint "%s" "%s"' % (mount_point, dmg_file)
+    cmd = '''hdiutil attach -readonly -noverify -noautoopen -noautoopenro''' \
+          ''' -noautoopenrw -nobrowse -noidme -noautofsck -mount required''' \
+          ''' -quiet -mountpoint "%s" "%s"''' % (mount_point, dmg_file)
+    logger.debug("Executing shell command `%s`" % cmd)
     # Throws subprocess.CalledProcessError on non-zero exit value
     subprocess.check_call(cmd, shell=True)
 
 
-def _osx_unmount_dmg(mount_point):
+def __osx_unmount_dmg(mount_point):
+    global logger
     assert('"' not in mount_point)
     cmd = 'hdiutil detach -quiet -force "%s"' % mount_point
+    logger.debug("Executing shell command `%s`" % cmd)
     # Throws subprocess.CalledProcessError on non-zero exit value
     subprocess.check_call(cmd, shell=True)
 
 
-def _osx_extract(archive_file, tmp_dir):
+def __osx_extract(archive_file, tmp_dir):
     extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
     mount_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='mount_')
     logger.debug('Mounting image `%s` at mount point `%s`' % (archive_file, mount_dir))
-    _osx_mount_dmg(archive_file, mount_dir)
+    __osx_mount_dmg(archive_file, mount_dir)
 
     try:
         # Determine app subfolder
@@ -63,17 +68,17 @@ def _osx_extract(archive_file, tmp_dir):
         shutil.copytree(mount_dir, extract_dir, symlinks=True)
 
     except Exception, err:
-        logger.error('Error detected while extracting image. Detaching image from mount point `%s`' % (mount_dir))
-        _osx_unmount_dmg(mount_dir)
+        logger.error('Error detected while extracting image. Detaching image from mount point `%s`' % mount_dir)
+        __osx_unmount_dmg(mount_dir)
         raise err
 
     except KeyboardInterrupt, err:
-        logger.error('User abort. Detaching image from mount point `%s`' % (mount_dir))
-        _osx_unmount_dmg(mount_dir)
+        logger.error('User abort. Detaching image from mount point `%s`' % mount_dir)
+        __osx_unmount_dmg(mount_dir)
         raise err
 
-    logger.debug('Detaching image from mount point `%s`' % (mount_dir))
-    _osx_unmount_dmg(mount_dir)
+    logger.debug('Detaching image from mount point `%s`' % mount_dir)
+    __osx_unmount_dmg(mount_dir)
 
     exe_file = os.path.join(extract_dir, app_folder_name, "Contents", "MacOS", "firefox")
     if not os.path.isfile(exe_file):
@@ -83,7 +88,7 @@ def _osx_extract(archive_file, tmp_dir):
 
 def extract(platform, archive_file, tmp_dir):
     if platform == 'osx':
-        extract_dir, exe_file = _osx_extract(archive_file, tmp_dir)
+        extract_dir, exe_file = __osx_extract(archive_file, tmp_dir)
     else:
         logger.error('Unsupported platform for extractor: %s' % platform)
         extract_dir = None

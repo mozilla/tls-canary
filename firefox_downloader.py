@@ -8,9 +8,11 @@ import sys
 import time
 import urllib2
 
+import cache
 import progress_bar
 
 logger = logging.getLogger(__name__)
+
 
 class FirefoxDownloader(object):
 
@@ -41,31 +43,11 @@ class FirefoxDownloader(object):
         return build_list, platform_list, test_default, base_default
 
     def __init__(self, workdir, cache_timeout=4*60*60):
-        self.workdir = workdir
-        self.download_cache = os.path.join(workdir, 'download_cache')
-        self.cache_timeout = cache_timeout  # Default is four hours
-
-        # Create cache directory if necessary
-        if not os.path.exists(self.download_cache):
-            logger.debug('Creating cache directory %s' % self.download_cache)
-            os.makedirs(self.download_cache, mode=0755)
-
-    def purge_cache(self):
-        """Remove stale files from cache"""
-        # print 'WARNING: not purging cache for development purposes'
-        # return
-        now = time.time()  # Current time as epoch
-        stale_limit = now - self.cache_timeout
-        for (root, dirs, files) in os.walk(self.download_cache):
-            for file_name in files:
-                full_name = os.path.join(root, file_name)
-                mtime = os.path.getmtime(full_name)  # Modification time as epoch
-                if mtime < stale_limit:
-                    logger.debug('Purging stale cache file `%s`' % full_name)
-                    os.remove(full_name)
+        self.__workdir = workdir
+        self.__cache = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout)
 
     @staticmethod
-    def _get_to_file(url, filename):
+    def __get_to_file(url, filename):
         try:
 
             # TODO: Validate the server's SSL certificate
@@ -73,7 +55,7 @@ class FirefoxDownloader(object):
             file_size = int(req.info().getheader('Content-Length').strip())
 
             # Caching logic is: don't re-download if file of same size is
-            # already in cache. Switch to ETag if that's not good enough.
+            # already in place. TODO: Switch to ETag if that's not good enough.
             # This already prevents cache clutter with incomplete files.
             if os.path.isfile(filename):
                 if os.stat(filename).st_size == file_size:
@@ -147,15 +129,11 @@ class FirefoxDownloader(object):
         platform = self._platforms[platform]['platform']
         extension = self._platforms[platform]['extension']
         url = self._build_urls[release].format(platform=platform)
-        file_name = 'firefox-%s_%s.%s' % (release, platform, extension)
-        cache_file = os.path.join(self.download_cache, file_name)
-
-        # Purge obsolete files from cache
-        self.purge_cache()
+        cache_id = 'firefox-%s_%s.%s' % (release, platform, extension)
 
         # Always delete cached file when cache function is overridden
-        if os.path.exists(file_name) and not use_cache:
-            os.remove(file_name)
+        if cache_id in self.__cache and not use_cache:
+            self.__cache.delete(cache_id)
 
-        # _get_to_file will not re-download if same-size file is already there.
-        return self._get_to_file(url, cache_file)
+        # __get_to_file will not re-download if same-size file is already there.
+        return self.__get_to_file(url, self.__cache[cache_id])

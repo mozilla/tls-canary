@@ -13,6 +13,7 @@ import sys
 import tempfile
 import time
 
+import cache
 import cleanup
 import firefox_downloader as fd
 import firefox_extractor as fe
@@ -287,5 +288,8 @@ def main():
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
         return False
+
+    # from IPython import embed
+    # embed()
 
     return True

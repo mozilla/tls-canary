@@ -10,6 +10,7 @@ import subprocess
 from threading import Thread
 import time
 
+import cache
 
 logger = logging.getLogger(__name__)
 
@@ -26,21 +27,18 @@ def read_from_worker(worker, queue):
 
 
 class FirefoxRunner(object):
-    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=None, info=False, cert_dir=None):
-        self._exe_file = exe_file
-        self.work_list = Queue(maxsize=len(work_list))
+    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=10, info=False, cert_dir=None):
+        self.__exe_file = exe_file
+        self.__work_list = Queue(maxsize=len(work_list))
         for row in work_list:
-            self.work_list.put(row)
-        self.work_dir = work_dir
-        self.data_dir = data_dir
-        if num_workers is None:
-            self._num_workers = 10
-        else:
-            self._num_workers = num_workers
+            self.__work_list.put(row)
+        self.__work_dir = work_dir  # usually ~/.tlscanary
+        self.__data_dir = data_dir  # usually module directory
+        self.__num_workers = num_workers
         self.workers = []
         self.results = Queue(maxsize=len(work_list))
-        self._info = info
-        self._cert_dir = cert_dir
+        self.__info = info
+        self.__cert_dir = cert_dir
 
     def maintain_worker_queue(self):
         for worker in self.workers:
@@ -48,24 +46,24 @@ class FirefoxRunner(object):
             if ret is not None:
                 logger.debug('Worker terminated with return code %d' % ret)
                 self.workers.remove(worker)
-        while len(self.workers) < self._num_workers:
-            if self.work_list.empty():
+        while len(self.workers) < self.__num_workers:
+            if self.__work_list.empty():
                 return
-            rank, url = self.work_list.get()
+            rank, url = self.__work_list.get()
             rank_url = "%d,%s" % (rank, url)
-            cmd = [self._exe_file,
+            cmd = [self.__exe_file,
                    '-xpcshell',
-                   os.path.join(self.data_dir, "js", "scan_url.js"),
+                   os.path.join(self.__data_dir, "js", "scan_url.js"),
                    '-u=%s' % rank_url,
-                   '-d=%s' % self.data_dir]
-            if self._info:
+                   '-d=%s' % self.__data_dir]
+            if self.__info:
                 cmd.append("-j=true")
-            if self._cert_dir is not None:
-                cmd.append("-c=%s" % self._cert_dir)
+            if self.__cert_dir is not None:
+                cmd.append("-c=%s" % self.__cert_dir)
             logger.debug("Executing shell command `%s`" % ' '.join(cmd))
             worker = subprocess.Popen(
                 cmd,
-                cwd=self.data_dir,
+                cwd=self.__data_dir,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -78,7 +76,7 @@ class FirefoxRunner(object):
             logger.debug('Spawned worker, now %d in queue' % len(self.workers))
 
     def is_done(self):
-        return len(self.workers) == 0 and self.work_list.empty()
+        return len(self.workers) == 0 and self.__work_list.empty()
 
     def get_result(self):
         """Read from result queue. Returns None if empty."""
@@ -87,7 +85,7 @@ class FirefoxRunner(object):
         except Empty:
             return None
 
-    def _wait_for_remaining_workers(self, delay):
+    def __wait_for_remaining_workers(self, delay):
         kill_time = time.time() + delay
         while time.time() < kill_time:
             for worker in self.workers:
@@ -104,13 +102,13 @@ class FirefoxRunner(object):
         for worker in self.workers:
             worker.terminate()
         # Wait for 5 seconds for workers to finish
-        self._wait_for_remaining_workers(5)
+        self.__wait_for_remaining_workers(5)
 
         # Kill remaining workers
         for worker in self.workers:
             worker.kill()  # Same as .terminate() on Windows
         # Wait for 5 seconds for workers to finish
-        self._wait_for_remaining_workers(5)
+        self.__wait_for_remaining_workers(5)
 
         if len(self.workers) != 0:
             logger.warning('There are %d non-terminating workers remaining' % len(self.workers))
