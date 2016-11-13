@@ -5,15 +5,18 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
+import datetime
+from distutils import dir_util
+import json
 import logging
 import coloredlogs
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
 
-import cache
 import cleanup
 import firefox_downloader as fd
 import firefox_extractor as fe
@@ -44,6 +47,11 @@ def get_argparser():
                         type=os.path.abspath,
                         action='store',
                         default='%s/.tlscanary' % home)
+    parser.add_argument('-r', '--reportdir',
+                        help='Path to report output directory (default: cwd)',
+                        type=os.path.abspath,
+                        action='store',
+                        default=os.getcwd())
     parser.add_argument('-j', '--parallel',
                         help='Number of parallel worker instances (default: 25)',
                         type=int,
@@ -59,6 +67,10 @@ def get_argparser():
                         choices=release_choice,
                         action='store',
                         default=base_default)
+    parser.add_argument('-i', '--ipython',
+                        help='Drop into ipython shell after test run',
+                        action='store_true',
+                        default=False)
     parser.add_argument('testset',
                         metavar='TESTSET',
                         help='Test set to run. Use `list` for info. (default: `%s`)' % testset_default,
@@ -86,35 +98,6 @@ class RemoveTempDir(cleanup.CleanUp):
         if tmp_dir is not None:
             logger.debug('Removing temp dir `%s`' % tmp_dir)
             shutil.rmtree(tmp_dir, ignore_errors=True)
-
-
-def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, cert_dir=None):
-    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers, info, cert_dir)
-    run_errors = set()
-    try:
-        while True:
-            # Spawn new workers if necessary
-            runner.maintain_worker_queue()
-            # Check result queue
-            while True:
-                result = runner.get_result()
-                if result is None:
-                    break
-                logger.info("Test result: %s" % result)
-                if "error" in result and result["error"]:
-                    run_errors.add((int(result["rank"]), result["url"]))
-            # Break if all urls have been worked
-            if runner.is_done():
-                break
-
-            time.sleep(0.05)
-
-    except KeyboardInterrupt:
-        logger.critical('User abort')
-        runner.terminate_workers()
-        sys.exit(1)
-
-    return run_errors
 
 
 def get_test_candidates(args):
@@ -151,6 +134,71 @@ def get_test_candidates(args):
     logger.debug("Baseline candidate executable is `%s`" % base_exe_file)
 
     return test_extract_dir, test_exe_file, base_extract_dir, base_exe_file
+
+
+def build_data_logs(test_exe_file, base_exe_file, data_dir):
+    global logger
+    # TODO: This should be using an abstract firefox_runner
+    # echo $($test_build -xpcshell $DIR/build_data.js -log=$TEST_DIR/temp/test_build_metadata.txt)
+    # echo $($release_build -xpcshell $DIR/build_data.js -log=$TEST_DIR/temp/release_build_metadata.txt)
+
+    logger.info("Building build metadata logs")
+
+    cmd = [test_exe_file, "-xpcshell", os.path.join(data_dir, "js", "build_data.js")]
+    logger.debug("Executing shell command `%s`" % ' '.join(cmd))
+    result = subprocess.check_output(cmd, cwd=data_dir, stderr=subprocess.STDOUT)
+    logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
+    try:
+        test_metadata = json.loads(result)
+    except ValueError, error:
+        logger.error("Building test build data log failed")
+        raise error
+
+    cmd = [base_exe_file, "-xpcshell", os.path.join(data_dir, "js", "build_data.js")]
+    logger.debug("Executing shell command `%s`" % ' '.join(cmd))
+    result = subprocess.check_output(cmd, cwd=data_dir, stderr=subprocess.STDOUT)
+    logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
+    try:
+        base_metadata = json.loads(result)
+    except ValueError, error:
+        logger.error("Building base build data log failed")
+        raise error
+
+    return test_metadata, base_metadata
+
+
+def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, cert_dir=None):
+    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers, info, cert_dir)
+    run_errors = set()
+    try:
+        while True:
+            # Spawn new workers if necessary
+            runner.maintain_worker_queue()
+            # Check result queue
+            while True:
+                result = runner.get_result()
+                if result is None:
+                    break
+                logger.info("Test result: %s" % result)
+                # TODO: It is bad design to not add/return the whole result objects here
+                if "error" in result and result["error"]:
+                    if "test_obj" in result:
+                        # This is the case for runs with "info=True"
+                        run_errors.add((int(result["rank"]), result["url"], json.dumps(result["test_obj"])))
+                    else:
+                        run_errors.add((int(result["rank"]), result["url"]))
+            # Break if all urls have been worked
+            if runner.is_done():
+                break
+
+            time.sleep(0.05)
+
+    except KeyboardInterrupt:
+        logger.critical('User abort')
+        runner.terminate_workers()
+        sys.exit(1)
+
+    return run_errors
 
 
 def run_tests(args, test_exe_file, base_exe_file):
@@ -212,13 +260,9 @@ def run_tests(args, test_exe_file, base_exe_file):
 
     error_set = test_error_set.difference(base_error_set)
 
-    logger.info("Final error set is %d URLs: %s" % (len(error_set), ' '.join(["%d,%s" % (r, u) for r, u in error_set])))
+    logger.info("Error set is %d URLs: %s" % (len(error_set), ' '.join(["%d,%s" % (r, u) for r, u in error_set])))
 
-    # Extract JSON info for error set
-    logger.info("Extracting certificates for %d error URLs" % len(error_set))
-    final_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir, min(args.parallel, 10), True)
-
-    return final_error_set
+    return error_set
 
 
 def extract_certificates(args, error_set, test_exe_file):
@@ -228,16 +272,22 @@ def extract_certificates(args, error_set, test_exe_file):
 
     logger.info("Extracting certificates from %d URLs to `%s`" % (len(error_set), tmp_cert_dir))
     final_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir,
-                               min(args.parallel, 10), False, tmp_cert_dir)
+                               min(args.parallel, 10), info=True, cert_dir=tmp_cert_dir)
 
-    if final_error_set != error_set:
-        diff_set = error_set.difference(final_error_set)
+    # Final set includes additional json data, so filter that out before comparison
+    stripped_final_set = set()
+    for rank, url, _ in final_error_set:
+        stripped_final_set.add((rank, url))
+    if stripped_final_set != error_set:
+        diff_set = error_set.difference(stripped_final_set)
         logger.warning("Domains dropped out of error set: %s" % diff_set)
 
-    return tmp_cert_dir
+    return tmp_cert_dir, final_error_set
 
 
-def create_report(args, error_set, cert_dir):
+def create_report(args, start_time, test_metadata, base_metadata, error_set, cert_dir):
+    global logger, module_dir
+
     # timestamp : 2016-11-09-16-26-08
     # branch : Nightly
     # description : Fx52.0a1 nightly vs Fx49.0.2 release
@@ -248,7 +298,64 @@ def create_report(args, error_set, cert_dir):
     # release build metadata : NSS 3.25, NSPR 4.12
     # Total time : 3 minutes
     # ++++++++++
-    logger.error("Reporting not implemented. Args: %s, %s, %s" % (error_set, cert_dir, args))
+
+    # {'appVersion': '52.0a1', 'branch': 'nightly', 'nsprVersion': 'NSPR 4.13.1', 'nssVersion': 'NSS 3.28 Beta'}
+    timestamp = start_time.strftime("%F-%H-%M-%S")
+    run_dir = os.path.join(args.reportdir, "runs", timestamp)
+    logger.info("Writing report to `%s`" % run_dir)
+
+    header = {
+        "timestamp": timestamp,
+        "branch": test_metadata["branch"].capitalize(),
+        "description": "Fx%s %s vs Fx%s %s" % (test_metadata["appVersion"], test_metadata["branch"],
+                                               base_metadata["appVersion"], base_metadata["branch"]),
+        "source": args.testset,
+        "test build url": fd.FirefoxDownloader.build_urls[args.test],
+        "release build url": fd.FirefoxDownloader.build_urls[args.base],
+        "test build metadata": "%s, %s" % (test_metadata["nssVersion"], test_metadata["nsprVersion"]),
+        "release build metadata": "%s, %s" % (base_metadata["nssVersion"], base_metadata["nsprVersion"]),
+        "Total time": "%d minutes" % int(round((datetime.datetime.now() - start_time).total_seconds() / 60))
+    }
+    # TODO: Replace {platform} in build URLs
+
+    log_lines = ["%s : %s" % (k, header[k]) for k in header]
+    log_lines.append("++++++++++")
+    log_lines.append("")
+
+    for rank, url, data in error_set:
+        log_lines.append("%d,%s %s" % (rank, url, data))
+
+    # Install static template files in report directory
+    template_dir = os.path.join(module_dir, "template")
+    if not os.path.isdir(args.reportdir):
+        os.makedirs(args.reportdir)
+    dir_util.copy_tree(os.path.join(template_dir, "js"),
+                       os.path.join(args.reportdir, "js"))
+    dir_util.copy_tree(os.path.join(template_dir, "css"),
+                       os.path.join(args.reportdir, "css"))
+    shutil.copyfile(os.path.join(template_dir, "index.htm"),
+                    os.path.join(args.reportdir, "index.htm"))
+
+    # Create per-run directory for report output
+    if not os.path.isdir(run_dir):
+        os.makedirs(run_dir)
+    dir_util.copy_tree(cert_dir, os.path.join(run_dir, "certs"))
+    shutil.copyfile(os.path.join(template_dir, "report_template.htm"),
+                    os.path.join(run_dir, "index.htm"))
+
+    # Write the final log file
+    with open(os.path.join(run_dir, "log.txt"), "w") as log:
+        log.write('\n'.join(log_lines))
+
+    # Append to runs.log
+    run_log = {
+        "run": header["timestamp"],
+        "branch": header["branch"],
+        "errors": len(error_set),
+        "description": header["description"]
+    }
+    with open(os.path.join(args.reportdir, "runs", "runs.txt"), "a") as log:
+        log.write(json.dumps(run_log) + '\n')
 
 
 # This is the entry point used in setup.py
@@ -283,21 +390,34 @@ def main():
             print "  - %s [%d] %s" % (testset, len(urldb), default)
         sys.exit(1)
 
+    if args.reportdir == module_dir:
+        logger.critical("Refusing to write report to module directory. Please set --reportdir")
+        sys.exit(1)
+
     cleanup.init()
     tmp_dir = create_tempdir()
 
     try:
         test_extract_dir, test_exe_file, base_extract_dir, \
             base_exe_file = get_test_candidates(args)
+        test_metadata_log, base_metadata_log = \
+            build_data_logs(test_exe_file, base_exe_file, module_dir)
+
+        start_time = datetime.datetime.now()
         error_set = run_tests(args, test_exe_file, base_exe_file)
-        cert_dir = extract_certificates(args, error_set, test_exe_file)
-        create_report(args, error_set, cert_dir)
+        # logger.critical("FIXME: Working with static test set")
+        # error_set = set([(49182, u'psarips.com'), (257666, u'www.obsidiana.com'), (120451, u'yugiohcardmarket.eu'), (9901, u'englishforums.com'), (43694, u'www.csajokespasik.hu'), (157298, u'futuramo.com'), (1377, u'www.onlinecreditcenter6.com'), (15752, u'www.jcpcreditcard.com'), (137890, u'my.jobs'), (31862, u'samsungcsportal.com'), (40034, u'uob.com.my'), (255349, u'censusmapper.ca'), (89913, u'hslda.org'), (64349, u'www.chevrontexacocards.com'), (69037, u'www.onlinecreditcenter4.com'), (3128, u'www.synchronycredit.com'), (84681, u'ruscreditcard.com'), (241254, u'www.steinmartcredit.com'), (123888, u'saveful.com'), (230374, u'sirdatainitiative.com'), (135435, u'gearheads.in'), (97220, u'gira.de'), (85697, u'magickartenmarkt.de'), (29458, u'cxem.net'), (62059, u'www.awardslinq.com'), (32146, u'www.onlinecreditcenter2.com'), (247769, u'gmprograminfo.com'), (265649, u'piratenpartei.de'), (23525, u'vesti.lv'), (192596, u'robots-and-dragons.de'), (212740, u'www.chs.hu'), (68345, u'bandzone.cz'), (104674, u'incontrion.com'), (174612, u'patschool.com'), (80121, u'27399.com'), (114128, u'universoracionalista.org'), (100333, u'toccata.ru'), (222646, u'futuramo.net'), (14624, u'reviewmyaccount.com'), (147865, u'sherdle.com'), (40192, u'www.belkcredit.com'), (47428, u'www.wangfujing.com'), (162199, u'hikvision.ru'), (74032, u'cardoverview.com'), (22279, u'prospero.ru'), (143928, u'www.e-financas.gov.pt'), (130883, u'favoritsport.com.ua')])
+
+        cert_dir, final_error_set = extract_certificates(args, error_set, test_exe_file)
+
+        create_report(args, start_time, test_metadata_log, base_metadata_log, final_error_set, cert_dir)
 
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
         return False
 
-    # from IPython import embed
-    # embed()
+    if args.ipython:
+        from IPython import embed
+        embed()
 
     return True

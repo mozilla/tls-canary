@@ -16,16 +16,16 @@ logger = logging.getLogger(__name__)
 
 class FirefoxDownloader(object):
 
-    _base_url = 'https://download.mozilla.org/?product=firefox' \
+    __base_url = 'https://download.mozilla.org/?product=firefox' \
                 '-{release}&os={platform}&lang=en-US'
-    _build_urls = {
-        'esr':     _base_url.format(release='esr-latest', platform='{platform}'),
-        'release': _base_url.format(release='latest', platform='{platform}'),
-        'beta':    _base_url.format(release='beta-latest', platform='{platform}'),
-        'aurora':  _base_url.format(release='aurora-latest', platform='{platform}'),
-        'nightly': _base_url.format(release='nightly-latest', platform='{platform}')
+    build_urls = {
+        'esr':     __base_url.format(release='esr-latest', platform='{platform}'),
+        'release': __base_url.format(release='latest', platform='{platform}'),
+        'beta':    __base_url.format(release='beta-latest', platform='{platform}'),
+        'aurora':  __base_url.format(release='aurora-latest', platform='{platform}'),
+        'nightly': __base_url.format(release='nightly-latest', platform='{platform}')
     }
-    _platforms = {
+    __platforms = {
         'osx':     {'platform': 'osx', 'extension': 'dmg'},
         'linux':   {'platform': 'linux64', 'extension': 'tar.bz2'},
         'linux32': {'platform': 'linux', 'extension': 'tar.bz2'},
@@ -35,16 +35,16 @@ class FirefoxDownloader(object):
 
     @staticmethod
     def list():
-        build_list = FirefoxDownloader._build_urls.keys()
-        platform_list = FirefoxDownloader._platforms.keys()
+        build_list = FirefoxDownloader.build_urls.keys()
+        platform_list = FirefoxDownloader.__platforms.keys()
         test_default = "nightly"
         base_default = "release"
         assert test_default in build_list and base_default in build_list
         return build_list, platform_list, test_default, base_default
 
-    def __init__(self, workdir, cache_timeout=4*60*60):
+    def __init__(self, workdir, cache_timeout=24*60*60):
         self.__workdir = workdir
-        self.__cache = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout)
+        self.__cache = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout, purge=True)
 
     @staticmethod
     def __get_to_file(url, filename):
@@ -121,14 +121,14 @@ class FirefoxDownloader(object):
 
     def download(self, release, platform, use_cache=True):
 
-        if release not in self._build_urls:
+        if release not in self.build_urls:
             raise Exception("Failed to download unknown release `%s`" % release)
-        if platform not in self._platforms:
+        if platform not in self.__platforms:
             raise Exception("Failed to download for unknown platform `%s`" % platform)
 
-        platform = self._platforms[platform]['platform']
-        extension = self._platforms[platform]['extension']
-        url = self._build_urls[release].format(platform=platform)
+        platform = self.__platforms[platform]['platform']
+        extension = self.__platforms[platform]['extension']
+        url = self.build_urls[release].format(platform=platform)
         cache_id = 'firefox-%s_%s.%s' % (release, platform, extension)
 
         # Always delete cached file when cache function is overridden

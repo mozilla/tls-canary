@@ -11,6 +11,7 @@ __datasets = {
     'alexa10k': 'alexa_top10k_sites.csv',
     'alexa100k': 'alexa_top100k_sites.csv',
     'debug': 'debug.csv',
+    'debug2': 'debug2.csv',
     # 'google': 'google_ct_list.csv',  # disabled until cleaned
     'pulse': 'pulse_top_sites_list.csv',
     'smoke': 'smoke_list.csv',
