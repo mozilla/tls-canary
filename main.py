@@ -21,6 +21,7 @@ import cleanup
 import firefox_downloader as fd
 import firefox_extractor as fe
 import firefox_runner as fr
+import progress_bar
 import url_store as us
 
 
@@ -31,6 +32,10 @@ coloredlogs.install(level='INFO')
 
 
 def get_argparser():
+    """
+    Argument parsing
+    :return: Parsed arguments object
+    """
     home = os.path.expanduser('~')
     testset_choice, testset_default = us.URLStore.list()
     testset_choice.append('list')
@@ -85,13 +90,22 @@ tmp_dir = None
 module_dir = None
 
 
-def create_tempdir():
+def __create_tempdir():
+    """
+    Helper function for creating the temporary directory.
+    Writes to the global variable tmp_dir
+    :return: Path of temporary directory
+    """
     tmp_dir = tempfile.mkdtemp(prefix='tlscanary_')
     logger.debug('Creating temp dir `%s`' % tmp_dir)
     return tmp_dir
 
 
 class RemoveTempDir(cleanup.CleanUp):
+    """
+    Class definition for cleanup helper responsible
+    for deleting the temporary directory prior to exit.
+    """
     @staticmethod
     def at_exit():
         global tmp_dir
@@ -101,6 +115,11 @@ class RemoveTempDir(cleanup.CleanUp):
 
 
 def get_test_candidates(args):
+    """
+    Download and extract the test candidates
+    :param args: command line arguments object
+    :return: Paths to extracted directories and files
+    """
     global logger, tmp_dir
 
     if sys.platform == 'darwin':
@@ -137,10 +156,15 @@ def get_test_candidates(args):
 
 
 def build_data_logs(test_exe_file, base_exe_file, data_dir):
+    """
+    Gather info on the test candidates.
+    :param test_exe_file:
+    :param base_exe_file:
+    :param data_dir:
+    :return:
+    """
     global logger
     # TODO: This should be using an abstract firefox_runner
-    # echo $($test_build -xpcshell $DIR/build_data.js -log=$TEST_DIR/temp/test_build_metadata.txt)
-    # echo $($release_build -xpcshell $DIR/build_data.js -log=$TEST_DIR/temp/release_build_metadata.txt)
 
     logger.info("Building build metadata logs")
 
@@ -167,19 +191,36 @@ def build_data_logs(test_exe_file, base_exe_file, data_dir):
     return test_metadata, base_metadata
 
 
-def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, cert_dir=None):
+def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, cert_dir=None, progress=False):
+    global logger
+
+    number_of_urls = len(url_list)
+    urls_done = 0
     runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers, info, cert_dir)
     run_errors = set()
+
+    if progress:
+        progress = progress_bar.ProgressBar(0, number_of_urls, show_percent=True,
+                                            show_boundary=True, stats_window=60)
+        next_log_update = datetime.datetime.now() + datetime.timedelta(seconds=5)
+        next_internal_update = datetime.datetime.now()
+    else:
+        progress = None
+        next_log_update = datetime.datetime.now() + datetime.timedelta(days=1000)
+        next_internal_update = datetime.datetime.now() + datetime.timedelta(days=1000)
+
     try:
         while True:
             # Spawn new workers if necessary
             runner.maintain_worker_queue()
+
             # Check result queue
             while True:
                 result = runner.get_result()
                 if result is None:
                     break
-                logger.info("Test result: %s" % result)
+                urls_done += 1
+                logger.debug("Test result: %s" % result)
                 # TODO: It is bad design to not add/return the whole result objects here
                 if "error" in result and result["error"]:
                     if "test_obj" in result:
@@ -187,6 +228,28 @@ def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, 
                         run_errors.add((int(result["rank"]), result["url"], json.dumps(result["test_obj"])))
                     else:
                         run_errors.add((int(result["rank"]), result["url"]))
+
+            # Update progress
+            if progress is not None:
+                now = datetime.datetime.now()
+                if now >= next_internal_update:
+                    progress.set(urls_done)
+                    next_internal_update = now + datetime.timedelta(seconds=1)
+                if now >= next_log_update:
+                    overall_rate, overall_rest_time, overall_eta, \
+                        current_rate, current_rest_time, current_eta = progress.stats()
+
+                    if sys.stdout.isatty() and False:
+                        # Printing progress to terminal is currently disabled
+                        next_log_update = now + datetime.timedelta(seconds=0.5)
+                    else:
+                        logger.info("%d URLs to go. Current rate %d URLs/minute, rest time %d minutes, ETA %s" % (
+                            number_of_urls - urls_done,
+                            round(current_rate*60.0),
+                            round(current_rest_time.seconds / 60.0),
+                            current_eta.isoformat()))
+                        next_log_update = now + datetime.timedelta(seconds=60)
+
             # Break if all urls have been worked
             if runner.is_done():
                 break
@@ -218,7 +281,7 @@ def run_tests(args, test_exe_file, base_exe_file):
     # - Filter for errors from test candidate but not baseline
     logger.info("Starting first pass with %d URLs" % len(url_set))
 
-    test_error_set = run_test(test_exe_file, url_set, args.workdir, module_dir, args.parallel)
+    test_error_set = run_test(test_exe_file, url_set, args.workdir, module_dir, args.parallel, progress=True)
     logger.info("First test candidate pass yielded %d error URLs" % len(test_error_set))
     logger.debug("First test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
@@ -288,18 +351,6 @@ def extract_certificates(args, error_set, test_exe_file):
 def create_report(args, start_time, test_metadata, base_metadata, error_set, cert_dir):
     global logger, module_dir
 
-    # timestamp : 2016-11-09-16-26-08
-    # branch : Nightly
-    # description : Fx52.0a1 nightly vs Fx49.0.2 release
-    # source : Custom list
-    # test build url : https://download.mozilla.org/?product=firefox-nightly-latest&os=osx&lang=en-US
-    # release build url : https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US
-    # test build metadata : NSS 3.28 Beta, NSPR 4.13.1
-    # release build metadata : NSS 3.25, NSPR 4.12
-    # Total time : 3 minutes
-    # ++++++++++
-
-    # {'appVersion': '52.0a1', 'branch': 'nightly', 'nsprVersion': 'NSPR 4.13.1', 'nssVersion': 'NSS 3.28 Beta'}
     timestamp = start_time.strftime("%F-%H-%M-%S")
     run_dir = os.path.join(args.reportdir, "runs", timestamp)
     logger.info("Writing report to `%s`" % run_dir)
@@ -395,7 +446,7 @@ def main():
         sys.exit(1)
 
     cleanup.init()
-    tmp_dir = create_tempdir()
+    tmp_dir = __create_tempdir()
 
     try:
         test_extract_dir, test_exe_file, base_extract_dir, \

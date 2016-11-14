@@ -42,6 +42,9 @@ def __osx_unmount_dmg(mount_point):
 
 
 def __osx_extract(archive_file, tmp_dir):
+    global logger
+
+    logger.info("Extracting archive")
     extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
     mount_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='mount_')
     logger.debug('Mounting image `%s` at mount point `%s`' % (archive_file, mount_dir))
@@ -59,13 +62,14 @@ def __osx_extract(archive_file, tmp_dir):
         app_ini = ConfigParser.SafeConfigParser()
         app_ini.read(os.path.join(mount_dir, app_folder_name, "Contents", "Resources", "application.ini"))
         app_version = app_ini.get("App", "Version")
-        logger.info("Extracted Firefox version is %s" % app_version)
 
         # Copy everything over
         if os.path.exists(extract_dir):
             shutil.rmtree(extract_dir)
         logger.debug('Copying files from mount point `%s` to `%s`' % (mount_dir, extract_dir))
         shutil.copytree(mount_dir, extract_dir, symlinks=True)
+
+        logger.info("Extracted Firefox version is %s" % app_version)
 
     except Exception, err:
         logger.error('Error detected while extracting image. Detaching image from mount point `%s`' % mount_dir)

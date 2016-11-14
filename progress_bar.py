@@ -4,6 +4,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import datetime
+
+
 class ProgressBar(object):
     """A neat progress bar for the terminal"""
 
@@ -12,15 +15,18 @@ class ProgressBar(object):
     _boundary_r = u'|'
 
     def __init__(self, min_value, max_value, outer_width=50,
-                 show_percent=False, show_boundary=False):
-        self._min = min_value
-        self._max = max_value
+                 show_percent=False, show_boundary=False, stats_window=0):
+        self._min = float(min_value)
+        self._max = float(max_value)
         self._diff = self._max - self._min
         self._value = self._min
         self._outer_width = outer_width
         self._show_percent = show_percent
         self._show_boundary = show_boundary
         self._bar_width = self._outer_width
+        self._stats_window = stats_window
+        self._stats = []
+        self._start_time = None
         if show_percent:
             self._bar_width -= 5
         if show_boundary:
@@ -30,7 +36,52 @@ class ProgressBar(object):
 
     def set(self, value):
         """Set the current value. Will be limited to [min, max]"""
-        self._value = max(self._min, min(self._max, value))
+        self._value = float(max(self._min, min(self._max, value)))
+        if self._start_time is None:
+            self._start_time = datetime.datetime.now()
+        if self._stats_window > 0:
+            self._stats.append((datetime.datetime.now(), self._value))
+            if len(self._stats) > self._stats_window:
+                self._stats = self._stats[-self._stats_window:]
+
+    def stats(self):
+        """Return a list of runtime statistics"""
+
+        past = datetime.datetime.now() - datetime.timedelta(1)
+        if len(self._stats) < 2:
+            return 0., datetime.timedelta(0), past, 0., datetime.timedelta(0), past
+
+        relative_done = (self._value - self._min) / self._diff
+        relative_todo = 1.0 - relative_done
+
+        # Calculate rate and ETA relative to overall progress
+        try:
+            latest_update_time, _ = self._stats[-1]
+            elapsed_time = latest_update_time - self._start_time
+            overall_rate = relative_done / elapsed_time.seconds
+            overall_rest_time = datetime.timedelta(seconds=(relative_todo / overall_rate))
+            overall_eta = latest_update_time + overall_rest_time
+        except ZeroDivisionError:
+            # If rate was zero
+            overall_rest_time = datetime.timedelta(0)
+            overall_eta = past
+
+        # Calculate rate and ETA relative to current progress
+        try:
+            window_start_time, window_start_value = self._stats[0]
+            window_end_time, window_end_value = self._stats[-1]
+            window_elapsed_time = window_end_time - window_start_time
+            window_done = (window_end_value - window_start_value) / self._diff
+            current_rate = window_done / window_elapsed_time.seconds
+            current_rest_time = datetime.timedelta(seconds=(relative_todo / current_rate))
+            current_eta = window_end_time + current_rest_time
+        except ZeroDivisionError:
+            # If rate was zero
+            current_rest_time = datetime.timedelta(0)
+            current_eta = past
+
+        return overall_rate * self._diff, overall_rest_time, overall_eta, \
+            current_rate * self._diff, current_rest_time, current_eta
 
     def _draw_bar(self):
         """Helper function that returns the bare bar as a string"""
@@ -61,8 +112,8 @@ class ProgressBar(object):
         # bar = map(lambda state: self._box[state], bar)
 
         # This is an equivalent but about twice as efficient one-liner:
-        bar = [self._box[max(0, min(n_box_states, bar_value - n_box_states * i))] \
-                for i in xrange(0, n_boxes)]
+        bar = [self._box[max(0, min(n_box_states, bar_value - n_box_states * i))]
+               for i in xrange(0, n_boxes)]
 
         return u''.join(bar)
 
