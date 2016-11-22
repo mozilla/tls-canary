@@ -118,7 +118,7 @@ def get_test_candidates(args):
     """
     Download and extract the test candidates
     :param args: command line arguments object
-    :return: Paths to extracted directories and files
+    :return: two FirefoxApp objects for test and base candidate
     """
     global logger, tmp_dir
 
@@ -141,29 +141,25 @@ def get_test_candidates(args):
     if test_archive_file is None:
         sys.exit(-1)
     # Extract test candidate archive
-    test_extract_dir, test_exe_file = fe.extract(platform, test_archive_file, tmp_dir)
-    if test_exe_file is None:
-        sys.exit(-1)
-    logger.debug("Test candidate executable is `%s`" % test_exe_file)
+    test_app = fe.extract(platform, test_archive_file, tmp_dir)
+    logger.debug("Test candidate executable is `%s`" % test_app.exe)
 
     # Download baseline candidate
     base_archive_file = fdl.download(args.base, platform)
     if base_archive_file is None:
         sys.exit(-1)
     # Extract baseline candidate archive
-    base_extract_dir, base_exe_file = fe.extract(platform, base_archive_file, tmp_dir)
-    if base_exe_file is None:
-        sys.exit(-1)
-    logger.debug("Baseline candidate executable is `%s`" % base_exe_file)
+    base_app = fe.extract(platform, base_archive_file, tmp_dir)
+    logger.debug("Baseline candidate executable is `%s`" % base_app.exe)
 
-    return test_extract_dir, test_exe_file, base_extract_dir, base_exe_file
+    return test_app, base_app
 
 
-def build_data_logs(test_exe_file, base_exe_file, data_dir):
+def build_data_logs(test_app, base_app, data_dir):
     """
     Gather info on the test candidates.
-    :param test_exe_file:
-    :param base_exe_file:
+    :param test_app:
+    :param base_app:
     :param data_dir:
     :return:
     """
@@ -172,7 +168,7 @@ def build_data_logs(test_exe_file, base_exe_file, data_dir):
 
     logger.info("Building build metadata logs")
 
-    cmd = [test_exe_file, "-xpcshell", os.path.join(data_dir, "js", "build_data.js")]
+    cmd = [test_app.exe, "-xpcshell", os.path.join(data_dir, "js", "build_data.js")]
     logger.debug("Executing shell command `%s`" % ' '.join(cmd))
     result = subprocess.check_output(cmd, cwd=data_dir, stderr=subprocess.STDOUT)
     logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
@@ -182,7 +178,7 @@ def build_data_logs(test_exe_file, base_exe_file, data_dir):
         logger.error("Building test build data log failed")
         raise error
 
-    cmd = [base_exe_file, "-xpcshell", os.path.join(data_dir, "js", "build_data.js")]
+    cmd = [base_app.exe, "-xpcshell", os.path.join(data_dir, "js", "build_data.js")]
     logger.debug("Executing shell command `%s`" % ' '.join(cmd))
     result = subprocess.check_output(cmd, cwd=data_dir, stderr=subprocess.STDOUT)
     logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
@@ -195,12 +191,12 @@ def build_data_logs(test_exe_file, base_exe_file, data_dir):
     return test_metadata, base_metadata
 
 
-def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, cert_dir=None, progress=False):
+def run_test(app, url_list, work_dir, module_dir, num_workers, info=False, cert_dir=None, progress=False):
     global logger
 
     number_of_urls = len(url_list)
     urls_done = 0
-    runner = fr.FirefoxRunner(exe_file, url_list, work_dir, module_dir, num_workers, info, cert_dir)
+    runner = fr.FirefoxRunner(app, url_list, work_dir, module_dir, num_workers, info, cert_dir)
     run_errors = set()
 
     if progress:
@@ -268,7 +264,7 @@ def run_test(exe_file, url_list, work_dir, module_dir, num_workers, info=False, 
     return run_errors
 
 
-def run_tests(args, test_exe_file, base_exe_file):
+def run_tests(args, test_app, base_app):
     global logger, tmp_dir, module_dir
     sources_dir = os.path.join(module_dir, 'sources')
 
@@ -285,11 +281,11 @@ def run_tests(args, test_exe_file, base_exe_file):
     # - Filter for errors from test candidate but not baseline
     logger.info("Starting first pass with %d URLs" % len(url_set))
 
-    test_error_set = run_test(test_exe_file, url_set, args.workdir, module_dir, args.parallel, progress=True)
+    test_error_set = run_test(test_app, url_set, args.workdir, module_dir, args.parallel, progress=True)
     logger.info("First test candidate pass yielded %d error URLs" % len(test_error_set))
     logger.debug("First test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-    base_error_set = run_test(base_exe_file, test_error_set, args.workdir, module_dir, args.parallel)
+    base_error_set = run_test(base_app, test_error_set, args.workdir, module_dir, args.parallel)
     logger.info("First baseline candidate pass yielded %d error URLs" % len(base_error_set))
     logger.debug("First baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
 
@@ -301,11 +297,11 @@ def run_tests(args, test_exe_file, base_exe_file):
     # - Filter for errors from test candidate but not baseline
     logger.info("Starting second pass with %d URLs" % len(error_set))
 
-    test_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir, args.parallel)
+    test_error_set = run_test(test_app, error_set, args.workdir, module_dir, args.parallel)
     logger.info("Second test candidate pass yielded %d error URLs" % len(test_error_set))
     logger.debug("Second test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-    base_error_set = run_test(base_exe_file, test_error_set, args.workdir, module_dir, args.parallel)
+    base_error_set = run_test(base_app, test_error_set, args.workdir, module_dir, args.parallel)
     logger.info("Second baseline candidate pass yielded %d error URLs" % len(base_error_set))
     logger.debug("Second baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
 
@@ -317,11 +313,11 @@ def run_tests(args, test_exe_file, base_exe_file):
     # - Filter for errors from test candidate but not baseline
     logger.info("Starting third pass with %d URLs" % len(error_set))
 
-    test_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir, min(args.parallel, 10))
+    test_error_set = run_test(test_app, error_set, args.workdir, module_dir, min(args.parallel, 10))
     logger.info("Third test candidate pass yielded %d error URLs" % len(test_error_set))
     logger.debug("Third test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-    base_error_set = run_test(base_exe_file, test_error_set, args.workdir, module_dir, min(args.parallel, 10))
+    base_error_set = run_test(base_app, test_error_set, args.workdir, module_dir, min(args.parallel, 10))
     logger.info("Third baseline candidate pass yielded %d error URLs" % len(base_error_set))
     logger.debug("Third baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
 
@@ -332,13 +328,13 @@ def run_tests(args, test_exe_file, base_exe_file):
     return error_set
 
 
-def extract_certificates(args, error_set, test_exe_file):
+def extract_certificates(args, error_set, app):
     global logger, tmp_dir, module_dir
     tmp_cert_dir = os.path.join(tmp_dir, "certs")
     os.mkdir(tmp_cert_dir)
 
     logger.info("Extracting certificates from %d URLs to `%s`" % (len(error_set), tmp_cert_dir))
-    final_error_set = run_test(test_exe_file, error_set, args.workdir, module_dir,
+    final_error_set = run_test(app, error_set, args.workdir, module_dir,
                                min(args.parallel, 10), info=True, cert_dir=tmp_cert_dir)
 
     # Final set includes additional json data, so filter that out before comparison
@@ -465,17 +461,16 @@ def main():
     tmp_dir = __create_tempdir()
 
     try:
-        test_extract_dir, test_exe_file, base_extract_dir, \
-            base_exe_file = get_test_candidates(args)
+        test_app, base_app = get_test_candidates(args)
         test_metadata_log, base_metadata_log = \
-            build_data_logs(test_exe_file, base_exe_file, module_dir)
+            build_data_logs(test_app, base_app, module_dir)
 
         start_time = datetime.datetime.now()
-        error_set = run_tests(args, test_exe_file, base_exe_file)
+        error_set = run_tests(args, test_app, base_app)
         # logger.critical("FIXME: Working with static test set")
         # error_set = set([(49182, u'psarips.com'), (257666, u'www.obsidiana.com'), (120451, u'yugiohcardmarket.eu'), (9901, u'englishforums.com'), (43694, u'www.csajokespasik.hu'), (157298, u'futuramo.com'), (1377, u'www.onlinecreditcenter6.com'), (15752, u'www.jcpcreditcard.com'), (137890, u'my.jobs'), (31862, u'samsungcsportal.com'), (40034, u'uob.com.my'), (255349, u'censusmapper.ca'), (89913, u'hslda.org'), (64349, u'www.chevrontexacocards.com'), (69037, u'www.onlinecreditcenter4.com'), (3128, u'www.synchronycredit.com'), (84681, u'ruscreditcard.com'), (241254, u'www.steinmartcredit.com'), (123888, u'saveful.com'), (230374, u'sirdatainitiative.com'), (135435, u'gearheads.in'), (97220, u'gira.de'), (85697, u'magickartenmarkt.de'), (29458, u'cxem.net'), (62059, u'www.awardslinq.com'), (32146, u'www.onlinecreditcenter2.com'), (247769, u'gmprograminfo.com'), (265649, u'piratenpartei.de'), (23525, u'vesti.lv'), (192596, u'robots-and-dragons.de'), (212740, u'www.chs.hu'), (68345, u'bandzone.cz'), (104674, u'incontrion.com'), (174612, u'patschool.com'), (80121, u'27399.com'), (114128, u'universoracionalista.org'), (100333, u'toccata.ru'), (222646, u'futuramo.net'), (14624, u'reviewmyaccount.com'), (147865, u'sherdle.com'), (40192, u'www.belkcredit.com'), (47428, u'www.wangfujing.com'), (162199, u'hikvision.ru'), (74032, u'cardoverview.com'), (22279, u'prospero.ru'), (143928, u'www.e-financas.gov.pt'), (130883, u'favoritsport.com.ua')])
 
-        cert_dir, final_error_set = extract_certificates(args, error_set, test_exe_file)
+        cert_dir, final_error_set = extract_certificates(args, error_set, test_app)
 
         create_report(args, start_time, test_metadata_log, base_metadata_log, final_error_set, cert_dir)
 

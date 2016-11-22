@@ -39,7 +39,6 @@ class FirefoxDownloader(object):
         platform_list = FirefoxDownloader.__platforms.keys()
         test_default = "nightly"
         base_default = "release"
-        assert test_default in build_list and base_default in build_list
         return build_list, platform_list, test_default, base_default
 
     def __init__(self, workdir, cache_timeout=24*60*60):
@@ -126,10 +125,10 @@ class FirefoxDownloader(object):
         if platform not in self.__platforms:
             raise Exception("Failed to download for unknown platform `%s`" % platform)
 
-        target = self.__platforms[platform]['platform']
+        download_platform = self.__platforms[platform]['platform']
         extension = self.__platforms[platform]['extension']
-        url = self.build_urls[release].format(platform=target)
-        cache_id = 'firefox-%s_%s.%s' % (release, target, extension)
+        url = self.build_urls[release].format(platform=download_platform)
+        cache_id = 'firefox-%s_%s.%s' % (release, download_platform, extension)
 
         # Always delete cached file when cache function is overridden
         if cache_id in self.__cache and not use_cache:

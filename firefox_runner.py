@@ -28,8 +28,8 @@ def read_from_worker(worker, queue):
 
 
 class FirefoxRunner(object):
-    def __init__(self, exe_file, work_list, work_dir, data_dir, num_workers=10, info=False, cert_dir=None):
-        self.__exe_file = exe_file
+    def __init__(self, app, work_list, work_dir, data_dir, num_workers=10, info=False, cert_dir=None):
+        self.__exe_file = app.exe
         self.__work_list = Queue(maxsize=len(work_list))
         for row in work_list:
             self.__work_list.put(row)
