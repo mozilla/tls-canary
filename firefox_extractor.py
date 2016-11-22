@@ -12,6 +12,7 @@ import sys
 import cache
 from firefox_app import FirefoxApp
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +63,7 @@ def extract(archive_file, workdir, cache_timeout=24*60*60, use_cache=True):
             except subprocess.CalledProcessError as e:
                 logger.error("7zip failed: %s" % repr(e.output))
                 raise Exception("Unable to extract inner Firefox archive")
-            logger.debug("7zip succeeded at sencond pass: %s" % repr(output))
+            logger.debug("7zip succeeded at second pass: %s" % repr(output))
             os.remove(inner_tar)
 
     app = FirefoxApp(cache_dir)

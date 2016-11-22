@@ -4,6 +4,7 @@
 
 import atexit
 import signal
+import sys
 
 
 __cleanup_done = False
@@ -20,7 +21,9 @@ def init():
     # Will be OS-specific, see https://docs.python.org/2/library/signal.html
     atexit.register(cleanup_handler)
     signal.signal(signal.SIGTERM, cleanup_handler)
-    signal.signal(signal.SIGHUP, cleanup_handler)
+    if sys.platform == "darwin" or "linux" in sys.platform:
+        # SIGHUP is not available on Windows
+        signal.signal(signal.SIGHUP, cleanup_handler)
 
 
 def cleanup_handler():

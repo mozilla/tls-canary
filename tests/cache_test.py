@@ -5,35 +5,14 @@
 from math import floor
 from nose.tools import *
 import os
-import shutil
-import tempfile
 from time import sleep, time
 
 import cache
+import tests
 
 
-test_dir = os.path.split(__file__)[0]
-tmp_dir = None
-
-
-def test_setup():
-    """set up test fixtures"""
-    global tmp_dir
-    tmp_dir = tempfile.mkdtemp(prefix="tlscanarytest_")
-
-
-def test_teardown():
-    """tear down test fixtures"""
-    global tmp_dir
-    if tmp_dir is not None:
-        shutil.rmtree(tmp_dir, ignore_errors=True)
-        tmp_dir = None
-
-
-@with_setup(test_setup, test_teardown)
 def test_cache_instance():
     """Comprehensive cache test suite"""
-    global tmp_dir
 
     # CAVE: Some file systems (HFS+, ext3, ...) only provide timestamps with 1.0 second resolution.
     # This affects testing accuracy when working with `maximum_age` in the range of a second.
@@ -42,7 +21,7 @@ def test_cache_instance():
     while t - floor(t) >= 0.01:
         t = time()
 
-    cache_root_dir = os.path.join(tmp_dir, "test_cache")
+    cache_root_dir = os.path.join(tests.tmp_dir, "test_cache")
     dc = cache.DiskCache(cache_root_dir, maximum_age=1, purge=False)
 
     assert_true(os.path.isdir(cache_root_dir), "cache creates directory")

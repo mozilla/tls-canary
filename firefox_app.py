@@ -16,18 +16,21 @@ class FirefoxApp(object):
             "base": os.path.join("*", "Firefox*.app"),
             "exe": os.path.join("Contents", "MacOS", "firefox"),
             "browser": os.path.join("Contents", "Resources", "browser"),
+            "gredir": os.path.join("Contents", "Resources"),
             "ini": os.path.join("Contents", "Resources", "application.ini"),
         },
         "linux": {
             "base": "firefox",
             "exe": "firefox",
             "browser": "browser",
+            "gredir": "",
             "ini": "application.ini",
         },
         "win": {
             "base": "core",
             "exe": "firefox.exe",
             "browser": "browser",
+            "gredir": "",  # FIXME: this may be wrong
             "ini": "application.ini",
         },
     }
@@ -43,7 +46,7 @@ class FirefoxApp(object):
             matches = glob.glob(os.path.join(directory, base))
             if len(matches) == 0:
                 continue
-            elif len(matches) == 1:
+            elif len(matches) >= 1:
                 if os.path.isdir(matches[0]):
                     self.platform = platform
                     self.app_dir = matches[0]
@@ -56,6 +59,7 @@ class FirefoxApp(object):
         # Fill in the rest of the package locations
         self.exe = os.path.join(self.app_dir, self.__locations[self.platform]["exe"])
         self.browser = os.path.join(self.app_dir, self.__locations[self.platform]["browser"])
+        self.gredir = os.path.join(self.app_dir, self.__locations[self.platform]["gredir"])
         self.app_ini = os.path.join(self.app_dir, self.__locations[self.platform]["ini"])
 
         # Sanity checks

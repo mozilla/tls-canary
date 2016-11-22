@@ -7,6 +7,7 @@ import os
 from shutil import rmtree
 from time import time
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,7 +19,7 @@ class DiskCache(object):
         self.__maximum_age = maximum_age
         if not os.path.exists(self.__root):
             logger.debug('Creating cache directory %s' % self.__root)
-            os.mkdir(self.__root)  # Assumes existing root workdir
+            os.makedirs(self.__root)
         if purge:
             self.purge()
 
