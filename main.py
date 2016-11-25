@@ -351,6 +351,11 @@ def extract_certificates(args, error_set, test_exe_file):
 def create_report(args, start_time, test_metadata, base_metadata, error_set, cert_dir):
     global logger, module_dir
 
+    # Create report directory if necessary.
+    if not os.path.exists(args.reportdir):
+        logger.debug('Creating report directory %s' % args.reportdir)
+        os.makedirs(args.reportdir)
+
     timestamp = start_time.strftime("%F-%H-%M-%S")
     run_dir = os.path.join(args.reportdir, "runs", timestamp)
     logger.info("Writing report to `%s`" % run_dir)
@@ -378,8 +383,6 @@ def create_report(args, start_time, test_metadata, base_metadata, error_set, cer
 
     # Install static template files in report directory
     template_dir = os.path.join(module_dir, "template")
-    if not os.path.isdir(args.reportdir):
-        os.makedirs(args.reportdir)
     dir_util.copy_tree(os.path.join(template_dir, "js"),
                        os.path.join(args.reportdir, "js"))
     dir_util.copy_tree(os.path.join(template_dir, "css"),
@@ -441,6 +444,15 @@ def main():
             print "  - %s [%d] %s" % (testset, len(urldb), default)
         sys.exit(1)
 
+    # Create workdir (usually ~/.tlscanary, used for caching etc.)
+    # Assumes that no previous code must write to it.
+    if not os.path.exists(args.workdir):
+        logger.debug('Creating working directory %s' % args.workdir)
+        os.makedirs(args.workdir)
+
+    # All code paths after this will generate a report, so check
+    # whether the report dir is a valid target. Specifically, prevent
+    # writing to the module directory.
     if args.reportdir == module_dir:
         logger.critical("Refusing to write report to module directory. Please set --reportdir")
         sys.exit(1)

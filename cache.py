@@ -18,7 +18,7 @@ class DiskCache(object):
         self.__maximum_age = maximum_age
         if not os.path.exists(self.__root):
             logger.debug('Creating cache directory %s' % self.__root)
-            os.mkdir(self.__root)
+            os.mkdir(self.__root)  # Assumes existing root workdir
         if purge:
             self.purge()
 
