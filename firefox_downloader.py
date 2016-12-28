@@ -126,6 +126,8 @@ class FirefoxDownloader(object):
         if platform not in self.__platforms:
             raise Exception("Failed to download for unknown platform `%s`" % platform)
 
+        logger.info ("Release %s, platform %s" % (release,platform))
+
         platform = self.__platforms[platform]['platform']
         extension = self.__platforms[platform]['extension']
         url = self.build_urls[release].format(platform=platform)
