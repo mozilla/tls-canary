@@ -99,7 +99,7 @@ def __linux_extract(archive_file, tmp_dir):
     logger.debug('Unzipping archive `%s`' % (archive_file))
     #__osx_mount_dmg(archive_file, mount_dir)
 
-    logger.info ("Got file: %s" %s (archive_file))
+    logger.info ("Got file: %s" % (archive_file))
 
     cmd = ["bzip2 -d %s" % archive_file]
     logger.debug("Executing shell command `%s`" % ' '.join(cmd))
