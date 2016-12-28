@@ -155,6 +155,6 @@ def extract(platform, archive_file, tmp_dir):
     else:
         logger.error('New platform for extractor: %s' % platform)
         extract_dir, exe_file = __linux_extract(archive_file, tmp_dir)
-        #extract_dir = None
-        #exe_file = None
+        extract_dir = ''
+        exe_file = ''
     return extract_dir, exe_file
