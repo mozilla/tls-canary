@@ -111,9 +111,9 @@ def __linux_extract(archive_file, tmp_dir):
     cmd = "tar -xf %s" % tar_file
     logger.info("Executing shell command `%s`" % cmd)
     subprocess.check_call(cmd, shell=True)
-    
+
     # exit
-    sys.exit(5)
+    #sys.exit(5)
 
 
     #try:
