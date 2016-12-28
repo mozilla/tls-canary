@@ -27,7 +27,7 @@ class FirefoxDownloader(object):
     }
     __platforms = {
         'osx':     {'platform': 'osx', 'extension': 'dmg'},
-        'linux':   {'platform': 'linux64', 'extension': 'tar.bz2'},
+        'linux':   {'platform': 'linux', 'extension': 'tar.bz2'},
         'linux32': {'platform': 'linux', 'extension': 'tar.bz2'},
         'win':     {'platform': 'win64', 'extension': 'exe'},
         'win32':   {'platform': 'win', 'extension': 'exe'}
