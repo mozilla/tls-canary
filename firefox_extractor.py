@@ -106,8 +106,13 @@ def __linux_extract(archive_file, tmp_dir):
     subprocess.check_call(cmd, shell=True)
     #logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
 
+    tar_file = archive_file.replace('.bz2', '')
+
+    cmd = "tar -xf %s" % tar_file
+    logger.info("Executing shell command `%s`" % cmd)
+    subprocess.check_call(cmd, shell=True)
+    
     # exit
-    logger.info ("We're on Linux, we've downloaded something and now we end.")
     sys.exit(5)
 
 
