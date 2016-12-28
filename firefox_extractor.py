@@ -101,8 +101,8 @@ def __linux_extract(archive_file, tmp_dir):
 
     cmd = ["bzip2 -d %s" % archive_file]
     logger.debug("Executing shell command `%s`" % ' '.join(cmd))
-    result = subprocess.check_output(cmd, cwd=data_dir, stderr=subprocess.STDOUT)
-    logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
+    result = subprocess.call(cmd)
+    #logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
 
     # exit
     logger.info ("We're on Linux, we've downloaded something and now we end.")
