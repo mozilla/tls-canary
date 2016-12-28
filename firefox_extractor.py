@@ -90,11 +90,71 @@ def __osx_extract(archive_file, tmp_dir):
     return extract_dir, exe_file
 
 
+def __linux_extract(archive_file, tmp_dir):
+    global logger
+
+    logger.info("Extracting archive")
+    extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
+    #mount_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='mount_')
+    #logger.debug('Unzipping archive `%s`' % (archive_file))
+    #__osx_mount_dmg(archive_file, mount_dir)
+
+    cmd = ["bzip2 -d %s" % archive_file]
+    logger.debug("Executing shell command `%s`" % ' '.join(cmd))
+    result = subprocess.check_output(cmd, cwd=data_dir, stderr=subprocess.STDOUT)
+    logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
+
+    # exit
+    logger.info ("We're on Linux, we've downloaded something and now we end.")
+    sys.exit(5)
+
+
+    try:
+        # Determine app subfolder
+        # TODO: Handle potentially empty glob list
+        app_folder_glob = glob.glob(os.path.join(mount_dir, '*.app'))
+        if len(app_folder_glob) != 1:
+            raise Exception("Can't determine Firefox app folder name in DMG")
+        app_folder_name = os.path.basename(app_folder_glob[0])
+
+        # Determine Firefox version
+        app_ini = ConfigParser.SafeConfigParser()
+        app_ini.read(os.path.join(mount_dir, app_folder_name, "Contents", "Resources", "application.ini"))
+        app_version = app_ini.get("App", "Version")
+
+        # Copy everything over
+        if os.path.exists(extract_dir):
+            shutil.rmtree(extract_dir)
+        logger.debug('Copying files from mount point `%s` to `%s`' % (mount_dir, extract_dir))
+        shutil.copytree(mount_dir, extract_dir, symlinks=True)
+
+        logger.info("Extracted Firefox version is %s" % app_version)
+
+    #except Exception, err:
+     #   logger.error('Error detected while extracting image. Detaching image from mount point `%s`' % mount_dir)
+     #   __osx_unmount_dmg(mount_dir)
+     #   raise err
+
+    #except KeyboardInterrupt, err:
+     #   logger.error('User abort. Detaching image from mount point `%s`' % mount_dir)
+     #   __osx_unmount_dmg(mount_dir)
+     #   raise err
+
+    #logger.debug('Detaching image from mount point `%s`' % mount_dir)
+    #__osx_unmount_dmg(mount_dir)
+
+    exe_file = os.path.join(extract_dir, app_folder_name, "Contents", "MacOS", "firefox")
+    if not os.path.isfile(exe_file):
+        exe_file = None
+    return extract_dir, exe_file
+
+
 def extract(platform, archive_file, tmp_dir):
     if platform == 'osx':
         extract_dir, exe_file = __osx_extract(archive_file, tmp_dir)
     else:
-        logger.error('Unsupported platform for extractor: %s' % platform)
-        extract_dir = None
-        exe_file = None
+        logger.error('New platform for extractor: %s' % platform)
+        extract_dir, exe_file = __linux_extract(archive_file, tmp_dir)
+        #extract_dir = None
+        #exe_file = None
     return extract_dir, exe_file
