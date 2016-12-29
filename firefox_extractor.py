@@ -95,7 +95,7 @@ def __linux_extract(archive_file, tmp_dir):
     global logger
 
     logger.info("Extracting archive")
-    extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
+    #extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
     #mount_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='mount_')
     logger.debug('Unzipping archive `%s`' % (archive_file))
 
@@ -104,14 +104,16 @@ def __linux_extract(archive_file, tmp_dir):
     logger.info("Executing shell command `%s`" % cmd)
     dir = subprocess.check_output(cmd, shell=True)
 
-    cmd = "tar -xf %s -C %s" % (archive_file, extract_dir)
+    app_dir_name = archive_file.split("/").pop().replace("tar.bz2","");
+    extract_dir = "%s/%s" % (dir,app_dir_name)
+
+    cmd = "tar -xf %s -C %s" % (extract_dir)
     subprocess.check_call(cmd, shell=True)
 
-
-    app_dir = archive_file.split("/").pop().replace("tar.bz2","");
+    exe_file = "%s/firefox-bin" % extract_dir
 
     logger.info ("Extract: %s " % extract_dir)
-    logger.info ("App folder name: %s " % app_dir)
+    logger.info ("exe file: %s " % exe_file)
 
     #exe_file = "%s/%s/firefox-bin"
 
