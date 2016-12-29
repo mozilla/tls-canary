@@ -124,10 +124,13 @@ def get_test_candidates(args):
 
     if sys.platform == 'darwin':
         platform = 'osx'
+    elif 'linux' in sys.platform:
+        platform = 'linux'
     else:
         logger.error('Unsupported platform: %s' % sys.platform)
-        sys.exit(5)
-    logger.info('Detected platform: %s' % platform)
+        sys.exit(5)  
+
+    logger.debug('Detected platform: %s' % platform)
 
     # Download and extract Firefox archives
     fdl = fd.FirefoxDownloader(args.workdir, cache_timeout=1*60*60)

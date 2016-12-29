@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -90,11 +91,32 @@ def __osx_extract(archive_file, tmp_dir):
     return extract_dir, exe_file
 
 
+def __linux_extract(archive_file, tmp_dir):
+    global logger
+
+    extract_dir_parent = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
+    logger.debug('Unzipping archive `%s`' % (archive_file))
+
+    app_dir_name = archive_file.split("/").pop().replace(".tar.bz2","");
+    extract_dir = "%s/%s" % (extract_dir_parent,app_dir_name)
+
+    cmd = "mkdir %s" % extract_dir
+    subprocess.check_output(cmd, shell=True)
+
+    cmd = "tar -xf %s -C %s" % (archive_file,extract_dir)
+    subprocess.check_output(cmd, shell=True)
+
+    exe_file = "%s/firefox/firefox-bin" % extract_dir
+
+    return extract_dir, exe_file
+
+
 def extract(platform, archive_file, tmp_dir):
     if platform == 'osx':
         extract_dir, exe_file = __osx_extract(archive_file, tmp_dir)
+    elif platform == 'linux':
+        extract_dir, exe_file = __linux_extract(archive_file, tmp_dir)
     else:
-        logger.error('Unsupported platform for extractor: %s' % platform)
         extract_dir = None
         exe_file = None
     return extract_dir, exe_file
