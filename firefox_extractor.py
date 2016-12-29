@@ -102,13 +102,13 @@ def __linux_extract(archive_file, tmp_dir):
 
     cmd = "dirname %s" % archive_file
     logger.info("Executing shell command `%s`" % cmd)
-    dir = subprocess.check_output(cmd, shell=True)
+    dir = subprocess.check_output(cmd, shell=True).strip().replace('\n', '')
 
     app_dir_name = archive_file.split("/").pop().replace(".tar.bz2","");
     extract_dir = "%s/%s" % (dir,app_dir_name)
 
     # DEBUG
-    logger.info ("app_dir_name %s" % app_dir_name)
+    logger.info ("extract_dir %s" % extract_dir)
 
     subprocess.check_output("mkdir %s" % extract_dir)
 
