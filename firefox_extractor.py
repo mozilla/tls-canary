@@ -107,7 +107,7 @@ def __linux_extract(archive_file, tmp_dir):
     app_dir_name = archive_file.split("/").pop().replace("tar.bz2","");
     extract_dir = "%s/%s" % (dir,app_dir_name)
 
-    cmd = "tar -xf %s -C %s" % (extract_dir)
+    cmd = "tar -xf %s -C %s" % (archive_file,extract_dir)
     subprocess.check_call(cmd, shell=True)
 
     exe_file = "%s/firefox-bin" % extract_dir
