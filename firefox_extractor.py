@@ -116,7 +116,7 @@ def __linux_extract(archive_file, tmp_dir):
     cmd = "tar -xf %s -C %s" % (archive_file,extract_dir)
     subprocess.check_output(cmd, shell=True)
 
-    exe_file = "%s/firefox-bin" % extract_dir
+    exe_file = "%s/firefox/firefox-bin" % extract_dir
 
     logger.info ("exe file: %s " % exe_file)
 
