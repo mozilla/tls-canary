@@ -109,10 +109,9 @@ def __linux_extract(archive_file, tmp_dir):
 
     tar_file = archive_file.replace('.bz2', '')
 
-    cmd = "tar -xf %s" % tar_file
+    cmd = "tar -xf %s -C ." % tar_file
     logger.info("Executing shell command `%s`" % cmd)
     result = subprocess.check_output(cmd, shell=True)
-    logger.info("Command returned %s" % result.strip().replace('\n', ' '))
     # exit
     sys.exit(5)
 
