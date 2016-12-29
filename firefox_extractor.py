@@ -107,6 +107,9 @@ def __linux_extract(archive_file, tmp_dir):
     app_dir_name = archive_file.split("/").pop().replace(".tar.bz2","");
     extract_dir = "%s/%s" % (dir,app_dir_name)
 
+    # DEBUG
+    logger.info ("Mkdir %s" % extract_dir)
+
     subprocess.check_output("mkdir %s" % extract_dir)
 
     cmd = "tar -xf %s -C %s" % (archive_file,extract_dir)
