@@ -130,7 +130,7 @@ def get_test_candidates(args):
         logger.error('Unsupported platform: %s' % sys.platform)
         sys.exit(5)  
 
-    logger.info('Detected platform: %s' % platform)
+    logger.debug('Detected platform: %s' % platform)
 
     # Download and extract Firefox archives
     fdl = fd.FirefoxDownloader(args.workdir, cache_timeout=1*60*60)

@@ -108,14 +108,15 @@ def __linux_extract(archive_file, tmp_dir):
 
     exe_file = "%s/firefox/firefox-bin" % extract_dir
 
-    logger.info ("exe file: %s " % exe_file)
     return extract_dir, exe_file
 
 
 def extract(platform, archive_file, tmp_dir):
     if platform == 'osx':
         extract_dir, exe_file = __osx_extract(archive_file, tmp_dir)
-    else:
+    elif platform == 'linux':
         extract_dir, exe_file = __linux_extract(archive_file, tmp_dir)
-        # add one more else clause here for windows
+    else:
+        extract_dir = None
+        exe_file = None
     return extract_dir, exe_file
