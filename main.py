@@ -124,7 +124,7 @@ def get_test_candidates(args):
 
     if sys.platform == 'darwin':
         platform = 'osx'
-    elif sys.platform == 'linux':
+    elif 'linux' in sys.platform:
         platform = 'linux'
     else:
         logger.error('Unsupported platform: %s' % sys.platform)
