@@ -94,7 +94,7 @@ def __osx_extract(archive_file, tmp_dir):
 def __linux_extract(archive_file, tmp_dir):
     global logger
 
-    #extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
+    extract_dir_parent = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
     logger.debug('Unzipping archive `%s`' % (archive_file))
 
 
@@ -103,7 +103,7 @@ def __linux_extract(archive_file, tmp_dir):
     #dir = subprocess.check_output(cmd, shell=True).strip().replace('\n', '')
 
     app_dir_name = archive_file.split("/").pop().replace(".tar.bz2","");
-    extract_dir = "%s/%s" % (temp_dir,app_dir_name)
+    extract_dir = "%s/%s" % (extract_dir_parent,app_dir_name)
 
     # DEBUG
     logger.info ("extract_dir %s" % extract_dir)
