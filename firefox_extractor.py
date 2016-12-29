@@ -111,7 +111,7 @@ def __linux_extract(archive_file, tmp_dir):
 
     cmd = "tar -xf %s" % tar_file
     logger.info("Executing shell command `%s`" % cmd)
-    logger.info("Extract dir is %s " % extract_dir)
+    logger.info("Temp dir is %s " % temp_dir)
     result = subprocess.check_output(cmd, cwd=extract_dir, stderr=subprocess.STDOUT)
     logger.info("Command returned %s" % result.strip().replace('\n', ' '))
     # exit
