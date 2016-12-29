@@ -110,8 +110,12 @@ def __linux_extract(archive_file, tmp_dir):
     tar_file = archive_file.replace('.bz2', '')
 
     cmd = "tar -xf %s -C ." % tar_file
+
+    cmd = "dirname %s" % archive_file
+
     logger.info("Executing shell command `%s`" % cmd)
     result = subprocess.check_output(cmd, shell=True)
+    logger.info("dirname: %s" % result)
     # exit
     sys.exit(5)
 
