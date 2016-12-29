@@ -98,28 +98,22 @@ def __linux_extract(archive_file, tmp_dir):
     extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
     #mount_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='mount_')
     logger.debug('Unzipping archive `%s`' % (archive_file))
-    #__osx_mount_dmg(archive_file, mount_dir)
-
-    logger.info ("Got file: %s" % (archive_file))
 
 
     cmd = "dirname %s" % archive_file
     logger.info("Executing shell command `%s`" % cmd)
     dir = subprocess.check_output(cmd, shell=True)
 
-
-    #cmd = "bzip2 -d %s" % archive_file
-    #logger.info("Executing shell command `%s`" % cmd)
-    #subprocess.check_call(cmd, shell=True)
-    #logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
-
-    #tar_file = archive_file.replace('.bz2', '')
-    cmd = "tar -xf %s -C %s" % (archive_file, dir)
+    cmd = "tar -xf %s -C %s" % (archive_file, extract_dir)
     subprocess.check_call(cmd, shell=True)
 
-    # temp?
 
-    exe_file = dir + "/firefox/firefox-bin"
+    app_dir = archive_file.split("/").pop().replace("tar.bz2","");
+
+    logger.info ("Extract: %s " % extract_dir)
+    logger.info ("App folder name: %s " % app_dir)
+
+    #exe_file = "%s/%s/firefox-bin"
 
     #try:
         # Determine app subfolder
