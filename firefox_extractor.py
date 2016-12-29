@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +114,7 @@ def __linux_extract(archive_file, tmp_dir):
     result = subprocess.check_output(cmd, cwd=extract_dir, stderr=subprocess.STDOUT)
     logger.info("Command returned %s" % result.strip().replace('\n', ' '))
     # exit
-    #sys.exit(5)
+    sys.exit(5)
 
 
     #try:
