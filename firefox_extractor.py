@@ -115,10 +115,9 @@ def __linux_extract(archive_file, tmp_dir):
     cmd = "tar -xf %s -C %s" % (tar_file, dir)
     subprocess.check_call(cmd, shell=True)
 
+    # temp?
 
-    # exit
-    sys.exit(5)
-
+    exe_file = dir + "/firefox/firefox-bin"
 
     #try:
         # Determine app subfolder
@@ -165,6 +164,4 @@ def extract(platform, archive_file, tmp_dir):
         extract_dir, exe_file = __osx_extract(archive_file, tmp_dir)
     else:
         extract_dir, exe_file = __linux_extract(archive_file, tmp_dir)
-        extract_dir = ''
-        exe_file = ''
     return extract_dir, exe_file
