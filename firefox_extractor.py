@@ -108,7 +108,7 @@ def __linux_extract(archive_file, tmp_dir):
     extract_dir = "%s/%s" % (dir,app_dir_name)
 
     # DEBUG
-    logger.info ("Mkdir %s" % extract_dir)
+    logger.info ("app_dir_name %s" % app_dir_name)
 
     subprocess.check_output("mkdir %s" % extract_dir)
 
