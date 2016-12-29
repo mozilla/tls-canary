@@ -27,7 +27,7 @@ class FirefoxDownloader(object):
     }
     __platforms = {
         'osx':     {'platform': 'osx', 'extension': 'dmg'},
-        'linux':   {'platform': 'linux', 'extension': 'tar.bz2'},
+        'linux':   {'platform': 'linux64', 'extension': 'tar.bz2'},
         'linux32': {'platform': 'linux', 'extension': 'tar.bz2'},
         'win':     {'platform': 'win64', 'extension': 'exe'},
         'win32':   {'platform': 'win', 'extension': 'exe'}
@@ -128,10 +128,10 @@ class FirefoxDownloader(object):
 
         logger.info ("Release %s, platform %s" % (release,platform))
 
-        platform = self.__platforms[platform]['platform']
+        platform_temp = self.__platforms[platform]['platform']
         extension = self.__platforms[platform]['extension']
-        url = self.build_urls[release].format(platform=platform)
-        cache_id = 'firefox-%s_%s.%s' % (release, platform, extension)
+        url = self.build_urls[release].format(platform=platform_temp)
+        cache_id = 'firefox-%s_%s.%s' % (release, platform_temp, extension)
 
         # Always delete cached file when cache function is overridden
         if cache_id in self.__cache and not use_cache:
