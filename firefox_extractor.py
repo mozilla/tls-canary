@@ -102,17 +102,19 @@ def __linux_extract(archive_file, tmp_dir):
 
     logger.info ("Got file: %s" % (archive_file))
 
-    cmd = "bzip2 -d %s" % archive_file
-    logger.info("Executing shell command `%s`" % cmd)
-    subprocess.check_call(cmd, shell=True)
-    #logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
 
     cmd = "dirname %s" % archive_file
     logger.info("Executing shell command `%s`" % cmd)
     dir = subprocess.check_output(cmd, shell=True)
 
-    tar_file = archive_file.replace('.bz2', '')
-    cmd = "tar -xf %s -C %s" % (tar_file, dir)
+
+    #cmd = "bzip2 -d %s" % archive_file
+    #logger.info("Executing shell command `%s`" % cmd)
+    #subprocess.check_call(cmd, shell=True)
+    #logger.debug("Command returned %s" % result.strip().replace('\n', ' '))
+
+    #tar_file = archive_file.replace('.bz2', '')
+    cmd = "tar -xf %s -C %s" % (archive_file, dir)
     subprocess.check_call(cmd, shell=True)
 
     # temp?
