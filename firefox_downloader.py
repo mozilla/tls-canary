@@ -126,10 +126,10 @@ class FirefoxDownloader(object):
         if platform not in self.__platforms:
             raise Exception("Failed to download for unknown platform `%s`" % platform)
 
-        platform = self.__platforms[platform]['platform']
+        target = self.__platforms[platform]['platform']
         extension = self.__platforms[platform]['extension']
-        url = self.build_urls[release].format(platform=platform)
-        cache_id = 'firefox-%s_%s.%s' % (release, platform, extension)
+        url = self.build_urls[release].format(platform=target)
+        cache_id = 'firefox-%s_%s.%s' % (release, target, extension)
 
         # Always delete cached file when cache function is overridden
         if cache_id in self.__cache and not use_cache:
