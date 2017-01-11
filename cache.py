@@ -44,10 +44,11 @@ class DiskCache(object):
         """
         if id_or_path is None:
             self.__clear()
+            return
         path = self[id_or_path.lstrip(self.__root)]
         if os.path.isdir(path):
             rmtree(path)
-        else:
+        elif os.path.exists(path):
             os.remove(path)
 
     def purge(self, maximum_age=None):
@@ -60,7 +61,7 @@ class DiskCache(object):
         stale_limit = now - maximum_age
         for cache_id in self:
             path = self[cache_id]
-            mtime = os.path.getmtime(path)  # Modification time as epoch
+            mtime = os.path.getmtime(path)  # Modification time as epoch (might have just 1.0s resolution)
             if mtime < stale_limit:
                 logger.debug('Purging stale cache entry `%s`' % cache_id)
                 if os.path.isdir(path):
@@ -78,5 +79,5 @@ class DiskCache(object):
         return cache_id in self.list()
 
     def __getitem__(self, cache_id):
-        """Return full path of cache entry (exisiting or not)"""
+        """Return full path of cache entry (existing or not)"""
         return os.path.join(self.__root, cache_id)
