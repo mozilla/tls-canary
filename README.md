@@ -13,7 +13,7 @@ http://tlscanary.mozilla.org
 * virtualenv .
 * source bin/activate
 * pip install -e .
-* tls-canary --help
+* tls_canary --help
 
 ## Testing
 * nosetests -s
