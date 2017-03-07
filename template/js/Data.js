@@ -106,18 +106,12 @@ Data.numericSortByField = function (uriList, fieldName) {
 
 Data.dateSortByField = function (uriList, fieldName) {
   uriList.sort(function(arg1,arg2) {
-    var a = Number (new Date (eval ("arg1." + fieldName)));
-    var b = Number (new Date (eval ("arg2." + fieldName)));
-    if (Number.isNaN(a)) {
-      a = 0;
-    } else {
-      a += 3155760000000;
-    }
-    if (Number.isNaN(b)) {
-      b = 0;
-    } else {
-      b += 3155760000000;
-    }
+    var temp1 = eval ("arg1." + fieldName);
+    var temp2 = eval ("arg2." + fieldName);
+
+    var a = toNumericDateString(temp1);
+    var b = toNumericDateString(temp2);
+
     return a == b ? 0 : (a < b ? -1 : 1);
   });
   return uriList;

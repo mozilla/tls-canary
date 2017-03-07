@@ -52,3 +52,64 @@ function returnColorArray (n) {
   }
   return a;
 }
+
+function toNumericDateString (str)
+{
+  // The date format supplied by the certificate doesn't conform
+  // to JS date formats, so we must convert it to a number
+  // to enable numeric comparison.
+
+  if (str == "")
+  {
+    return "0"
+  }
+  var temp = str.split(" at ");
+
+  var tempDate = new Date(temp[0]);
+  var year = String(tempDate.getFullYear());
+  var month = String(tempDate.getMonth() + 1);
+  if (month.length == 1)
+  {
+    month = "0" + month;
+  }
+  var day = String(tempDate.getDate());
+  if (day.length == 1)
+  {
+    day = "0" + day;
+  }
+
+  var tempTime = temp[1].split(" ")[0].split(":");
+  var hours = tempTime[0];
+  var minutes = tempTime[1];
+  var seconds = tempTime[2];
+
+  if (str.indexOf("PM") != -1)
+  {
+    hours = String(Number(hours) + 12);
+  }
+  if (hours.length == 1)
+  {
+    hours = "0" + hours;
+  }
+
+  var dateStr = year + month + day + hours + minutes + seconds
+  return Number (dateStr);
+}
+
+function toReadableDateString(str)
+{
+  var temp = str.split(" at ");
+  var day = new Date(temp[0]).toISOString().split("T")[0];
+  var tempTime = temp[1].split(" ")[0].split(":");
+
+  var hours = Number(tempTime[0]);
+  var minutes = Number(tempTime[1]);
+  var seconds = Number(tempTime[2]);
+
+  if (str.indexOf("PM") != -1)
+  {
+    hours += 12;
+  }
+  return day + "-" + hours + "-" + minutes + "-" + seconds;
+}
+
