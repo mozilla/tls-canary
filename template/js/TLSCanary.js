@@ -218,6 +218,9 @@ TLSCanary.prototype.onColumnSelect = function (arg) {
       arg.field.indexOf("chainLength") !== -1 ||
       arg.field.indexOf("errors") !== -1) {
     newData = Data.numericSortByField(currentTab.data, arg.field);
+  } else if (arg.field.indexOf("validity") !== -1)
+  {
+    newData = Data.dateSortByField(currentTab.data, arg.field);
   } else {
     newData = Data.sortByField(currentTab.data, arg.field);
   }
