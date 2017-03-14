@@ -8,3 +8,4 @@ sudo apt-get install python
 sudo apt-get install python-dev
 sudo apt-get install virtualenv
 sudo apt-get install gcc
+sudo apt-get install golang-go
