@@ -9,3 +9,4 @@ sudo apt-get install python-dev
 sudo apt-get install virtualenv
 sudo apt-get install gcc
 sudo apt-get install golang-go
+cd $(dirname $(which go)) && cd $(dirname $(readlink go)) && cd ../ && sudo chmod 0777 ./src
