@@ -12,11 +12,11 @@ import logging
 import coloredlogs
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 import time
-import stat
 
 import cleanup
 import firefox_downloader as fd
@@ -365,7 +365,6 @@ def make_profiles(args):
 
     os.mkdir(test_profile_dir)
     os.mkdir(release_profile_dir)
-    logging.info (test_profile_dir)
 
     # copy contents of default profile to new profiles
     dir_util.copy_tree(default_profile_dir, test_profile_dir)
