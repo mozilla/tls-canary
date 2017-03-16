@@ -356,35 +356,29 @@ def extract_certificates(args, error_set, app):
     return tmp_cert_dir, final_error_set
 
 def make_profiles(args):
-    global logger, module_dir
+    global logger, module_dir, tmp_dir
 
+    # create directories for profiles
     default_profile_dir = os.path.join(module_dir, "default_profile")
-    test_profile_dir = os.path.join(args.workdir,"test_profile")
-    release_profile_dir = os.path.join(args.workdir,"release_profile")
-
-    # if old profiles exist already, remove them
-    if os.path.exists(test_profile_dir):
-        shutil.rmtree(test_profile_dir)
-    if os.path.exists(release_profile_dir):
-        shutil.rmtree(release_profile_dir)
+    test_profile_dir = os.path.join(tmp_dir,"test_profile")
+    release_profile_dir = os.path.join(tmp_dir,"release_profile")
 
     os.mkdir(test_profile_dir)
     os.mkdir(release_profile_dir)
 
-    # copy all files from default profile
-    for root, dirs, files in os.walk(default_profile_dir, topdown=False):
-        for name in files:
-            shutil.copyfile(os.path.join(root, name), os.path.join(test_profile_dir, name))
-            shutil.copyfile(os.path.join(root, name), os.path.join(release_profile_dir, name))
+    # copy contents of default profile to new profiles
+    dir_util.copy_tree(default_profile_dir, test_profile_dir)
+    dir_util.copy_tree(default_profile_dir, release_profile_dir)
 
     if args.onecrl == 'prod' or args.onecrl == 'stage':
         # overwrite revocations file in test profile with live OneCRL entries from requested environment
-        one_crl.OneCRLDownloader.get_list(args.onecrl, test_profile_dir)
+        one_crl.get_list(args.onecrl, test_profile_dir)
     else:
+        # leave the existing revocations file alone
         logger.info("Testing with custom OneCRL entries from default profile")
 
     # get live OneCRL entries from production for release profile
-    one_crl.OneCRLDownloader.get_list("prod", release_profile_dir)
+    one_crl.get_list("prod", release_profile_dir)
 
     # make all files in profiles read-only to prevent caching
     for root, dirs, files in os.walk(test_profile_dir, topdown=False):
@@ -394,8 +388,6 @@ def make_profiles(args):
     for root, dirs, files in os.walk(release_profile_dir, topdown=False):
         for name in files:
             os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-
-
 
 
 def create_report(args, start_time, test_metadata, base_metadata, error_set, cert_dir):
@@ -509,8 +501,6 @@ def main():
 
     cleanup.init()
     tmp_dir = __create_tempdir()
-
-
 
     try:
         test_app, base_app = get_test_candidates(args)
