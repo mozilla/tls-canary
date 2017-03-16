@@ -28,13 +28,14 @@ def read_from_worker(worker, queue):
 
 
 class FirefoxRunner(object):
-    def __init__(self, app, work_list, work_dir, data_dir, num_workers=10, info=False, cert_dir=None):
+    def __init__(self, app, work_list, work_dir, data_dir, profile_dir, num_workers=10, info=False, cert_dir=None):
         self.__exe_file = app.exe
         self.__work_list = Queue(maxsize=len(work_list))
         for row in work_list:
             self.__work_list.put(row)
         self.__work_dir = work_dir  # usually ~/.tlscanary
         self.__data_dir = data_dir  # usually module directory
+        self.__profile_dir = profile_dir 
         self.__num_workers = num_workers
         self.workers = []
         self.results = Queue(maxsize=len(work_list))
@@ -57,7 +58,8 @@ class FirefoxRunner(object):
                    '-xpcshell',
                    os.path.join(self.__data_dir, "js", "scan_url.js"),
                    '-u=%s' % rank_url,
-                   '-d=%s' % self.__data_dir]
+                   '-d=%s' % self.__data_dir,
+                   '-profile=%s' % self.__profile_dir]
             if self.__info:
                 cmd.append("-j=true")
             if self.__cert_dir is not None:
