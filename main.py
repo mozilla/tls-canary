@@ -198,11 +198,11 @@ def build_data_logs(test_app, base_app, data_dir):
 
 
 def run_test(app, url_list, work_dir, module_dir, profile, num_workers, info=False, cert_dir=None, progress=False):
-    global logger
+    global logger, tmp_dir
 
     number_of_urls = len(url_list)
     urls_done = 0
-    profile_dir = os.path.join(work_dir, profile)
+    profile_dir = os.path.join(tmp_dir, profile)
 
     runner = fr.FirefoxRunner(app, url_list, work_dir, module_dir, profile_dir, num_workers, info, cert_dir)
     run_errors = set()
@@ -365,6 +365,7 @@ def make_profiles(args):
 
     os.mkdir(test_profile_dir)
     os.mkdir(release_profile_dir)
+    logging.info (test_profile_dir)
 
     # copy contents of default profile to new profiles
     dir_util.copy_tree(default_profile_dir, test_profile_dir)
