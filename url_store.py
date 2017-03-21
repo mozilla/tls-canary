@@ -6,24 +6,19 @@ import csv
 import os
 
 __datasets = {
-    'alexa': 'alexa_top_sites.csv',
-    'alexa5k': 'alexa_top5k_sites.csv',
-    'alexa10k': 'alexa_top10k_sites.csv',
-    'alexa100k': 'alexa_top100k_sites.csv',
     'debug': 'debug.csv',
     'debug2': 'debug2.csv',
     # 'google': 'google_ct_list.csv',  # disabled until cleaned
-    'pulse': 'pulse_top_sites_list.csv',
     'smoke': 'smoke_list.csv',
     'test': 'test_url_list.csv',
-    'top1m': 'top-1m.csv'
+    'top': 'top_sites.csv'
 }
 
 
 def list():
     dataset_list = __datasets.keys()
     dataset_list.sort()
-    dataset_default = "alexa"
+    dataset_default = "top"
     assert dataset_default in dataset_list
     return dataset_list, dataset_default
 
