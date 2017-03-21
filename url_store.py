@@ -49,9 +49,10 @@ def iter(dataset, data_dir):
 
 
 class URLStore(object):
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, limit=0):
         self.__data_dir = os.path.abspath(data_dir)
         self.__loaded_datasets = []
+        self.__limit = limit
         self.clear()
 
     def clear(self):
@@ -60,11 +61,14 @@ class URLStore(object):
 
     def __len__(self):
         """Returns number of active URLs in store."""
-        return len(self.__urls)
+        if self.__limit > 0:
+            return min(len(self.__urls), self.__limit)
+        else:
+            return len(self.__urls)
 
     def __iter__(self):
         """Iterate all active URLs in store."""
-        for rank, url in self.__urls:
+        for rank, url in self.__urls[:len(self)]:
             yield rank, url
 
     @staticmethod

@@ -82,6 +82,11 @@ def get_argparser():
                         help='Drop into ipython shell after test run',
                         action='store_true',
                         default=False)
+    parser.add_argument('-l', '--limit',
+                        help='Limit for number of URLs to test (default: unlimited)',
+                        type=int,
+                        action='store',
+                        default=0)
     parser.add_argument('testset',
                         metavar='TESTSET',
                         help='Test set to run. Use `list` for info. (default: `%s`)' % testset_default,
@@ -277,7 +282,7 @@ def run_tests(args, test_app, base_app):
     sources_dir = os.path.join(module_dir, 'sources')
 
     # Compile the set of URLs to test
-    urldb = us.URLStore(sources_dir)
+    urldb = us.URLStore(sources_dir, limit=args.limit)
     urldb.load(args.testset)
     url_set = set(urldb)
     logger.info("%d URLs in test set" % len(url_set))
