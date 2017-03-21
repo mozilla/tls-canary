@@ -9,11 +9,21 @@ http://tlscanary.mozilla.org
 * Automatically runs thousands of secure sites on those builds.
 * Diffs the results and presents potentially broken sites in an HTML page for further diagnosis.
 
+## Requirements
+* Python 2.7
+* virtualenv (highly recommended)
+* git
+* Go compiler
+
+The script ```linux_bootstrap.sh``` provides bootstrapping for an Ubuntu-based EC2 instance.
+
 ## Usage
+* cd tls-canary
 * virtualenv .
 * source bin/activate
 * pip install -e .
 * tls_canary --help
+* tls_canary --reportdir=/tmp/test --debug debug
 
 ## Testing
 * nosetests -s

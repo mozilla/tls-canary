@@ -375,15 +375,16 @@ def make_profiles(args):
     dir_util.copy_tree(default_profile_dir, test_profile_dir)
     dir_util.copy_tree(default_profile_dir, release_profile_dir)
 
+    logger.info("Updating OneCRL revocation data")
     if args.onecrl == 'prod' or args.onecrl == 'stage':
         # overwrite revocations file in test profile with live OneCRL entries from requested environment
-        one_crl.get_list(args.onecrl, test_profile_dir)
+        one_crl.get_list(args.onecrl, test_profile_dir, args.workdir)
     else:
         # leave the existing revocations file alone
         logger.info("Testing with custom OneCRL entries from default profile")
 
     # get live OneCRL entries from production for release profile
-    one_crl.get_list("prod", release_profile_dir)
+    one_crl.get_list("prod", release_profile_dir, args.workdir)
 
     # make all files in profiles read-only to prevent caching
     for root, dirs, files in os.walk(test_profile_dir, topdown=False):
