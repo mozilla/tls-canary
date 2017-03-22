@@ -101,7 +101,7 @@ for (var i=0;i<arguments.length;i++)
   }
   if (arguments[i].indexOf("-c=") != -1)
   {
-    certPath = arguments[i].split("-c=")[1];
+    certPath = arguments[i].split("-c=")[1] + "/";
   }
   if (arguments[i].indexOf("-j=") != -1)
   {
