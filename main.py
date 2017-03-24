@@ -136,8 +136,15 @@ def get_test_candidates(args):
     if sys.platform == 'darwin':
         platform = 'osx'
     elif 'linux' in sys.platform:
-        platform = 'linux'
-        # TODO: Breakout linux vs linux64, add support for Windows as well
+        if sys.maxsize == 2147483647:
+            platform = 'linux32'
+        else:
+            platform = 'linux'
+    elif sys.platform == 'win32':
+        if sys.maxsize == 2147483647:
+            platform = 'win32'
+        else:
+            platform = 'win'
     else:
         logger.error('Unsupported platform: %s' % sys.platform)
         sys.exit(5)  
@@ -152,7 +159,7 @@ def get_test_candidates(args):
     if test_archive_file is None:
         sys.exit(-1)
     # Extract test candidate archive
-    test_app = fe.extract(platform, test_archive_file, tmp_dir)
+    test_app = fe.extract(test_archive_file, args.workdir, cache_timeout=1*60*60)
     logger.debug("Test candidate executable is `%s`" % test_app.exe)
 
     # Download baseline candidate
@@ -160,7 +167,7 @@ def get_test_candidates(args):
     if base_archive_file is None:
         sys.exit(-1)
     # Extract baseline candidate archive
-    base_app = fe.extract(platform, base_archive_file, tmp_dir)
+    base_app = fe.extract(base_archive_file, args.workdir, cache_timeout=1*60*60)
     logger.debug("Baseline candidate executable is `%s`" % base_app.exe)
 
     return test_app, base_app

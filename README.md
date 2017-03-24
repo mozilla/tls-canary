@@ -12,6 +12,7 @@ http://tlscanary.mozilla.org
 ## Requirements
 * Python 2.7
 * virtualenv (highly recommended)
+* 7zip
 * git
 * Go compiler
 

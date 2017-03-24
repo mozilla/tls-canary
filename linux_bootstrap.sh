@@ -9,3 +9,4 @@ sudo apt-get install python-dev
 sudo apt-get install virtualenv
 sudo apt-get install gcc
 sudo apt-get install golang-go
+sudo apt-get install p7zip-full

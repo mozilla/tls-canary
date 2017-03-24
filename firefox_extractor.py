@@ -2,104 +2,73 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from distutils.spawn import find_executable
 import logging
 import os
-import shutil
+import stat
 import subprocess
-import tarfile
-import tempfile
+import sys
 
+import cache
 from firefox_app import FirefoxApp
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: Ensure that all images are unmounted at exit.
-# Images may still be mounted when global tmp_dir is removed at exit,
-# for example when extraction throws an exception.
-
-# TODO: Cache extracted files, too. Takes very long to unpack 100 MByte.
-
-
-def __osx_mount_dmg(dmg_file, mount_point):
-    global logger
-    assert('"' not in dmg_file + mount_point)
-    assert(dmg_file.endswith('.dmg'))
-    cmd = '''hdiutil attach -readonly -noverify -noautoopen -noautoopenro''' \
-          ''' -noautoopenrw -nobrowse -noidme -noautofsck -mount required''' \
-          ''' -quiet -mountpoint "%s" "%s"''' % (mount_point, dmg_file)
-    logger.debug("Executing shell command `%s`" % cmd)
-    # Throws subprocess.CalledProcessError on non-zero exit value
-    subprocess.check_call(cmd, shell=True)
-
-
-def __osx_unmount_dmg(mount_point):
-    global logger
-    assert('"' not in mount_point)
-    cmd = 'hdiutil detach -quiet -force "%s"' % mount_point
-    logger.debug("Executing shell command `%s`" % cmd)
-    # Throws subprocess.CalledProcessError on non-zero exit value
-    subprocess.check_call(cmd, shell=True)
-
-
-def __osx_extract(archive_file, tmp_dir):
-    global logger
-
-    logger.info("Extracting MacOS X archive")
-    extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
-    mount_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='mount_')
-    logger.debug('Mounting image `%s` at mount point `%s`' % (archive_file, mount_dir))
-    __osx_mount_dmg(archive_file, mount_dir)
-
-    try:
-        # Copy everything over
-        if os.path.exists(extract_dir):
-            shutil.rmtree(extract_dir)
-        logger.debug('Copying files from mount point `%s` to `%s`' % (mount_dir, extract_dir))
-        shutil.copytree(mount_dir, extract_dir, symlinks=True)
-
-    except Exception, err:
-        logger.error('Error while extracting image. Detaching image from mount point `%s`' % mount_dir)
-        __osx_unmount_dmg(mount_dir)
-        raise err
-
-    except KeyboardInterrupt, err:
-        logger.error('User abort. Detaching image from mount point `%s`' % mount_dir)
-        __osx_unmount_dmg(mount_dir)
-        raise err
-
-    logger.debug('Detaching image from mount point `%s`' % mount_dir)
-    __osx_unmount_dmg(mount_dir)
-
-    return extract_dir
-
-
-def __linux_extract(archive_file, tmp_dir):
-    global logger
-
-    logger.info("Extracting Linux archive")
-    extract_dir = tempfile.mkdtemp(dir=tmp_dir, prefix='extracted_')
-    logger.debug("Extracting Linux archive `%s` to `%s`" % (archive_file, extract_dir))
-
-    try:
-        with tarfile.open(archive_file) as tf:
-            tf.extractall(extract_dir)
-
-    except Exception, err:
-        logger.error('Error while extracting image: %s' % err)
-        raise err
-
-    return extract_dir
-
-
-def extract(platform, archive_file, tmp_dir):
+def extract(archive_file, workdir, cache_timeout=24*60*60, use_cache=True):
     """Extract a Firefox archive file into a subfolder in the given temp dir."""
     global logger
 
-    if platform == 'osx':
-        extract_dir = __osx_extract(archive_file, tmp_dir)
-    elif platform == "linux" or platform == "linux32":
-        extract_dir = __linux_extract(archive_file, tmp_dir)
-    else:
-        extract_dir = None
-    return FirefoxApp(extract_dir)
+    logger.info("Extracting Firefox archive `%s`" % archive_file)
+
+    # Find 7zip binary
+    sz_bin = find_executable("7z")
+    if sz_bin is None:
+        logger.critical("Cannot find 7zip")
+        sys.exit(5)
+    logger.debug("Using 7zip executable at `%s`" % sz_bin)
+
+    # Name in cache is file name without extensions
+    cache_id = os.path.basename(archive_file)
+    cache_id = os.path.splitext(cache_id)[0]
+    cache_id = os.path.splitext(cache_id)[0]
+
+    dc = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout, purge=True)
+
+    if not use_cache:
+        # Enforce re-extraction even if cached
+        dc.delete(cache_id)
+
+    cache_dir = dc[cache_id]
+
+    if cache_id not in dc:
+        cmd = [sz_bin, "x", "-y", "-bd", "-o%s" % cache_dir, archive_file]
+        logger.debug("Executing shell command `%s`" % " ".join(cmd))
+        try:
+            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            logger.error("7zip failed: %s" % repr(e.output))
+            raise Exception("Unable to extract Firefox archive")
+        logger.debug("7zip succeeded: %s" % repr(output))
+
+        # Check whether we have just extracted a tar file (from a .tar.bz2 archive)
+        inner_tar = os.path.join(cache_dir, "%s.tar" % cache_id)
+        if os.path.isfile(inner_tar):
+            logger.debug("Running second 7zip pass on inner TAR archive `%s`" % inner_tar)
+            cmd = [sz_bin, "x", "-y", "-bd", "-o%s" % cache_dir, inner_tar]
+            logger.debug("Executing shell command `%s`" % " ".join(cmd))
+            try:
+                output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError as e:
+                logger.error("7zip failed: %s" % repr(e.output))
+                raise Exception("Unable to extract inner Firefox archive")
+            logger.debug("7zip succeeded at sencond pass: %s" % repr(output))
+            os.remove(inner_tar)
+
+    app = FirefoxApp(cache_dir)
+
+    # Workaround until 7zip learns to maintain file attributes
+    os.chmod(app.exe, stat.S_IREAD | stat.S_IEXEC | stat.S_IWUSR)
+
+    return app
+
