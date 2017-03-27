@@ -5,6 +5,7 @@
 import ConfigParser
 import glob
 import os
+import struct
 
 
 class FirefoxApp(object):
@@ -12,7 +13,7 @@ class FirefoxApp(object):
 
     __locations = {
         "osx": {
-            "base": "Firefox*.app",
+            "base": os.path.join("*", "Firefox*.app"),
             "exe": os.path.join("Contents", "MacOS", "firefox"),
             "browser": os.path.join("Contents", "Resources", "browser"),
             "ini": os.path.join("Contents", "Resources", "application.ini"),
@@ -47,7 +48,7 @@ class FirefoxApp(object):
                     self.platform = platform
                     self.app_dir = matches[0]
                     break
-            raise Exception("Unsupported application package format (missing base folder)")
+            raise Exception("Unsupported application package format (missing or ambiguous base folder)")
 
         if self.platform is None:
             raise Exception("Unsupported application package platform")
@@ -62,7 +63,6 @@ class FirefoxApp(object):
             raise Exception("Unsupported application package format (missing files)")
 
         # For `linux`: byte 4 in ELF header is 01/02 for 32/64 bit
-        # TODO: detect 32/64 bit for win
         if self.platform == "linux":
             with open(self.exe) as f:
                 head = f.read(5)
@@ -72,6 +72,23 @@ class FirefoxApp(object):
                 self.platform = "linux"
             else:
                 raise Exception("Unsupported ELF binary (%s)" % ord(head[4]))
+        # Windows PE header offset is at 0x3c. Bytes 4 and 5 there tell 32 from 64 bit
+        elif self.platform == "win":
+            with open(self.exe) as f:
+                try:
+                    f.seek(0x3c)
+                    pe_header_offset = struct.unpack("<I", f.read(4))[0]
+                    f.seek(pe_header_offset)
+                    pe_sig, machine_type = struct.unpack("<4sH", f.read(6))
+                except struct.error:
+                    # Definitely invalid
+                    pe_sig, machine_type = (b'', 0)
+                if (pe_sig, machine_type) == (b"PE\x00\x00", 0x14c):
+                    self.platform = "win32"
+                elif (pe_sig, machine_type) == (b"PE\x00\x00", 0x8664):
+                    self.platform = "win"
+                else:
+                    raise Exception("Unsupported PE binary format")
 
         # Determine Firefox version
         ini_parser = ConfigParser.SafeConfigParser()

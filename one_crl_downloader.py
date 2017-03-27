@@ -47,7 +47,7 @@ def get_list(onecrl_env, profile_dir, workdir):
     logger.debug("Running shell command `%s`" % " ".join(onecrl_cmd))
     try:
         revocations_data = subprocess.check_output(onecrl_cmd, env=go_env)
-    except CalledProcessError as error:
+    except subprocess.CalledProcessError as error:
         logger.critical("Could not fetch revocations data: %s" % error)
         sys.exit(5)
 
