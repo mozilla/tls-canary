@@ -49,7 +49,10 @@ def get_list(onecrl_env, workdir, use_cache=True, cache_timeout=60*60):
             sys.exit(5)
 
         # Run OneCRL Go binary to retrieve OnceCRL data
-        onecrl_bin = os.path.join(go_path, "bin", "oneCRL2RevocationsTxt")
+        if sys.platform == "win32":
+            onecrl_bin = os.path.join(go_path, "bin", "oneCRL2RevocationsTxt.exe")
+        else:
+            onecrl_bin = os.path.join(go_path, "bin", "oneCRL2RevocationsTxt")
         if not os.path.isfile(onecrl_bin):
             logger.critical("Go package `oneCRL2RevocationsTxt` is missing executable")
             sys.exit(5)
