@@ -403,7 +403,7 @@ def make_profiles(args):
             os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
 
-def create_report(args, start_time, test_metadata, base_metadata, error_set, cert_dir):
+def create_report(args, start_time, test_metadata, base_metadata, error_set, cert_dir, test_app, base_app):
     global logger, module_dir
 
     # Create report directory if necessary.
@@ -421,13 +421,12 @@ def create_report(args, start_time, test_metadata, base_metadata, error_set, cer
         "description": "Fx%s %s vs Fx%s %s" % (test_metadata["appVersion"], test_metadata["branch"],
                                                base_metadata["appVersion"], base_metadata["branch"]),
         "source": args.testset,
-        "test build url": fd.FirefoxDownloader.build_urls[args.test],
-        "release build url": fd.FirefoxDownloader.build_urls[args.base],
+        "test build url": fd.FirefoxDownloader.build_urls[args.test].format(platform=test_app.platform),
+        "release build url": fd.FirefoxDownloader.build_urls[args.base].format(platform=base_app.platform),
         "test build metadata": "%s, %s" % (test_metadata["nssVersion"], test_metadata["nsprVersion"]),
         "release build metadata": "%s, %s" % (base_metadata["nssVersion"], base_metadata["nsprVersion"]),
         "Total time": "%d minutes" % int(round((datetime.datetime.now() - start_time).total_seconds() / 60))
     }
-    # TODO: Replace {platform} in build URLs
 
     log_lines = ["%s : %s" % (k, header[k]) for k in header]
     log_lines.append("++++++++++")
@@ -529,7 +528,7 @@ def main():
 
         cert_dir, final_error_set = extract_certificates(args, error_set, test_app)
 
-        create_report(args, start_time, test_metadata_log, base_metadata_log, final_error_set, cert_dir)
+        create_report(args, start_time, test_metadata_log, base_metadata_log, final_error_set, cert_dir, test_app, base_app)
 
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
