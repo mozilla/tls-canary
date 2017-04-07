@@ -5,6 +5,7 @@
 import csv
 import os
 
+
 __datasets = {
     'debug': 'debug.csv',
     'debug2': 'debug2.csv',
@@ -15,7 +16,7 @@ __datasets = {
 }
 
 
-def list():
+def list_datasets():
     dataset_list = __datasets.keys()
     dataset_list.sort()
     dataset_default = "top"
@@ -23,7 +24,7 @@ def list():
     return dataset_list, dataset_default
 
 
-def iter(dataset, data_dir):
+def iterate(dataset, data_dir):
     if dataset.endswith('.csv'):
         csv_file_name = os.path.abspath(dataset)
     else:
@@ -48,7 +49,7 @@ class URLStore(object):
         self.__data_dir = os.path.abspath(data_dir)
         self.__loaded_datasets = []
         self.__limit = limit
-        self.clear()
+        self.__urls = []
 
     def clear(self):
         """Clear all active URLs from store."""
@@ -69,13 +70,13 @@ class URLStore(object):
     @staticmethod
     def list():
         """List handles and files for all static URL databases."""
-        return list()
+        return list_datasets()
 
     def load(self, datasets):
-        """Load datasets arrayinto active URL store."""
+        """Load datasets array into active URL store."""
         if type(datasets) == str:
             datasets = [datasets]
         for dataset in datasets:
-            for nr, url in iter(dataset, self.__data_dir):
+            for nr, url in iterate(dataset, self.__data_dir):
                 self.__urls.append((nr, url))
             self.__loaded_datasets.append(dataset)

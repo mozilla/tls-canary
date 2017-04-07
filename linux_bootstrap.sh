@@ -10,3 +10,5 @@ sudo apt-get install virtualenv
 sudo apt-get install gcc
 sudo apt-get install golang-go
 sudo apt-get install p7zip-full
+sudo apt-get install libssl-dev
+sudo apt-get install libffi-dev

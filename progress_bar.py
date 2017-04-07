@@ -76,7 +76,7 @@ class ProgressBar(object):
             current_rest_time = datetime.timedelta(seconds=(relative_todo / current_rate))
             current_eta = window_end_time + current_rest_time
         except ZeroDivisionError:
-            # If rate was zero
+            # If rate is zero
             current_rest_time = datetime.timedelta(0)
             current_eta = past
 

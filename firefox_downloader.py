@@ -4,12 +4,14 @@
 
 import logging
 import os
+import struct
 import sys
 import time
 import urllib2
 
 import cache
 import progress_bar
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,27 @@ class FirefoxDownloader(object):
         base_default = "release"
         return build_list, platform_list, test_default, base_default
 
+    @staticmethod
+    def detect_platform():
+        is_64bit = struct.calcsize('P') * 8 == 64
+        platform = None
+        if sys.platform.startswith("darwin"):
+            platform = "osx"
+        elif sys.platform.startswith("linux"):
+            platform = "linux" if is_64bit else "linux32"
+        elif sys.platform.startswith("win"):
+            sys.platform = "win" if is_64bit else "win32"
+        return platform
+
+    @staticmethod
+    def get_download_url(build, platform=None):
+        if platform is None:
+            platform = FirefoxDownloader.detect_platform()
+        # We internally use slightly different platform naming, so translate
+        # internal platform name to the platform name used in download URL.
+        download_platform = FirefoxDownloader.__platforms[platform]['platform']
+        return FirefoxDownloader.build_urls[build].format(platform=download_platform)
+
     def __init__(self, workdir, cache_timeout=24*60*60):
         self.__workdir = workdir
         self.__cache = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout, purge=True)
@@ -67,8 +90,7 @@ class FirefoxDownloader(object):
 
             logger.info('Downloading `%s` to %s' % (url, filename))
             if sys.stdout.isatty():
-                progress = progress_bar.ProgressBar(0, file_size, show_percent=True,
-                                                    show_boundary=True)
+                progress = progress_bar.ProgressBar(0, file_size, show_percent=True, show_boundary=True)
             else:
                 progress = None
             downloaded_size = 0
@@ -118,17 +140,19 @@ class FirefoxDownloader(object):
 
         return filename
 
-    def download(self, release, platform, use_cache=True):
+    def download(self, release, platform=None, use_cache=True):
+
+        if platform is None:
+            platform = self.detect_platform()
 
         if release not in self.build_urls:
             raise Exception("Failed to download unknown release `%s`" % release)
         if platform not in self.__platforms:
             raise Exception("Failed to download for unknown platform `%s`" % platform)
 
-        download_platform = self.__platforms[platform]['platform']
         extension = self.__platforms[platform]['extension']
-        url = self.build_urls[release].format(platform=download_platform)
-        cache_id = 'firefox-%s_%s.%s' % (release, download_platform, extension)
+        url = self.get_download_url(release, platform)
+        cache_id = 'firefox-%s_%s.%s' % (release, platform, extension)
 
         # Always delete cached file when cache function is overridden
         if cache_id in self.__cache and not use_cache:
