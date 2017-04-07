@@ -43,7 +43,7 @@ def get_argparser():
     release_choice, _, test_default, base_default = fd.FirefoxDownloader.list()
 
     parser = argparse.ArgumentParser(prog="tls_canary")
-    parser.add_argument('--version', action='version', version='%(prog)s 3.0.0b')
+    parser.add_argument('--version', action='version', version='%(prog)s 3.0.0')
     parser.add_argument('-d', '--debug',
                         help='Enable debug',
                         action='store_true',
