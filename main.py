@@ -104,6 +104,22 @@ def get_argparser():
                         choices=[0, 1],
                         action='store',
                         default=1)
+    parser.add_argument('-s', '--source',
+                        metavar='TESTSET',
+                        help='Test set to run. Use `list` for info. (default: `%s`)' % testset_default,
+                        choices=testset_choice,
+                        action='store',
+                        default=testset_default)
+    # TODO: create separate python file or class to handle new test type metadata
+    parser.add_argument('mode',
+                        help='Test mode to run. (default: `%s`)' % 'regression',
+                        choices=['regression', 'info'],
+                        action='store',
+                        nargs='?',
+                        default='regression')
+    return parser
+
+"""
     parser.add_argument('testset',
                         metavar='TESTSET',
                         help='Test set to run. Use `list` for info. (default: `%s`)' % testset_default,
@@ -111,7 +127,8 @@ def get_argparser():
                         action='store',
                         nargs='?',
                         default=testset_default)
-    return parser
+"""
+
 
 
 tmp_dir = None
@@ -142,9 +159,9 @@ class RemoveTempDir(cleanup.CleanUp):
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-def get_test_candidates(args):
+def get_test_candidate(args, build):
     """
-    Download and extract the test candidates
+    Download and extract a build candidate
     :param args: command line arguments object
     :return: two FirefoxApp objects for test and base candidate
     """
@@ -171,23 +188,15 @@ def get_test_candidates(args):
     # Download and extract Firefox archives
     fdl = fd.FirefoxDownloader(args.workdir, cache_timeout=1*60*60)
 
-    # Download test candidate
-    test_archive_file = fdl.download(args.test, platform)
-    if test_archive_file is None:
+    # Download candidate
+    build_archive_file = fdl.download(build, platform)
+    if build_archive_file is None:
         sys.exit(-1)
-    # Extract test candidate archive
-    test_app = fe.extract(test_archive_file, args.workdir, cache_timeout=1*60*60)
-    logger.debug("Test candidate executable is `%s`" % test_app.exe)
+    # Extract candidate archive
+    candidate_app = fe.extract(build_archive_file, args.workdir, cache_timeout=1*60*60)
+    logger.debug("Build candidate executable is `%s`" % candidate_app.exe)
 
-    # Download baseline candidate
-    base_archive_file = fdl.download(args.base, platform)
-    if base_archive_file is None:
-        sys.exit(-1)
-    # Extract baseline candidate archive
-    base_app = fe.extract(base_archive_file, args.workdir, cache_timeout=1*60*60)
-    logger.debug("Baseline candidate executable is `%s`" % base_app.exe)
-
-    return test_app, base_app
+    return candidate_app
 
 
 def collect_worker_info(app):
@@ -199,27 +208,8 @@ def collect_worker_info(app):
     return result
 
 
-def build_data_logs(test_app, base_app):
-    """
-    Gather info on the test candidates.
-    :param test_app:
-    :param base_app:
-    :return: test_metadata, base_metadata
-    """
-    global logger
-
-    test_metadata = collect_worker_info(test_app)
-    base_metadata = collect_worker_info(base_app)
-
-    logger.info("Testing Firefox %s %s against Firefox %s %s" %
-                (test_metadata["appVersion"], test_metadata["branch"],
-                 base_metadata["appVersion"], base_metadata["branch"]))
-
-    return test_metadata, base_metadata
-
-
 def run_test(app, url_list, args, profile=None, num_workers=None, n_per_worker=None, timeout=None,
-             get_info=False, get_certs=False, progress=False):
+             get_info=False, get_certs=False, progress=False, return_only_errors=True):
     global logger, tmp_dir, module_dir
 
     # Default to values from args
@@ -240,30 +230,38 @@ def run_test(app, url_list, args, profile=None, num_workers=None, n_per_worker=N
         wp.stop()
         sys.exit(1)
 
-    run_errors = set()
+    run_results = set()
 
     for host in results:
-        if not results[host].success:
+        if return_only_errors:
+            if not results[host].success:
+                if get_info:
+                    run_results.add((results[host].rank, host, results[host]))
+                else:
+                    run_results.add((results[host].rank, host))
+        else:
             if get_info:
-                run_errors.add((results[host].rank, host, results[host]))
+                run_results.add((results[host].rank, host, results[host]))
             else:
-                run_errors.add((results[host].rank, host))
+                run_results.add((results[host].rank, host))
 
-    return run_errors
+    return run_results
 
 
-def run_tests(args, test_app, base_app):
+def run_regression_passes(args, test_app, base_app):
     global logger, tmp_dir, module_dir
     sources_dir = os.path.join(module_dir, 'sources')
 
     # Compile the set of URLs to test
     urldb = us.URLStore(sources_dir, limit=args.limit)
-    urldb.load(args.testset)
+    urldb.load(args.source)
     url_set = set(urldb)
     logger.info("%d URLs in test set" % len(url_set))
 
     # Setup custom profiles
-    test_profile, base_profile, _ = make_profiles(args)
+    #test_profile, base_profile, _ = make_profiles(args)
+    test_profile = make_profile(args, "test_profile")
+    base_profile = make_profile(args, "release_profile")
 
     # Compile set of error URLs in three passes
     # First pass:
@@ -318,26 +316,6 @@ def run_tests(args, test_app, base_app):
 
     logger.info("Error set is %d URLs: %s" % (len(error_set), ' '.join(["%d,%s" % (r, u) for r, u in error_set])))
 
-    # Sample data for development and debugging purposes
-    # logger.critical("FIXME: Working with static test set")
-    # error_set = set([(49182, u'psarips.com'), (257666, u'www.obsidiana.com'), (120451, u'yugiohcardmarket.eu'),
-    #                  (9901, u'englishforums.com'), (43694, u'www.csajokespasik.hu'), (157298, u'futuramo.com'),
-    #                  (1377, u'www.onlinecreditcenter6.com'), (15752, u'www.jcpcreditcard.com'), (137890, u'my.jobs'),
-    #                  (31862, u'samsungcsportal.com'), (40034, u'uob.com.my'), (255349, u'censusmapper.ca'),
-    #                  (89913, u'hslda.org'), (64349, u'www.chevrontexacocards.com'),
-    #                  (69037, u'www.onlinecreditcenter4.com'), (3128, u'www.synchronycredit.com'),
-    #                  (84681, u'ruscreditcard.com'), (241254, u'www.steinmartcredit.com'), (123888, u'saveful.com'),
-    #                  (230374, u'sirdatainitiative.com'), (135435, u'gearheads.in'), (97220, u'gira.de'),
-    #                  (85697, u'magickartenmarkt.de'), (29458, u'cxem.net'), (62059, u'www.awardslinq.com'),
-    #                  (32146, u'www.onlinecreditcenter2.com'), (247769, u'gmprograminfo.com'),
-    #                  (265649, u'piratenpartei.de'), (23525, u'vesti.lv'), (192596, u'robots-and-dragons.de'),
-    #                  (212740, u'www.chs.hu'), (68345, u'bandzone.cz'), (104674, u'incontrion.com'),
-    #                  (174612, u'patschool.com'), (80121, u'27399.com'), (114128, u'universoracionalista.org'),
-    #                  (100333, u'toccata.ru'), (222646, u'futuramo.net'), (14624, u'reviewmyaccount.com'),
-    #                  (147865, u'sherdle.com'), (40192, u'www.belkcredit.com'), (47428, u'www.wangfujing.com'),
-    #                  (162199, u'hikvision.ru'), (74032, u'cardoverview.com'), (22279, u'prospero.ru'),
-    #                  (143928, u'www.e-financas.gov.pt'), (130883, u'favoritsport.com.ua')])
-
     # Fourth pass, information extraction:
     # - Run error set from third pass against the test candidate with less workers
     # - Have workers return extra runtime information, including certificates
@@ -357,61 +335,122 @@ def run_tests(args, test_app, base_app):
     return final_error_set
 
 
-def make_profiles(args):
+def make_profile(args, profile_name):
     global logger, module_dir, tmp_dir
 
     # create directories for profiles
     default_profile_dir = os.path.join(module_dir, "default_profile")
-    test_profile_dir = os.path.join(tmp_dir, "test_profile")
-    release_profile_dir = os.path.join(tmp_dir, "release_profile")
+    new_profile_dir = os.path.join(tmp_dir, profile_name)
 
-    if not os.path.exists(test_profile_dir):
-        os.makedirs(test_profile_dir)
-    if not os.path.exists(release_profile_dir):
-        os.makedirs(release_profile_dir)
+    if not os.path.exists(new_profile_dir):
+        os.makedirs(new_profile_dir)
 
     # copy contents of default profile to new profiles
-    dir_util.copy_tree(default_profile_dir, test_profile_dir)
-    dir_util.copy_tree(default_profile_dir, release_profile_dir)
+    dir_util.copy_tree(default_profile_dir, new_profile_dir)
 
     logger.info("Updating OneCRL revocation data")
     if args.onecrl == "prod" or args.onecrl == "stage":
         # overwrite revocations file in test profile with live OneCRL entries from requested environment
         revocations_file = one_crl.get_list(args.onecrl, args.workdir)
-        profile_file = os.path.join(test_profile_dir, "revocations.txt")
+        profile_file = os.path.join(new_profile_dir, "revocations.txt")
         logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
         shutil.copyfile(revocations_file, profile_file)
     else:
         # leave the existing revocations file alone
         logger.info("Testing with custom OneCRL entries from default profile")
 
-    # get live OneCRL entries from production for release profile
-    revocations_file = one_crl.get_list("prod", args.workdir)
-    profile_file = os.path.join(release_profile_dir, "revocations.txt")
-    logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
-    shutil.copyfile(revocations_file, profile_file)
-
     # make all files in profiles read-only to prevent caching
-    for root, dirs, files in os.walk(test_profile_dir, topdown=False):
+    for root, dirs, files in os.walk(new_profile_dir, topdown=False):
         for name in files:
             os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
-    for root, dirs, files in os.walk(release_profile_dir, topdown=False):
-        for name in files:
-            os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-
-    return test_profile_dir, release_profile_dir, default_profile_dir
+    return new_profile_dir
 
 
-def save_profiles(args, start_time):
+def save_profile(args, profile_name, start_time):
     global logger, tmp_dir
 
     timestamp = start_time.strftime("%Y-%m-%d-%H-%M-%S")
     run_dir = os.path.join(args.reportdir, "runs", timestamp)
 
-    logger.debug("Saving profiles to `%s`" % run_dir)
-    dir_util.copy_tree(os.path.join(tmp_dir, "test_profile"), os.path.join(run_dir, "test_profile"))
-    dir_util.copy_tree(os.path.join(tmp_dir, "release_profile"), os.path.join(run_dir, "release_profile"))
+    logger.debug("Saving profile to `%s`" % run_dir)
+    dir_util.copy_tree(os.path.join(tmp_dir, profile_name), os.path.join(run_dir, profile_name))
+
+
+def run_regression_test(args):
+    global logger
+
+    # TODO: argument validation logic to make sure user has specified both test and base build
+    test_app = get_test_candidate(args, args.test)
+    base_app = get_test_candidate(args, args.base)
+
+    test_metadata = collect_worker_info(test_app)
+    base_metadata = collect_worker_info(base_app)
+
+    logger.info("Testing Firefox %s %s against Firefox %s %s" %
+                (test_metadata["appVersion"], test_metadata["branch"],
+                 base_metadata["appVersion"], base_metadata["branch"]))
+
+    start_time = datetime.datetime.now()
+    error_set = run_regression_passes(args, test_app, base_app)
+
+    header = {
+        "timestamp": start_time.strftime("%Y-%m-%d-%H-%M-%S"),
+        "branch": test_metadata["branch"].capitalize(),
+        "description": "Fx%s %s vs Fx%s %s" % (test_metadata["appVersion"], test_metadata["branch"],
+                                               base_metadata["appVersion"], base_metadata["branch"]),
+        "source": args.source,
+        "test build url": fd.FirefoxDownloader.get_download_url(args.test, test_app.platform),
+        "release build url": fd.FirefoxDownloader.get_download_url(args.base, base_app.platform),
+        "test build metadata": "%s, %s" % (test_metadata["nssVersion"], test_metadata["nsprVersion"]),
+        "release build metadata": "%s, %s" % (base_metadata["nssVersion"], base_metadata["nsprVersion"]),
+        "Total time": "%d minutes" % int(round((datetime.datetime.now() - start_time).total_seconds() / 60))
+    }
+
+    report.generate(args, header, error_set, start_time)
+
+    save_profile(args, "test_profile", start_time)
+    save_profile(args, "release_profile", start_time)
+
+
+def run_info_test(args):
+    global logger, tmp_dir, module_dir
+
+    # TODO: argument validation logic to make sure user has specified only test build
+
+    # Compile the set of URLs to test
+    sources_dir = os.path.join(module_dir, 'sources')
+    urldb = us.URLStore(sources_dir, limit=args.limit)
+    urldb.load(args.source)
+    url_set = set(urldb)
+    logger.info("%d URLs in test set" % len(url_set))
+
+    # Create custom profile
+    test_profile=make_profile(args, "test_profile")
+
+    logger.info("Starting pass with %d URLs" % len(url_set))
+    test_app = get_test_candidate(args, args.test)
+    test_metadata = collect_worker_info(test_app)
+
+    logger.info("Testing Firefox %s %s info run" %
+                (test_metadata["appVersion"], test_metadata["branch"]))
+
+    start_time = datetime.datetime.now()
+
+    info_uri_set = run_test(test_app, url_set, args, profile=test_profile, get_info=True, get_certs=True, progress=True, return_only_errors=False)
+
+    header = {
+        "timestamp": start_time.strftime("%Y-%m-%d-%H-%M-%S"),
+        "branch": test_metadata["branch"].capitalize(),
+        "description": "Fx%s %s info run" % (test_metadata["appVersion"], test_metadata["branch"]),
+        "source": args.source,
+        "test build url": fd.FirefoxDownloader.get_download_url(args.test, test_app.platform),
+        "test build metadata": "%s, %s" % (test_metadata["nssVersion"], test_metadata["nsprVersion"]),
+        "Total time": "%d minutes" % int(round((datetime.datetime.now() - start_time).total_seconds() / 60))
+    }
+
+    report.generate(args, header, info_uri_set, start_time, False)
+    save_profile(args, "test_profile", start_time)
 
 
 # This is the entry point used in setup.py
@@ -429,7 +468,7 @@ def main():
     logger.debug("Command arguments: %s" % args)
 
     # If 'list' is specified as test, list available test sets, builds, and platforms
-    if args.testset == "list":
+    if args.source == "list":
         testset_list, testset_default = us.URLStore.list()
         build_list, platform_list, _, _ = fd.FirefoxDownloader.list()
         urldb = us.URLStore(os.path.join(module_dir, "sources"))
@@ -463,12 +502,13 @@ def main():
     tmp_dir = __create_tempdir()
 
     try:
-        test_app, base_app = get_test_candidates(args)
-        test_metadata_log, base_metadata_log = build_data_logs(test_app, base_app)
-        start_time = datetime.datetime.now()
-        error_set = run_tests(args, test_app, base_app)
-        report.generate(args, start_time, test_metadata_log, base_metadata_log, error_set, test_app, base_app)
-        save_profiles(args, start_time)
+        # determine which test to run
+        if args.mode == 'regression':
+            run_regression_test(args)
+        elif args.mode == 'info':
+            run_info_test(args)
+        else:
+            sys.exit(1)
 
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
