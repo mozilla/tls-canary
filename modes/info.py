@@ -2,14 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
 import datetime
 import logging
-import coloredlogs
-import json
 import os
 import sys
-
 
 from basemode import BaseMode
 import firefox_downloader as fd
@@ -17,16 +13,15 @@ import report
 import url_store as us
 
 
-
 logger = logging.getLogger(__name__)
 
 
-class InfoMode (BaseMode):
+class InfoMode(BaseMode):
 
     def __init__(self, args, module_dir, tmp_dir):
         global logger
 
-        super(InfoMode,self).__init__(args, module_dir, tmp_dir)
+        super(InfoMode, self).__init__(args, module_dir, tmp_dir)
 
         # argument validation logic to make sure user has specified only test build
         if args.test is None:
@@ -43,18 +38,19 @@ class InfoMode (BaseMode):
         logger.info("%d URLs in test set" % len(url_set))
 
         # Create custom profile
-        test_profile = super(InfoMode,self).make_profile(args, "test_profile")
+        test_profile = self.make_profile("test_profile")
 
         # Download app and extract metadata
         logger.info("Starting pass with %d URLs" % len(url_set))
-        test_app = super(InfoMode,self).get_test_candidate(args, args.test)
-        test_metadata = super(InfoMode,self).collect_worker_info(test_app)
+        test_app = self.get_test_candidate(args.test)
+        test_metadata = self.collect_worker_info(test_app)
         logger.info("Testing Firefox %s %s info run" %
                     (test_metadata["appVersion"], test_metadata["branch"]))
 
         # Perform the info scan
         start_time = datetime.datetime.now()
-        info_uri_set = super(InfoMode,self).run_test(test_app, url_set, args, profile=test_profile, get_info=True, get_certs=True, progress=True, return_only_errors=False)
+        info_uri_set = self.run_test(test_app, url_set, profile=test_profile, get_info=True, get_certs=True,
+                                     progress=True, return_only_errors=False)
 
         header = {
             "timestamp": start_time.strftime("%Y-%m-%d-%H-%M-%S"),
@@ -67,4 +63,4 @@ class InfoMode (BaseMode):
         }
 
         report.generate(args, header, info_uri_set, start_time, False)
-        super(InfoMode,self).save_profile(args, "test_profile", start_time)
+        self.save_profile("test_profile", start_time)

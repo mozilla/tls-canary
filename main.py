@@ -5,26 +5,17 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
-import datetime
-from distutils import dir_util
 import logging
-from math import ceil
 import coloredlogs
 import os
 import shutil
-import stat
 import sys
 import tempfile
 
 import cleanup
 import firefox_downloader as fd
-import firefox_extractor as fe
 import loader
-import one_crl_downloader as one_crl
-import report
 import url_store as us
-import worker_pool as wp
-import xpcshell_worker as xw
 
 
 # Initialize coloredlogs
@@ -129,9 +120,9 @@ def __create_tempdir():
     Writes to the global variable tmp_dir
     :return: Path of temporary directory
     """
-    tmp_dir = tempfile.mkdtemp(prefix='tlscanary_')
+    temp_dir = tempfile.mkdtemp(prefix='tlscanary_')
     logger.debug('Creating temp dir `%s`' % tmp_dir)
-    return tmp_dir
+    return temp_dir
 
 
 class RemoveTempDir(cleanup.CleanUp):

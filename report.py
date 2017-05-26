@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import datetime
 from distutils import dir_util
 import json
 import logging
@@ -10,7 +9,6 @@ import os
 import shutil
 
 import cert
-import firefox_downloader as fd
 
 
 logger = logging.getLogger(__name__)
@@ -79,7 +77,6 @@ def generate(args, header, error_set, start_time, append_runs_log=True):
 
         with open(os.path.join(args.reportdir, "runs", "runs.txt"), "a") as log:
             log.write(json.dumps(run_log) + '\n')
-
 
 
 def __extract_certificates(error_set, cert_dir):

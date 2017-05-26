@@ -3,28 +3,18 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-import datetime
 from distutils import dir_util
 import logging
-from math import ceil
-import cert
-import coloredlogs
-import json
 import os
 import shutil
 import stat
 import sys
-import tempfile
 
-import cleanup
 import firefox_downloader as fd
 import firefox_extractor as fe
 import one_crl_downloader as one_crl
-import report
-import url_store as us
 import worker_pool as wp
 import xpcshell_worker as xw
-
 
 
 logger = logging.getLogger(__name__)
@@ -37,20 +27,15 @@ class BaseMode(object):
     """
     def __init__(self, args, module_dir, tmp_dir):
         global logger
+        self.__args = args
         self.__mode = args.mode
         self.module_dir = module_dir
         self.tmp_dir = tmp_dir
 
-
-    def generate(self):
-        with open(self.__target, "w") as f:
-            json.dump({"result": self.__result, "metadata": self.__metadata}, f, sort_keys=True, indent=4)
-
-
-    def get_test_candidate(self, args, build):
+    def get_test_candidate(self, build):
         """
         Download and extract a build candidate
-        :param args: command line arguments object
+        :param build: Firefox build to download
         :return: two FirefoxApp objects for test and base candidate
         """
         global logger
@@ -73,21 +58,19 @@ class BaseMode(object):
 
         logger.debug('Detected platform: %s' % platform)
 
-        # Download and extract Firefox archives
-        self.fdl = fd.FirefoxDownloader(args.workdir, cache_timeout=1*60*60)
-
-        # Download candidate
-        build_archive_file = self.fdl.download(build, platform)
+        # Download test candidate
+        fdl = fd.FirefoxDownloader(self.__args.workdir, cache_timeout=1*60*60)
+        build_archive_file = fdl.download(build, platform)
         if build_archive_file is None:
             sys.exit(-1)
         # Extract candidate archive
-        candidate_app = fe.extract(build_archive_file, args.workdir, cache_timeout=1*60*60)
+        candidate_app = fe.extract(build_archive_file, self.__args.workdir, cache_timeout=1*60*60)
         logger.debug("Build candidate executable is `%s`" % candidate_app.exe)
 
         return candidate_app
 
-
-    def collect_worker_info(self, app):
+    @staticmethod
+    def collect_worker_info(app):
         worker = xw.XPCShellWorker(app)
         worker.spawn()
         worker.send(xw.Command("info"))
@@ -95,8 +78,7 @@ class BaseMode(object):
         worker.terminate()
         return result
 
-
-    def make_profile(self, args, profile_name):
+    def make_profile(self, profile_name):
         global logger
 
         # create directories for profiles
@@ -110,9 +92,9 @@ class BaseMode(object):
         dir_util.copy_tree(default_profile_dir, new_profile_dir)
 
         logger.info("Updating OneCRL revocation data")
-        if args.onecrl == "prod" or args.onecrl == "stage":
+        if self.__args.onecrl == "prod" or self.__args.onecrl == "stage":
             # overwrite revocations file in test profile with live OneCRL entries from requested environment
-            revocations_file = one_crl.get_list(args.onecrl, args.workdir)
+            revocations_file = one_crl.get_list(self.__args.onecrl, self.__args.workdir)
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
             logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
             shutil.copyfile(revocations_file, profile_file)
@@ -127,29 +109,27 @@ class BaseMode(object):
 
         return new_profile_dir
 
-
-    def save_profile(self, args, profile_name, start_time):
+    def save_profile(self, profile_name, start_time):
         global logger
 
         timestamp = start_time.strftime("%Y-%m-%d-%H-%M-%S")
-        run_dir = os.path.join(args.reportdir, "runs", timestamp)
+        run_dir = os.path.join(self.__args.reportdir, "runs", timestamp)
 
         logger.debug("Saving profile to `%s`" % run_dir)
         dir_util.copy_tree(os.path.join(self.tmp_dir, profile_name), os.path.join(run_dir, profile_name))
 
-
-    def run_test(self, app, url_list, args, profile=None, num_workers=None, n_per_worker=None, timeout=None,
-             get_info=False, get_certs=False, progress=False, return_only_errors=True):
+    def run_test(self, app, url_list, profile=None, num_workers=None, n_per_worker=None, timeout=None,
+                 get_info=False, get_certs=False, progress=False, return_only_errors=True):
 
         global logger
 
         # Default to values from args
         if num_workers is None:
-            num_workers = args.parallel
+            num_workers = self.__args.parallel
         if n_per_worker is None:
-            n_per_worker = args.requestsperworker
+            n_per_worker = self.__args.requestsperworker
         if timeout is None:
-            timeout = args.timeout
+            timeout = self.__args.timeout
 
         try:
             results = wp.run_scans(app, list(url_list), profile=profile, num_workers=num_workers,
