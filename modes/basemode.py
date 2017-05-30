@@ -29,6 +29,7 @@ class BaseMode(object):
         global logger
         self.__args = args
         self.__mode = args.mode
+        self.args = args
         self.module_dir = module_dir
         self.tmp_dir = tmp_dir
 
@@ -157,3 +158,16 @@ class BaseMode(object):
                     run_results.add((results[host].rank, host))
 
         return run_results
+
+    def setup(self):
+        return True
+
+    def run(self):
+        return True
+
+    def report(self):
+        return True
+
+    def teardown(self):
+        return True
+
