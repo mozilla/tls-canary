@@ -42,7 +42,7 @@ def get_list(onecrl_env, workdir, use_cache=True, cache_timeout=60*60):
         # Install / update oneCRL2RevocationsTxt package
         package = "github.com/mozmark/OneCRL-Tools/oneCRL2RevocationsTxt"
         logger.debug("Installing / updating Go package `%s`" % package)
-        if subprocess.call([go_bin, "get", package], env=go_env) != 0:
+        if subprocess.call([go_bin, "get", "-u", package], env=go_env) != 0:
             logger.critical("Cannot get Go package `%s`" % package)
             sys.exit(5)
         if subprocess.call([go_bin, "install", package], env=go_env) != 0:
@@ -57,7 +57,7 @@ def get_list(onecrl_env, workdir, use_cache=True, cache_timeout=60*60):
         if not os.path.isfile(onecrl_bin):
             logger.critical("Go package `oneCRL2RevocationsTxt` is missing executable")
             sys.exit(5)
-        onecrl_cmd = [onecrl_bin, "--env", onecrl_env]
+        onecrl_cmd = [onecrl_bin, "--onecrlenv", onecrl_env]
         logger.debug("Running shell command `%s`" % " ".join(onecrl_cmd))
         try:
             revocations_data = subprocess.check_output(onecrl_cmd, env=go_env)
