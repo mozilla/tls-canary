@@ -4,6 +4,7 @@ lib
 share
 man
 include
+venv
 *.pyc
 .idea
 pip-selfcheck.json

@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import datetime
 from distutils import dir_util
 import json
 import logging
@@ -10,14 +9,13 @@ import os
 import shutil
 
 import cert
-import firefox_downloader as fd
 
 
 logger = logging.getLogger(__name__)
 module_dir = os.path.split(__file__)[0]
 
 
-def generate(args, start_time, test_metadata, base_metadata, error_set, test_app, base_app):
+def generate(args, header, error_set, start_time, append_runs_log=True):
     global logger
 
     # Create report directory if necessary.
@@ -29,25 +27,16 @@ def generate(args, start_time, test_metadata, base_metadata, error_set, test_app
     run_dir = os.path.join(args.reportdir, "runs", timestamp)
     logger.info("Writing report to `%s`" % run_dir)
 
-    header = {
-        "timestamp": timestamp,
-        "branch": test_metadata["branch"].capitalize(),
-        "description": "Fx%s %s vs Fx%s %s" % (test_metadata["appVersion"], test_metadata["branch"],
-                                               base_metadata["appVersion"], base_metadata["branch"]),
-        "source": args.testset,
-        "test build url": fd.FirefoxDownloader.get_download_url(args.test, test_app.platform),
-        "release build url": fd.FirefoxDownloader.get_download_url(args.base, base_app.platform),
-        "test build metadata": "%s, %s" % (test_metadata["nssVersion"], test_metadata["nsprVersion"]),
-        "release build metadata": "%s, %s" % (base_metadata["nssVersion"], base_metadata["nsprVersion"]),
-        "Total time": "%d minutes" % int(round((datetime.datetime.now() - start_time).total_seconds() / 60))
-    }
-
+    # parse data from header
     log_lines = ["%s : %s" % (k, header[k]) for k in header]
     log_lines.append("++++++++++")
     log_lines.append("")
 
+    # add site list
     for rank, host, result in error_set:
         log_data = collect_scan_info(result)
+        if args.mode == 'performance':
+            add_performance_info(log_data, result)
         if args.filter == 1:
             # Filter out stray timeout errors
             if log_data["error"]["message"] == "NS_BINDING_ABORTED" \
@@ -80,15 +69,16 @@ def generate(args, start_time, test_metadata, base_metadata, error_set, test_app
         log.write('\n'.join(log_lines))
 
     # Append to runs.log
-    run_log = {
-        "run": header["timestamp"],
-        "branch": header["branch"],
-        "errors": len(error_set),
-        "description": header["description"]
-    }
+    if append_runs_log:
+        run_log = {
+                "run": header["timestamp"],
+                "branch": header["branch"],
+                "errors": len(error_set),
+                "description": header["description"]
+            }
 
-    with open(os.path.join(args.reportdir, "runs", "runs.txt"), "a") as log:
-        log.write(json.dumps(run_log) + '\n')
+        with open(os.path.join(args.reportdir, "runs", "runs.txt"), "a") as log:
+            log.write(json.dumps(run_log) + '\n')
 
 
 def __extract_certificates(error_set, cert_dir):
@@ -222,3 +212,8 @@ def collect_scan_info(scan_result):
         "error": collect_error_info(scan_result),
         "cert_info": collect_certificate_info(scan_result)
     }
+
+
+def add_performance_info(log_data, scan_result):
+    log_data['site_info']['connectionSpeedChange'] = scan_result.response.connection_speed_change
+    log_data['site_info']['connectionSpeedSamples'] = scan_result.response.connection_speed_samples
