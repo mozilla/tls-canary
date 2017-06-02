@@ -43,7 +43,7 @@ def get_argparser():
     release_choice, _, test_default, base_default = fd.FirefoxDownloader.list()
 
     parser = argparse.ArgumentParser(prog="tls_canary")
-    parser.add_argument('--version', action='version', version='%(prog)s 3.0.0')
+    parser.add_argument('--version', action='version', version='%(prog)s 3.0.1')
     parser.add_argument('-d', '--debug',
                         help='Enable debug',
                         action='store_true',
@@ -86,9 +86,9 @@ def get_argparser():
     parser.add_argument('-o', '--onecrl',
                         help='OneCRL set to test (default: prod)',
                         type=str.lower,
-                        choices=["prod", "stage", "custom"],
+                        choices=["production", "stage", "custom"],
                         action='store',
-                        default='prod')
+                        default='production')
     parser.add_argument('-i', '--ipython',
                         help='Drop into ipython shell after test run',
                         action='store_true',
@@ -375,7 +375,7 @@ def make_profiles(args):
     dir_util.copy_tree(default_profile_dir, release_profile_dir)
 
     logger.info("Updating OneCRL revocation data")
-    if args.onecrl == "prod" or args.onecrl == "stage":
+    if args.onecrl == "production" or args.onecrl == "stage":
         # overwrite revocations file in test profile with live OneCRL entries from requested environment
         revocations_file = one_crl.get_list(args.onecrl, args.workdir)
         profile_file = os.path.join(test_profile_dir, "revocations.txt")
@@ -386,7 +386,7 @@ def make_profiles(args):
         logger.info("Testing with custom OneCRL entries from default profile")
 
     # get live OneCRL entries from production for release profile
-    revocations_file = one_crl.get_list("prod", args.workdir)
+    revocations_file = one_crl.get_list("production", args.workdir)
     profile_file = os.path.join(release_profile_dir, "revocations.txt")
     logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
     shutil.copyfile(revocations_file, profile_file)
