@@ -40,7 +40,7 @@ Long argument | Short | Choices / **default** | Description
 --timeout | -m | 10 | Request timeout in seconds. Running more requests in parallel increases network latency and results in more timeouts.
 --test | -t | release, **nightly**, beta, aurora, esr | Test candidate. Any error that it produces that do not occur in baseline are reported.
 --base | -b | **release**, nightly, beta, aurora, esr | Baseline to test against. No error that appears in baseline can make it to the report.
---onecrl | -o | **prod**, stage, custom | OneCRL revocation list to install to the test profiles. `custom` uses a pre-configured, static list.
+--onecrl | -o | **production**, stage, custom | OneCRL revocation list to install to the test profiles. `custom` uses a pre-configured, static list.
 --ipython | -i | | Drops into an IPython shell
 --limit | -l | | The number of hosts in the test set is limited to the given number. The default is to scan all the hosts in the set.
 --filter | -f | 0, **1** | The default filter level 1 removes network timeouts from the report which may appear spuriously. Filter level 0 applies no filtering.

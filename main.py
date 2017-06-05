@@ -76,11 +76,11 @@ def get_argparser():
                         action='store',
                         default=base_default)
     parser.add_argument('-o', '--onecrl',
-                        help='OneCRL set to test (default: prod)',
+                        help='OneCRL set to test (default: production)',
                         type=str.lower,
-                        choices=["prod", "stage", "custom"],
+                        choices=["production", "stage", "custom"],
                         action='store',
-                        default='prod')
+                        default='production')
     parser.add_argument('-i', '--ipython',
                         help='Drop into ipython shell after test run',
                         action='store_true',
@@ -102,6 +102,11 @@ def get_argparser():
                         choices=testset_choice,
                         action='store',
                         default=testset_default)
+    parser.add_argument('-x', '--scans',
+                        help='Number of scans per URI set (default: 3)',
+                        type=int,
+                        action='store',
+                        default=3)
     parser.add_argument('mode',
                         help='Test mode to run. (default: `%s`)' % 'regression',
                         action='store',

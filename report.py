@@ -35,6 +35,8 @@ def generate(args, header, error_set, start_time, append_runs_log=True):
     # add site list
     for rank, host, result in error_set:
         log_data = collect_scan_info(result)
+        if args.mode == 'performance':
+            add_performance_info(log_data, result)
         if args.filter == 1:
             # Filter out stray timeout errors
             if log_data["error"]["message"] == "NS_BINDING_ABORTED" \
@@ -210,3 +212,8 @@ def collect_scan_info(scan_result):
         "error": collect_error_info(scan_result),
         "cert_info": collect_certificate_info(scan_result)
     }
+
+
+def add_performance_info(log_data, scan_result):
+    log_data['site_info']['connectionSpeedChange'] = scan_result.response.connection_speed_change
+    log_data['site_info']['connectionSpeedSamples'] = scan_result.response.connection_speed_samples
