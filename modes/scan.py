@@ -30,11 +30,19 @@ class ScanMode(BaseMode):
         elif args.base is not None:
             logger.debug('Found base build parameter, ignoring')
 
+        # Define instance attributes for later use
+        self.sources_dir = None
+        self.url_set = None
+        self.info_uri_set = None
+        self.test_profile = None
+        self.test_app = None
+        self.test_metadata = None
+        self.start_time = None
 
     def setup(self):
         # Compile the set of URLs to test
         self.sources_dir = os.path.join(self.module_dir, 'sources')
-        logger.info (self.args)
+        logger.info(self.args)
         urldb = us.URLStore(self.sources_dir, limit=self.args.limit)
         urldb.load(self.args.source)
         self.url_set = set(urldb)
@@ -53,13 +61,13 @@ class ScanMode(BaseMode):
     def run(self):
         # Perform the scan
         self.start_time = datetime.datetime.now()
-        self.info_uri_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile, get_info=True, get_certs=True,
-                                     progress=True, return_only_errors=False)
+        self.info_uri_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile, get_info=True,
+                                          get_certs=True, progress=True, return_only_errors=False)
         return self.info_uri_set
 
     def report(self):
         header = {
-            "mode" : self.args.mode,
+            "mode": self.args.mode,
             "timestamp": self.start_time.strftime("%Y-%m-%d-%H-%M-%S"),
             "branch": self.test_metadata["branch"].capitalize(),
             "description": "Fx%s %s scan run" % (self.test_metadata["appVersion"], self.test_metadata["branch"]),
@@ -72,4 +80,3 @@ class ScanMode(BaseMode):
 
     def teardown(self):
         self.save_profile("test_profile", self.start_time)
-

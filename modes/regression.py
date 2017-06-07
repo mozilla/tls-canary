@@ -23,6 +23,16 @@ class RegressionMode(BaseMode):
         super(RegressionMode, self).__init__(args, module_dir, tmp_dir)
         # TODO: argument validation logic 
 
+        # Define instance attributes for later use
+        self.test_app = None
+        self.base_app = None
+        self.test_metadata = None
+        self.base_metadata = None
+        self.test_profile = None
+        self.base_profile = None
+        self.start_time = None
+        self.url_set = None
+        self.error_set = None
 
     def setup(self):
         self.test_app = self.get_test_candidate(self.args.test)
@@ -42,7 +52,6 @@ class RegressionMode(BaseMode):
         self.url_set = set(urldb)
         logger.info("%d URLs in test set" % len(self.url_set))
 
-
     def run(self):
         logger.info("Testing Firefox %s %s against Firefox %s %s" %
                     (self.test_metadata["appVersion"], self.test_metadata["branch"],
@@ -51,10 +60,9 @@ class RegressionMode(BaseMode):
         self.start_time = datetime.datetime.now()
         self.error_set = self.run_regression_passes(self.module_dir, self.test_app, self.base_app)
 
-
     def report(self):
         header = {
-            "mode" : self.args.mode,
+            "mode": self.args.mode,
             "timestamp": self.start_time.strftime("%Y-%m-%d-%H-%M-%S"),
             "branch": self.test_metadata["branch"].capitalize(),
             "description": "Fx%s %s vs Fx%s %s" % (self.test_metadata["appVersion"], self.test_metadata["branch"],
@@ -68,13 +76,12 @@ class RegressionMode(BaseMode):
         }
         report.generate(self.args, header, self.error_set, self.start_time)
 
-
     def teardown(self):
         self.save_profile("test_profile", self.start_time)
         self.save_profile("base_profile", self.start_time)
 
-
     def run_regression_passes(self, module_dir, test_app, base_app):
+        del module_dir, test_app, base_app  # unused parameters
         global logger
 
         # Compile set of error URLs in three passes 
@@ -124,11 +131,13 @@ class RegressionMode(BaseMode):
 
         logger.info("Starting third pass with %d URLs" % len(error_set))
 
-        test_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile, num_workers=2, n_per_worker=10)
+        test_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile, num_workers=2,
+                                       n_per_worker=10)
         logger.info("Third test candidate pass yielded %d error URLs" % len(test_error_set))
         logger.debug("Third test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile, num_workers=2, n_per_worker=10)
+        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile, num_workers=2,
+                                       n_per_worker=10)
         logger.info("Third baseline candidate pass yielded %d error URLs" % len(base_error_set))
         logger.debug(
             "Third baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
@@ -141,8 +150,8 @@ class RegressionMode(BaseMode):
         # - Have workers return extra runtime information, including certificates
 
         logger.info("Extracting runtime information from %d URLs" % (len(error_set)))
-        final_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile, num_workers=1, n_per_worker=10,
-                                        get_info=True, get_certs=True)
+        final_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile, num_workers=1,
+                                        n_per_worker=10, get_info=True, get_certs=True)
 
         # Final set includes additional result data, so filter that out before comparison
         stripped_final_set = set()

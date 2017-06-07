@@ -160,14 +160,13 @@ class BaseMode(object):
         return run_results
 
     def setup(self):
-        return True
+        pass
 
     def run(self):
-        return True
+        pass
 
     def report(self):
-        return True
+        return None
 
     def teardown(self):
-        return True
-
+        pass
