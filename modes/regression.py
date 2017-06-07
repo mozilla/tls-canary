@@ -7,7 +7,7 @@ import datetime
 import logging
 import os
 
-from basemode import BaseMode
+from modes.basemode import BaseMode
 import firefox_downloader as fd
 import report
 import url_store as us
@@ -17,10 +17,14 @@ logger = logging.getLogger(__name__)
 
 
 class RegressionMode(BaseMode):
+
+    name = "regression"
+
     def __init__(self, args, module_dir, tmp_dir):
         global logger
 
         super(RegressionMode, self).__init__(args, module_dir, tmp_dir)
+
         # TODO: argument validation logic 
 
         # Define instance attributes for later use

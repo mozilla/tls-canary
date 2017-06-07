@@ -5,9 +5,7 @@
 import logging
 import sys
 
-from modes.performance import PerformanceMode as performance
-from modes.regression import RegressionMode as regression
-from modes.scan import ScanMode as scan
+import modes
 
 
 # Eventually import other future tests, like
@@ -18,26 +16,14 @@ logger = logging.getLogger(__name__)
 
 
 def run(args, module_dir, tmp_dir):
-    # determine which test to run
-    if args.mode == 'regression':
-        current_mode = regression(args, module_dir, tmp_dir)
-        current_mode.setup()
-        current_mode.run()
-        current_mode.report()
-        current_mode.teardown()
-    elif args.mode == 'scan':
-        current_mode = scan(args, module_dir, tmp_dir)
-        current_mode.setup()
-        current_mode.run()
-        current_mode.report()
-        current_mode.teardown()
-    elif args.mode == 'performance':
-        current_mode = performance(args, module_dir, tmp_dir)
-        current_mode.setup()
-        current_mode.run()
-        current_mode.report()
-        current_mode.teardown()
-    else:
-        # Should this throw instead?
-        logger.critical("Mode not found, please choose `scan`, `regression` or `performance`")
+
+    try:
+        current_mode = modes.all_modes[args.mode](args, module_dir, tmp_dir)
+    except KeyError:
+        logger.critical("Unknown run mode `%s`. Choose one of: %s" % (args.mode, ", ".join(args.all_mode_names)))
         sys.exit(1)
+
+    current_mode.setup()
+    current_mode.run()
+    current_mode.report()
+    current_mode.teardown()

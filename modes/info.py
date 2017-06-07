@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 
-from basemode import BaseMode
+from modes.basemode import BaseMode
 import firefox_downloader as fd
 import report
 import url_store as us
@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 class InfoMode(BaseMode):
+
+    name = "info"
 
     def __init__(self, args, module_dir, tmp_dir):
         global logger

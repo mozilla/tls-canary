@@ -6,7 +6,7 @@ import datetime
 import logging
 import sys
 
-from regression import RegressionMode
+from modes.regression import RegressionMode
 import firefox_downloader as fd
 import report
 
@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class PerformanceMode(RegressionMode):
+
+    name = "performance"
 
     def __init__(self, args, module_dir, tmp_dir):
         global logger

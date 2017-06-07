@@ -15,6 +15,7 @@ import tempfile
 import cleanup
 import firefox_downloader as fd
 import loader
+import modes
 import url_store as us
 
 
@@ -108,10 +109,11 @@ def get_argparser():
                         action='store',
                         default=3)
     parser.add_argument('mode',
-                        help='Test mode to run. (default: `%s`)' % 'regression',
+                        help='Test mode to run. (default: `%s`)' % modes.default_mode,
+                        choices=modes.all_mode_names,
                         action='store',
                         nargs='?',
-                        default='regression')
+                        default=modes.default_mode)
     return parser
 
 

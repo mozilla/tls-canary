@@ -160,13 +160,31 @@ class BaseMode(object):
         return run_results
 
     def setup(self):
+        """
+        Runs all the steps required before doing the mode runs.
+        Put everything here that takes too long for __init__().
+        :return: None
+        """
         pass
 
     def run(self):
+        """
+        Executes the the steps that constitutes the actual mode run.
+        Results are kept internally in the class instance.
+        :return: None
+        """
         pass
 
     def report(self):
-        return None
+        """
+        Generates a report from scan results.
+        :return: None
+        """
+        pass
 
     def teardown(self):
+        """
+        Clean up steps required after a mode run.
+        :return: None
+        """
         pass
