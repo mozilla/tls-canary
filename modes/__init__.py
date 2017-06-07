@@ -8,7 +8,7 @@ import performance
 import regression
 import scan
 
-__all__ = ["info", "performance", "regression", "scan"]
+__all__ = ["performance", "regression", "scan"]
 
 
 def __subclasses_of(cls):
