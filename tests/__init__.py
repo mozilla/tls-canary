@@ -9,6 +9,7 @@ import tempfile
 import firefox_downloader as fd
 import firefox_extractor as fe
 
+
 # Global variables for all tests
 # CAVE: Must be accessed as tests.var to get the dynamic results written by setup_package().
 #      `from test import var` on the module level always yields the default values, because
@@ -19,17 +20,23 @@ test_dir = os.path.split(__file__)[0]
 tmp_dir = None
 
 
-def setup_package():
-    """Set up shared test fixtures"""
-    global test_app, test_archive, tmp_dir
-
-    # Create a tmp dir
-    tmp_dir = tempfile.mkdtemp(prefix="tlscanarytest_")
-
+# This is a bit of a hack to make nosetests "report" that the download is happening.
+# This should have been in setup_package, but there it just makes for an awkward silence.
+# CAVE: Need to make sure this is always run as the very first test. So far it is likely
+# by its placement in the top file that contains tests.
+def test_firefox_download_dummy():
+    """Downloading firefox instance for tests"""
+    global test_app, test_archive
     # Get ourselves a Firefox app for the local platform.
     fdl = fd.FirefoxDownloader(tmp_dir)
     test_archive = fdl.download("nightly", use_cache=True)
     test_app = fe.extract(test_archive, tmp_dir)
+
+
+def setup_package():
+    """Set up shared test fixtures"""
+    global tmp_dir
+    tmp_dir = tempfile.mkdtemp(prefix="tlscanarytest_")
 
 
 def teardown_package():

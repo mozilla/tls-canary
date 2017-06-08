@@ -20,6 +20,11 @@ http://tlscanary.mozilla.org
 
 The script ```linux_bootstrap.sh``` provides bootstrapping for an Ubuntu-based EC2 instance.
 
+### Windows support
+
+The file ```windows_bootstrap.txt``` contains information on Windows-specific installation steps.
+Target environment is PowerShell. We're assuming [Chocolatey](https://chocolatey.org/) for dependency management.
+
 ## Usage
 * cd tls-canary
 * virtualenv .

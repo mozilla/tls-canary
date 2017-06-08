@@ -36,7 +36,7 @@ def get_argparser():
     release_choice, _, test_default, base_default = fd.FirefoxDownloader.list()
 
     parser = argparse.ArgumentParser(prog="tls_canary")
-    parser.add_argument('--version', action='version', version='%(prog)s 3.1.0-alpha.1')
+    parser.add_argument('--version', action='version', version='%(prog)s 3.1.0-alpha.2')
     parser.add_argument('-b', '--base',
                         help='Firefox base version to compare against (default: `%s`)' % base_default,
                         choices=release_choice,
@@ -128,7 +128,7 @@ def __create_tempdir():
     :return: Path of temporary directory
     """
     temp_dir = tempfile.mkdtemp(prefix='tlscanary_')
-    logger.debug('Creating temp dir `%s`' % tmp_dir)
+    logger.debug('Created temp dir `%s`' % temp_dir)
     return temp_dir
 
 
@@ -145,6 +145,72 @@ class RemoveTempDir(cleanup.CleanUp):
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+restore_terminal_encoding = None
+
+
+def get_terminal_encoding():
+    """
+    Helper function to get current terminal encoding
+    """
+    global logger
+    if sys.platform.startswith("win"):
+        logger.debug("Running `chcp` shell command")
+        chcp_output = os.popen("chcp").read().strip()
+        logger.debug("chcp output: `%s`" % chcp_output)
+        if chcp_output.startswith("Active code page:"):
+            codepage = chcp_output.split(": ")[1]
+            logger.debug("Active codepage is `%s`" % codepage)
+            return codepage
+        else:
+            logger.warning("There was an error detecting the active codepage")
+            return None
+    else:
+        logger.debug("Platform does not require switching terminal encoding")
+        return None
+
+
+def set_terminal_encoding(encoding):
+    """
+    Helper function to set terminal encoding.
+    """
+    global logger
+    if sys.platform.startswith("win"):
+        logger.debug("Running `chcp` shell command, setting codepage to `%s`", encoding)
+        chcp_output = os.popen("chcp %s" % encoding).read().strip()
+        logger.debug("chcp output: `%s`" % chcp_output)
+        if chcp_output == "Active code page: %s" % encoding:
+            logger.debug("Successfully set codepage to `%s`" % encoding)
+        else:
+            logger.warning("Can't set codepage for terminal")
+
+
+def fix_terminal_encoding():
+    """
+    Helper function to set terminal to platform-specific UTF encoding
+    """
+    global restore_terminal_encoding
+    restore_terminal_encoding = get_terminal_encoding()
+    if restore_terminal_encoding is None:
+        return
+    if sys.platform.startswith("win"):
+        platform_utf_encoding = "65001"
+    else:
+        platform_utf_encoding = None
+    if restore_terminal_encoding != platform_utf_encoding:
+        set_terminal_encoding(platform_utf_encoding)
+
+
+class ResetTerminalEncoding(cleanup.CleanUp):
+    """
+    Class for restoring original terminal encoding at exit.
+    """
+    @staticmethod
+    def at_exit():
+        global restore_terminal_encoding
+        if restore_terminal_encoding is not None:
+            set_terminal_encoding(restore_terminal_encoding)
+
+
 # This is the entry point used in setup.py
 def main():
     global logger, tmp_dir, module_dir
@@ -158,6 +224,10 @@ def main():
         coloredlogs.install(level='DEBUG')
 
     logger.debug("Command arguments: %s" % args)
+
+    cleanup.init()
+    fix_terminal_encoding()
+    tmp_dir = __create_tempdir()
 
     # If 'list' is specified as test, list available test sets, builds, and platforms
     if args.source == "list":
@@ -186,12 +256,9 @@ def main():
     # All code paths after this will generate a report, so check
     # whether the report dir is a valid target. Specifically, prevent
     # writing to the module directory.
-    if args.reportdir == module_dir:
+    if os.path.normcase(os.path.realpath(args.reportdir)) == os.path.normcase(os.path.realpath(module_dir)):
         logger.critical("Refusing to write report to module directory. Please set --reportdir")
         sys.exit(1)
-
-    cleanup.init()
-    tmp_dir = __create_tempdir()
 
     # Load the specified test mode
     try:

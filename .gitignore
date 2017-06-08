@@ -4,8 +4,12 @@ lib
 share
 man
 include
+Scripts
+tcl
 venv
 *.pyc
+*.un~
+*.py~
 .idea
 pip-selfcheck.json
 *.egg-info
