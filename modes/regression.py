@@ -2,15 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from math import ceil
 import datetime
 import logging
+from math import ceil
 import os
+import pkg_resources as pkgr
+import sys
 
 from modes.basemode import BaseMode
 import firefox_downloader as fd
 import report
-import url_store as us
+import sources_db as sdb
 
 
 logger = logging.getLogger(__name__)
@@ -25,8 +27,6 @@ class RegressionMode(BaseMode):
 
         super(RegressionMode, self).__init__(args, module_dir, tmp_dir)
 
-        # TODO: argument validation logic
-
         # Define instance attributes for later use
         self.test_app = None
         self.base_app = None
@@ -39,6 +39,17 @@ class RegressionMode(BaseMode):
         self.error_set = None
 
     def setup(self):
+        global logger
+
+        # Code paths after this will generate a report, so check
+        # whether the report dir is a valid target. Specifically, prevent
+        # writing to the module directory.
+        module_dir = pkgr.require("tls_canary")[0].location
+        if os.path.normcase(os.path.realpath(self.args.reportdir))\
+                .startswith(os.path.normcase(os.path.realpath(module_dir))):
+            logger.critical("Refusing to write report to module directory. Please set --reportdir")
+            sys.exit(1)
+
         self.test_app = self.get_test_candidate(self.args.test)
         self.base_app = self.get_test_candidate(self.args.base)
 
@@ -50,13 +61,14 @@ class RegressionMode(BaseMode):
         self.base_profile = self.make_profile("base_profile")
 
         # Compile the set of URLs to test
-        sources_dir = os.path.join(self.module_dir, 'sources')
-        urldb = us.URLStore(sources_dir, limit=self.args.limit)
-        urldb.load(self.args.source)
-        self.url_set = set(urldb)
+        db = sdb.SourcesDB(self.args)
+        logger.info("Reading `%s` host database" % self.args.source)
+        self.url_set = db.read(self.args.source).as_set()
         logger.info("%d URLs in test set" % len(self.url_set))
 
     def run(self):
+        global logger
+
         logger.info("Testing Firefox %s %s against Firefox %s %s" %
                     (self.test_metadata["appVersion"], self.test_metadata["branch"],
                      self.base_metadata["appVersion"], self.base_metadata["branch"]))

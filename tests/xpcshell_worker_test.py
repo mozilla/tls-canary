@@ -13,6 +13,7 @@ import xpcshell_worker as xw
 
 @mock.patch('sys.stdout')  # to silence progress bar
 def test_xpcshell_worker(mock_sys):
+    """XPCShell worker runs and is responsive"""
 
     # Skip test if there is no app for this platform
     if tests.test_app is None:

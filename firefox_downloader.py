@@ -14,6 +14,60 @@ import cache
 logger = logging.getLogger(__name__)
 
 
+def get_to_file(url, filename):
+    global logger
+
+    try:
+        # TODO: Validate the server's SSL certificate
+        req = urllib2.urlopen(url)
+        file_size = int(req.info().getheader('Content-Length').strip())
+
+        # Caching logic is: don't re-download if file of same size is
+        # already in place. TODO: Switch to ETag if that's not good enough.
+        # This already prevents cache clutter with incomplete files.
+        if os.path.isfile(filename):
+            if os.stat(filename).st_size == file_size:
+                req.close()
+                logger.warning('Skipping download, using cached file `%s` instead' % filename)
+                return filename
+            else:
+                logger.warning('Purging incomplete or obsolete cache file `%s`' % filename)
+                os.remove(filename)
+
+        logger.debug('Downloading `%s` to %s' % (url, filename))
+        downloaded_size = 0
+        chunk_size = 32 * 1024
+        with open(filename, 'wb') as fp:
+            while True:
+                chunk = req.read(chunk_size)
+                if not chunk:
+                    break
+                downloaded_size += len(chunk)
+                fp.write(chunk)
+
+    except urllib2.HTTPError, err:
+        if os.path.isfile(filename):
+            os.remove(filename)
+        logger.error('HTTP error: %s, %s' % (err.code, url))
+        return None
+
+    except urllib2.URLError, err:
+        if os.path.isfile(filename):
+            os.remove(filename)
+        logger.error('URL error: %s, %s' % (err.reason, url))
+        return None
+
+    except KeyboardInterrupt:
+        if os.path.isfile(filename):
+            os.remove(filename)
+        if sys.stdout.isatty():
+            print
+        logger.critical('Download interrupted by user')
+        return None
+
+    return filename
+
+
 class FirefoxDownloader(object):
 
     __base_url = 'https://download.mozilla.org/?product=firefox' \
@@ -66,59 +120,6 @@ class FirefoxDownloader(object):
         self.__workdir = workdir
         self.__cache = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout, purge=True)
 
-    @staticmethod
-    def __get_to_file(url, filename):
-        try:
-
-            # TODO: Validate the server's SSL certificate
-            req = urllib2.urlopen(url)
-            file_size = int(req.info().getheader('Content-Length').strip())
-
-            # Caching logic is: don't re-download if file of same size is
-            # already in place. TODO: Switch to ETag if that's not good enough.
-            # This already prevents cache clutter with incomplete files.
-            if os.path.isfile(filename):
-                if os.stat(filename).st_size == file_size:
-                    req.close()
-                    logger.warning('Skipping download using cached file `%s`' % filename)
-                    return filename
-                else:
-                    logger.warning('Purging incomplete or obsolete cache file `%s`' % filename)
-                    os.remove(filename)
-
-            logger.info('Downloading `%s` to %s' % (url, filename))
-            downloaded_size = 0
-            chunk_size = 32 * 1024
-            with open(filename, 'wb') as fp:
-                while True:
-                    chunk = req.read(chunk_size)
-                    if not chunk:
-                        break
-                    downloaded_size += len(chunk)
-                    fp.write(chunk)
-
-        except urllib2.HTTPError, err:
-            if os.path.isfile(filename):
-                os.remove(filename)
-            logger.error('HTTP error: %s, %s' % (err.code, url))
-            return None
-
-        except urllib2.URLError, err:
-            if os.path.isfile(filename):
-                os.remove(filename)
-            logger.error('URL error: %s, %s' % (err.reason, url))
-            return None
-
-        except KeyboardInterrupt:
-            if os.path.isfile(filename):
-                os.remove(filename)
-            if sys.stdout.isatty():
-                print
-            logger.critical('Download interrupted by user')
-            return None
-
-        return filename
-
     def download(self, release, platform=None, use_cache=True):
 
         if platform is None:
@@ -138,4 +139,4 @@ class FirefoxDownloader(object):
             self.__cache.delete(cache_id)
 
         # __get_to_file will not re-download if same-size file is already there.
-        return self.__get_to_file(url, self.__cache[cache_id])
+        return get_to_file(url, self.__cache[cache_id])

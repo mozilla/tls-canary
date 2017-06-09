@@ -5,12 +5,13 @@
 import datetime
 import logging
 import os
+import pkg_resources as pkgr
 import sys
 
 from modes.basemode import BaseMode
 import firefox_downloader as fd
 import report
-import url_store as us
+import sources_db as sdb
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,6 @@ class ScanMode(BaseMode):
             logger.debug('Found base build parameter, ignoring')
 
         # Define instance attributes for later use
-        self.sources_dir = None
         self.url_set = None
         self.info_uri_set = None
         self.test_profile = None
@@ -42,12 +42,21 @@ class ScanMode(BaseMode):
         self.start_time = None
 
     def setup(self):
+        global logger
+
+        # Code paths after this will generate a report, so check
+        # whether the report dir is a valid target. Specifically, prevent
+        # writing to the module directory.
+        module_dir = pkgr.require("tls_canary")[0].location
+        if os.path.normcase(os.path.realpath(self.args.reportdir))\
+                .startswith(os.path.normcase(os.path.realpath(module_dir))):
+            logger.critical("Refusing to write report to module directory. Please set --reportdir")
+            sys.exit(1)
+
         # Compile the set of URLs to test
-        self.sources_dir = os.path.join(self.module_dir, 'sources')
-        logger.info(self.args)
-        urldb = us.URLStore(self.sources_dir, limit=self.args.limit)
-        urldb.load(self.args.source)
-        self.url_set = set(urldb)
+        db = sdb.SourcesDB(self.args)
+        logger.info("Reading `%s` host database" % self.args.source)
+        self.url_set = db.read(self.args.source).as_set()
         logger.info("%d URLs in test set" % len(self.url_set))
 
         # Create custom profile

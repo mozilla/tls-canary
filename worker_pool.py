@@ -99,7 +99,7 @@ def scan_urls(app, target_list, profile=None, get_certs=False, timeout=10):
                 if response.original_cmd["mode"] == "scan":
                     timeout_time = time.time() + timeout + 1
                 # Ignore other ACKs.
-                continue;
+                continue
             # Else we know this is the result of a scan command.
             result = ScanResult(response)
             results[result.host] = result
