@@ -93,7 +93,7 @@ class BaseMode(object):
         dir_util.copy_tree(default_profile_dir, new_profile_dir)
 
         logger.info("Updating OneCRL revocation data")
-        if self.__args.onecrl == "prod" or self.__args.onecrl == "stage":
+        if self.__args.onecrl == "production" or self.__args.onecrl == "stage":
             # overwrite revocations file in test profile with live OneCRL entries from requested environment
             revocations_file = one_crl.get_list(self.__args.onecrl, self.__args.workdir)
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
