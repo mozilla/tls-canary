@@ -6,11 +6,9 @@ import logging
 import os
 import struct
 import sys
-import time
 import urllib2
 
 import cache
-import progress_bar
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +50,7 @@ class FirefoxDownloader(object):
         elif sys.platform.startswith("linux"):
             platform = "linux" if is_64bit else "linux32"
         elif sys.platform.startswith("win"):
-            sys.platform = "win" if is_64bit else "win32"
+            platform = "win" if is_64bit else "win32"
         return platform
 
     @staticmethod
@@ -89,34 +87,15 @@ class FirefoxDownloader(object):
                     os.remove(filename)
 
             logger.info('Downloading `%s` to %s' % (url, filename))
-            if sys.stdout.isatty():
-                progress = progress_bar.ProgressBar(0, file_size, show_percent=True, show_boundary=True)
-            else:
-                progress = None
             downloaded_size = 0
             chunk_size = 32 * 1024
             with open(filename, 'wb') as fp:
-                next_status_update = time.time()  # To enforce initial update
                 while True:
                     chunk = req.read(chunk_size)
                     if not chunk:
                         break
                     downloaded_size += len(chunk)
                     fp.write(chunk)
-
-                    # Update status if stdout is a terminal
-                    if progress is not None:
-                        progress.set(downloaded_size)
-                        now = time.time()
-                        if now > next_status_update:
-                            next_status_update = now + 0.1  # 10 times per second
-                            sys.stdout.write('\r%s' % progress)
-                            sys.stdout.flush()
-
-                # The final status update
-                if sys.stdout.isatty():
-                    sys.stdout.write('\r%s\n' % progress)
-                    sys.stdout.flush()
 
         except urllib2.HTTPError, err:
             if os.path.isfile(filename):
