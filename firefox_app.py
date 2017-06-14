@@ -13,7 +13,7 @@ class FirefoxApp(object):
 
     __locations = {
         "osx": {
-            "base": os.path.join("*", "Firefox*.app"),
+            "base": os.path.join("*", "*.app"),
             "exe": os.path.join("Contents", "MacOS", "firefox"),
             "browser": os.path.join("Contents", "Resources", "browser"),
             "gredir": os.path.join("Contents", "Resources"),
