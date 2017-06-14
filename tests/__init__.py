@@ -2,12 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import os
 import shutil
 import tempfile
 
-import firefox_downloader as fd
-import firefox_extractor as fe
+import tlscanary.firefox_downloader as fd
+import tlscanary.firefox_extractor as fe
 
 
 # Global variables for all tests
@@ -16,7 +15,6 @@ import firefox_extractor as fe
 #      the import happens before setup is run.
 test_app = None
 test_archive = None
-test_dir = os.path.split(__file__)[0]
 tmp_dir = None
 
 

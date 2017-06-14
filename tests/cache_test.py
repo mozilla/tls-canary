@@ -7,7 +7,7 @@ from nose.tools import *
 import os
 from time import sleep, time
 
-import cache
+import tlscanary.cache as cache
 import tests
 
 

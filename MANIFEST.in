@@ -1,0 +1,9 @@
+global-exclude *.py[co]
+include LICENSE.txt
+include README.rst
+recursive-include tlscanary/default_profile *
+recursive-include tlscanary/js *
+recursive-include tlscanary/sources *.csv
+recursive-include tlscanary/template *
+exclude README.md
+exclude tests/*
