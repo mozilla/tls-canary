@@ -45,3 +45,18 @@ def teardown_package():
     if tmp_dir is not None:
         shutil.rmtree(tmp_dir, ignore_errors=True)
         tmp_dir = None
+
+
+class ArgsMock(object):
+    """
+    Mock used for testing functionality that
+    requires access to an args-style object.
+    """
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def __getattr__(self, attr):
+        try:
+            return self.kwargs[attr]
+        except KeyError:
+            return None

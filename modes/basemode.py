@@ -26,10 +26,8 @@ class BaseMode(object):
     Base functionality for all tests
     """
     def __init__(self, args, module_dir, tmp_dir):
-        global logger
-        self.__args = args
-        self.__mode = args.mode
         self.args = args
+        self.mode = args.mode
         self.module_dir = module_dir
         self.tmp_dir = tmp_dir
 
@@ -57,15 +55,14 @@ class BaseMode(object):
             logger.error('Unsupported platform: %s' % sys.platform)
             sys.exit(5)
 
-        logger.debug('Detected platform: %s' % platform)
-
         # Download test candidate
-        fdl = fd.FirefoxDownloader(self.__args.workdir, cache_timeout=1*60*60)
+        logger.info('Downloading Firefox `%s` build for platform `%s`' % (build, platform))
+        fdl = fd.FirefoxDownloader(self.args.workdir, cache_timeout=1 * 60 * 60)
         build_archive_file = fdl.download(build, platform)
         if build_archive_file is None:
             sys.exit(-1)
         # Extract candidate archive
-        candidate_app = fe.extract(build_archive_file, self.__args.workdir, cache_timeout=1*60*60)
+        candidate_app = fe.extract(build_archive_file, self.args.workdir, cache_timeout=1 * 60 * 60)
         logger.debug("Build candidate executable is `%s`" % candidate_app.exe)
 
         return candidate_app
@@ -93,9 +90,9 @@ class BaseMode(object):
         dir_util.copy_tree(default_profile_dir, new_profile_dir)
 
         logger.info("Updating OneCRL revocation data")
-        if self.__args.onecrl == "production" or self.__args.onecrl == "stage":
+        if self.args.onecrl == "production" or self.args.onecrl == "stage":
             # overwrite revocations file in test profile with live OneCRL entries from requested environment
-            revocations_file = one_crl.get_list(self.__args.onecrl, self.__args.workdir)
+            revocations_file = one_crl.get_list(self.args.onecrl, self.args.workdir)
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
             logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
             shutil.copyfile(revocations_file, profile_file)
@@ -114,7 +111,7 @@ class BaseMode(object):
         global logger
 
         timestamp = start_time.strftime("%Y-%m-%d-%H-%M-%S")
-        run_dir = os.path.join(self.__args.reportdir, "runs", timestamp)
+        run_dir = os.path.join(self.args.reportdir, "runs", timestamp)
 
         logger.debug("Saving profile to `%s`" % run_dir)
         dir_util.copy_tree(os.path.join(self.tmp_dir, profile_name), os.path.join(run_dir, profile_name))
@@ -126,11 +123,11 @@ class BaseMode(object):
 
         # Default to values from args
         if num_workers is None:
-            num_workers = self.__args.parallel
+            num_workers = self.args.parallel
         if n_per_worker is None:
-            n_per_worker = self.__args.requestsperworker
+            n_per_worker = self.args.requestsperworker
         if timeout is None:
-            timeout = self.__args.timeout
+            timeout = self.args.timeout
 
         try:
             results = wp.run_scans(app, list(url_list), profile=profile, num_workers=num_workers,

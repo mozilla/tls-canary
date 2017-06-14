@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -8,6 +6,7 @@ import argparse
 import logging
 import coloredlogs
 import os
+import pkg_resources
 import shutil
 import sys
 import tempfile
@@ -16,7 +15,7 @@ import cleanup
 import firefox_downloader as fd
 import loader
 import modes
-import url_store as us
+import sources_db as sdb
 
 
 # Initialize coloredlogs
@@ -30,13 +29,17 @@ def get_argparser():
     Argument parsing
     :return: Parsed arguments object
     """
+    pkg_version = pkg_resources.require("tls_canary")[0].version
     home = os.path.expanduser('~')
-    testset_choice, testset_default = us.URLStore.list()
-    testset_choice.append('list')
+    # By nature of workdir being undetermined at this point, user-defined test sets in
+    # the override directory can not override the default test set. The defaulting logic
+    # needs to move behind the argument parser for that to happen.
+    src = sdb.SourcesDB()
+    testset_default = src.default
     release_choice, _, test_default, base_default = fd.FirefoxDownloader.list()
 
     parser = argparse.ArgumentParser(prog="tls_canary")
-    parser.add_argument('--version', action='version', version='%(prog)s 3.1.0-alpha.2')
+    parser.add_argument('--version', action='version', version='%(prog)s ' + pkg_version)
     parser.add_argument('-b', '--base',
                         help='Firefox base version to compare against (default: `%s`)' % base_default,
                         choices=release_choice,
@@ -62,10 +65,10 @@ def get_argparser():
                         action='store',
                         default=4)
     parser.add_argument('-l', '--limit',
-                        help='Limit for number of URLs to test (default: unlimited)',
+                        help='Limit for number of hosts to test (default: no limit)',
                         type=int,
                         action='store',
-                        default=0)
+                        default=None)
     parser.add_argument('-m', '--timeout',
                         help='Timeout for worker requests (default: 10)',
                         type=float,
@@ -88,9 +91,7 @@ def get_argparser():
                         action='store',
                         default=os.getcwd())
     parser.add_argument('-s', '--source',
-                        metavar='TESTSET',
                         help='Test set to run. Use `list` for info. (default: `%s`)' % testset_default,
-                        choices=testset_choice,
                         action='store',
                         default=testset_default)
     parser.add_argument('-t', '--test',
@@ -231,20 +232,19 @@ def main():
 
     # If 'list' is specified as test, list available test sets, builds, and platforms
     if args.source == "list":
-        testset_list, testset_default = us.URLStore.list()
+        coloredlogs.install(level='ERROR')
+        db = sdb.SourcesDB(args)
         build_list, platform_list, _, _ = fd.FirefoxDownloader.list()
-        urldb = us.URLStore(os.path.join(module_dir, "sources"))
         print "Available builds: %s" % ' '.join(build_list)
         print "Available platforms: %s" % ' '.join(platform_list)
         print "Available test sets:"
-        for testset in testset_list:
-            urldb.clear()
-            urldb.load(testset)
-            if testset == testset_default:
-                default = "(default)"
+        for handle in db.list():
+            test_set = db.read(handle)
+            if handle == db.default:
+                default = " (default)"
             else:
                 default = ""
-            print "  - %s [%d] %s" % (testset, len(urldb), default)
+            print "  - %s [%d hosts]%s" % (handle, len(test_set), default)
         sys.exit(1)
 
     # Create workdir (usually ~/.tlscanary, used for caching etc.)
@@ -252,13 +252,6 @@ def main():
     if not os.path.exists(args.workdir):
         logger.debug('Creating working directory %s' % args.workdir)
         os.makedirs(args.workdir)
-
-    # All code paths after this will generate a report, so check
-    # whether the report dir is a valid target. Specifically, prevent
-    # writing to the module directory.
-    if os.path.normcase(os.path.realpath(args.reportdir)) == os.path.normcase(os.path.realpath(module_dir)):
-        logger.critical("Refusing to write report to module directory. Please set --reportdir")
-        sys.exit(1)
 
     # Load the specified test mode
     try:

@@ -6,8 +6,9 @@ import basemode
 import performance
 import regression
 import scan
+import sourceupdate
 
-__all__ = ["performance", "regression", "scan"]
+__all__ = ["performance", "regression", "scan", "sourceupdate"]
 
 
 def __subclasses_of(cls):
