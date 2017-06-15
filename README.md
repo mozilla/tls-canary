@@ -57,6 +57,13 @@ venv\Scripts\activate
 pip install -e .
 ```
 
+### Note for developers
+There's a pre-commit hook for git that you can use for checking for PEP8 violations. You can install it
+by running
+```
+ln -sf ../../hooks/pre-commit .git/hooks/
+```
+
 ### Command line arguments
 Argument | Choices / **default** | Description
 ----------|----------|----------
