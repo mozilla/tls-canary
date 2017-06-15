@@ -116,7 +116,7 @@ class BaseMode(object):
         logger.debug("Saving profile to `%s`" % run_dir)
         dir_util.copy_tree(os.path.join(self.tmp_dir, profile_name), os.path.join(run_dir, profile_name))
 
-    def run_test(self, app, url_list, profile=None, num_workers=None, n_per_worker=None, timeout=None,
+    def run_test(self, app, url_list, profile=None, prefs=None, num_workers=None, n_per_worker=None, timeout=None,
                  get_info=False, get_certs=False, progress=False, return_only_errors=True):
 
         global logger
@@ -130,7 +130,7 @@ class BaseMode(object):
             timeout = self.args.timeout
 
         try:
-            results = wp.run_scans(app, list(url_list), profile=profile, num_workers=num_workers,
+            results = wp.run_scans(app, list(url_list), profile=profile, prefs=prefs, num_workers=num_workers,
                                    targets_per_worker=n_per_worker, timeout=timeout,
                                    progress=progress, get_certs=get_certs)
 

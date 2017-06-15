@@ -36,19 +36,28 @@ function get_runtime_info() {
 
 function set_prefs(prefs) {
     for (let key in prefs) {
-        let value = prefs[key];
-        switch (typeof(value)) {
+        let prop = prefs[key].split(";")[0];
+        let value = prefs[key].split(";")[1];
+
+        // Pref values are passed in as strings and must be examined
+        // to determine the intended types and values.
+        let type = "string"; // default
+        if (value === "true" || value === "false") type = "boolean";
+        if (!isNaN(value)) type = "number";
+        if (value == undefined) type = "undefined";
+
+        switch (type) {
             case "boolean":
-                Services.prefs.setBoolPref(key, value ? 1 : 0);
+                Services.prefs.setBoolPref(prop, value === "true" ? 1 : 0);
                 break;
             case "number":
-                Services.prefs.setIntPref(key, value);
+                Services.prefs.setIntPref(prop, value);
                 break;
             case "string":
-                Services.prefs.setPref(key, value);
+                Services.prefs.setPref(prop, value);
                 break;
             default:
-                throw "Unsupported pref type " + typeof(value);
+                throw "Unsupported pref type " + type;
         }
     }
 }
@@ -274,7 +283,7 @@ Command.prototype.handle = function _handle() {
             this.send_response(true, "ACK");
             break;
         case "setprefs":
-            set_prefs(this.args);
+            set_prefs(this.args.prefs);
             this.send_response(true, "ACK");
             break;
         case "scan":

@@ -85,6 +85,21 @@ def get_argparser():
                         choices=["production", "stage", "custom"],
                         action='store',
                         default='production')
+    parser.add_argument('-p', '--prefs',
+                        help='Prefs to apply to all builds',
+                        type=str,
+                        action='append',
+                        default=None)
+    parser.add_argument('-p1', '--prefs_test',
+                        help='Prefs to apply to test build',
+                        type=str,
+                        action='append',
+                        default=None)
+    parser.add_argument('-p2', '--prefs_base',
+                        help='Prefs to apply to base build',
+                        type=str,
+                        action='append',
+                        default=None)
     parser.add_argument('-r', '--reportdir',
                         help='Path to report output directory (default: cwd)',
                         type=os.path.abspath,
