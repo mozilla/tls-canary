@@ -5,10 +5,11 @@
 import basemode
 import performance
 import regression
+import log
 import scan
 import sourceupdate
 
-__all__ = ["performance", "regression", "scan", "sourceupdate"]
+__all__ = ["log", "performance", "regression", "scan", "sourceupdate"]
 
 
 def __subclasses_of(cls):
@@ -21,5 +22,4 @@ def __subclasses_of(cls):
 
 # Keep a record of all BaseMode subclasses
 all_modes = dict([(mode.name, mode) for mode in __subclasses_of(basemode.BaseMode)])
-all_mode_names = all_modes.keys()
-all_mode_names.sort()
+all_mode_names = sorted(all_modes.keys())

@@ -150,8 +150,11 @@ class Command(object):
         self.__mode = mode
         self.__args = kwargs
 
+    def as_dict(self):
+        return {"id": self.__id, "mode": self.__mode, "args": self.__args}
+
     def __str__(self):
-        return json.dumps({"id": self.__id, "mode": self.__mode, "args": self.__args})
+        return json.dumps(self.as_dict())
 
 
 class Response(object):
@@ -182,3 +185,14 @@ class Response(object):
             self.response_time = message["response_time"]
         if len(message) != 7:
             logger.error("Worker response has unexpected format: %s" % message_string)
+
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "original_cmd": self.original_cmd,
+            "worker_id": self.worker_id,
+            "success": self.success,
+            "result": self.result,
+            "command_time": self.command_time,
+            "response_time": self.response_time,
+        }

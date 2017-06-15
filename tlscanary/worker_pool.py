@@ -66,6 +66,14 @@ class ScanResult(object):
         # Else, the request had some sort of issue
         return False
 
+    def as_dict(self):
+        return {
+            "response": self.response.as_dict(),
+            "success": self.success,
+            "host": self.host,
+            "rank": self.rank
+        }
+
 
 @ts.task
 def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeout=10):

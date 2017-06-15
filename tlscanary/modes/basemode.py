@@ -10,11 +10,13 @@ import os
 import shutil
 import stat
 import sys
+import zipfile
 
 import tlscanary.firefox_app as fa
 import tlscanary.firefox_downloader as fd
 import tlscanary.firefox_extractor as fe
 import tlscanary.one_crl_downloader as one_crl
+import tlscanary.sources_db as sdb
 import tlscanary.worker_pool as wp
 import tlscanary.xpcshell_worker as xw
 
@@ -27,6 +29,102 @@ class BaseMode(object):
     Generic Test Mode
     Base functionality for all tests
     """
+
+    @classmethod
+    def setup_args(cls, parser):
+        """
+        Add subparser for the mode's specific arguments.
+
+        This definition serves as default, but modes are free to
+        override it.
+
+        :param parser: parent argparser to add to
+        :return: None
+        """
+
+        # By nature of workdir being undetermined at this point, user-defined test sets in
+        # the override directory can not override the default test set. The defaulting logic
+        # needs to move behind the argument parser for that to happen.
+        src = sdb.SourcesDB()
+        testset_default = src.default
+        release_choice, _, test_default, base_default = fd.FirefoxDownloader.list()
+
+        group = parser.add_argument_group("test candidates selection")
+        group.add_argument('-t', '--test',
+                           help=("Firefox version to test. It can be one of {%s}, a package file, "
+                                 "or a build directory (default: `%s`)") % (",".join(release_choice), test_default),
+                           action='store',
+                           default=test_default)
+        group.add_argument("-b", "--base",
+                           help=("Firefox base version to compare against. It can be one of {%s}, a package file, "
+                                 "or a build directory (default: `%s`)") % (",".join(release_choice), base_default),
+                           action='store',
+                           default=base_default)
+
+        group = parser.add_argument_group("profile setup")
+        group.add_argument("-o", "--onecrl",
+                           help="OneCRL set to test (default: production)",
+                           type=str.lower,
+                           choices=["production", "stage", "custom"],
+                           action="store",
+                           default="production")
+        group.add_argument("-p", "--prefs",
+                           help="Prefs to apply to all builds",
+                           type=str,
+                           action="append",
+                           default=None)
+        group.add_argument("-p1", "--prefs_test",
+                           help="Prefs to apply to test build",
+                           type=str,
+                           action="append",
+                           default=None)
+        group.add_argument("-p2", "--prefs_base",
+                           help="Prefs to apply to base build",
+                           type=str,
+                           action="append",
+                           default=None)
+
+        group = parser.add_argument_group("host database selection")
+        group.add_argument("-s", "--source",
+                           help="Test set to run. Use `list` for info. (default: `%s`)" % testset_default,
+                           action="store",
+                           default=testset_default)
+        group.add_argument("-l", "--limit",
+                           help="Limit for number of hosts to test (default: no limit)",
+                           type=int,
+                           action="store",
+                           default=None)
+
+        group = parser.add_argument_group("worker configuration")
+        group.add_argument("-j", "--parallel",
+                           help="Number of parallel worker instances (default: 4)",
+                           type=int,
+                           action="store",
+                           default=4)
+        group.add_argument("-m", "--timeout",
+                           help="Timeout for worker requests (default: 10)",
+                           type=float,
+                           action="store",
+                           default=10)
+        group.add_argument("-n", "--requestsperworker",
+                           help="Number of requests per worker (default: 50)",
+                           type=int,
+                           action="store",
+                           default=50)
+        group.add_argument("-x", "--scans",
+                           help="Number of scans per host (default: 3)",
+                           type=int,
+                           action="store",
+                           default=3)
+
+        group = parser.add_argument_group("result processing")
+        group.add_argument("-f", "--filter",
+                           help="Filter level for results 0:none 1:timeouts (default: 1)",
+                           type=int,
+                           choices=[0, 1],
+                           action="store",
+                           default=1)
+
     def __init__(self, args, module_dir, tmp_dir):
         self.args = args
         self.mode = args.mode
@@ -58,10 +156,12 @@ class BaseMode(object):
                 sys.exit(-1)
             # Extract candidate archive
             candidate_app = fe.extract(build_archive_file, self.args.workdir, cache_timeout=1 * 60 * 60)
+            candidate_app.package_origin = fdl.get_download_url(build, platform)
         elif os.path.isfile(build):
             # Extract firefox build from archive
             logger.info("Using file `%s` as Firefox package" % build)
             candidate_app = fe.extract(build, self.args.workdir, cache_timeout=1 * 60 * 60)
+            candidate_app.package_origin = build
             logger.debug("Build candidate executable is `%s`" % candidate_app.exe)
         elif os.path.isfile(os.path.join(build, "mach")):
             logger.info("Using Firefox build tree at `%s`" % build)
@@ -79,8 +179,10 @@ class BaseMode(object):
                 # thus we need to point to the parent for constructing the app.
                 logger.info("Looks like this is an OS X build tree")
                 candidate_app = fa.FirefoxApp(os.path.abspath(os.path.dirname(dist_dir)))
+                candidate_app.package_origin = os.path.abspath(build)
             else:
                 candidate_app = fa.FirefoxApp(os.path.abspath(dist_dir))
+                candidate_app.package_origin = os.path.abspath(build)
         else:
             logger.critical("`%s` specifies neither a Firefox release, package file, or build directory" % build)
             logger.critical("Valid Firefox release identifiers are: %s" % ", ".join(fd.FirefoxDownloader.list()[0]))
@@ -100,6 +202,14 @@ class BaseMode(object):
         worker.send(xw.Command("info"))
         result = worker.wait().result
         worker.terminate()
+        # Add convenience shortcuts and metadata not returned by worker
+        result["nss_version"] = "NSS %s" % result["nssInfo"]["NSS_Version"]
+        result["nspr_version"] = "NSPR %s" % result["nssInfo"]["NSPR_Version"]
+        result["branch"] = result["appConstants"]["MOZ_UPDATE_CHANNEL"]
+        result["app_version"] = result["appConstants"]["MOZ_APP_VERSION_DISPLAY"]
+        result["application_ini"] = app.application_ini
+        result["package_origin"] = app.package_origin
+        result["platform"] = app.platform
         return result
 
     def make_profile(self, profile_name, one_crl_env='production'):
@@ -133,14 +243,26 @@ class BaseMode(object):
 
         return new_profile_dir
 
-    def save_profile(self, profile_name, start_time):
+    @staticmethod
+    def save_profile(profile_path, profile_name, log):
         global logger
 
-        timestamp = start_time.strftime("%Y-%m-%d-%H-%M-%S")
-        run_dir = os.path.join(self.args.reportdir, "runs", timestamp)
+        log_part = "%s.zip" % profile_name
+        zip_file_path = log.part(log_part)
+        logger.debug("Saving `%s` profile from `%s` to `%s`" % (profile_name, profile_path, zip_file_path))
 
-        logger.debug("Saving profile to `%s`" % run_dir)
-        dir_util.copy_tree(os.path.join(self.tmp_dir, profile_name), os.path.join(run_dir, profile_name))
+        if not log.is_running:
+            logger.critical("Can't save profile to closed log. Please file a bug.")
+            return
+
+        with zipfile.ZipFile(zip_file_path, "w", zipfile.ZIP_DEFLATED) as z:
+            for root, _, files in os.walk(profile_path):
+                for f in files:
+                    z.write(os.path.join(root, f))
+
+        if "profiles" not in log.meta:
+            log.meta["profiles"] = []
+        log.meta["profiles"].append({"name": profile_name, "log_part": log_part})
 
     def run_test(self, app, url_list, profile=None, prefs=None, num_workers=None, n_per_worker=None, timeout=None,
                  get_info=False, get_certs=False, progress=False, return_only_errors=True):
@@ -194,13 +316,6 @@ class BaseMode(object):
         """
         Executes the the steps that constitutes the actual mode run.
         Results are kept internally in the class instance.
-        :return: None
-        """
-        pass
-
-    def report(self):
-        """
-        Generates a report from scan results.
         :return: None
         """
         pass

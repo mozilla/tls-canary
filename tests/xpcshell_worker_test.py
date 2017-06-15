@@ -45,8 +45,10 @@ def test_xpcshell_worker(mock_sys):
 
     assert_equal(info_response.id, 1, "Info response has expected ID")
     assert_true(info_response.success, "Info command was successful")
-    assert_true("branch" in info_response.result, "Info response contains expected 2nd field")
-    assert_equal(info_response.result["branch"], "nightly", "Info response has expected value")
+    assert_true("appConstants" in info_response.result, "Info response contains `appConstants`")
+    assert_true("nssInfo" in info_response.result, "Info response contains `nssInfo`")
+    assert_equal(info_response.result["appConstants"]["MOZ_UPDATE_CHANNEL"], "nightly",
+                 "Info response has expected value")
 
     assert_equal(quit_response.id, 2, "Quit response has expected ID")
     assert_true(info_response.success, "Quit command was successful")
