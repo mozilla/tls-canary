@@ -43,7 +43,7 @@ def read_from_worker(worker, response_queue):
 class XPCShellWorker(object):
     """XPCShell worker implementing an asynchronous, JSON-based message system"""
 
-    def __init__(self, app, script=None, profile=None):
+    def __init__(self, app, script=None, profile=None, prefs=None):
         global module_dir
 
         self.__app = app
@@ -52,6 +52,7 @@ class XPCShellWorker(object):
         else:
             self.__script = script
         self.__profile = profile
+        self.__prefs = prefs
         self.__worker_thread = None
         self.__reader_thread = None
         self.__response_queue = Queue()
@@ -83,6 +84,14 @@ class XPCShellWorker(object):
             response = self.wait()
             if response.original_cmd["mode"] != "useprofile" or response.result != "ACK":
                 logger.critical("Worker failed to set profile `%s`" % self.__profile)
+                sys.exit(5)
+
+        if self.__prefs is not None:
+            logger.debug("Setting worker prefs to `%s`" % self.__prefs)
+            self.send(Command("setprefs", prefs=self.__prefs))
+            response = self.wait()
+            if response.original_cmd["mode"] != "setprefs" or response.result != "ACK":
+                logger.critical("Worker failed to set prefs `%s`" % self.__prefs)
                 sys.exit(5)
 
     def terminate(self):

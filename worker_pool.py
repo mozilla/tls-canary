@@ -68,13 +68,13 @@ class ScanResult(object):
 
 
 @ts.task
-def scan_urls(app, target_list, profile=None, get_certs=False, timeout=10):
+def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeout=10):
     global logger
 
     logger.debug("scan_urls task called with %s" % repr(target_list))
 
     # Spawn a worker instance
-    xpcw = xw.XPCShellWorker(app, profile=profile)
+    xpcw = xw.XPCShellWorker(app, profile=profile, prefs=prefs)
     xpcw.spawn()
 
     # Enqueue all host scans for this worker instance
@@ -181,7 +181,7 @@ def stop():
 
 
 # CAVE: run_scans is not re-entrant due to use of global variables.
-def run_scans(app, target_list, profile=None, num_workers=4, targets_per_worker=50, worq_url="memory://",
+def run_scans(app, target_list, profile=None, prefs=None, num_workers=4, targets_per_worker=50, worq_url="memory://",
               progress=False, get_certs=False, timeout=10):
     global pool, progress_thread, progress_thread_running
 
@@ -198,7 +198,8 @@ def run_scans(app, target_list, profile=None, num_workers=4, targets_per_worker=
             progress_thread_running = False
 
         # Enqueue tasks to be executed in parallel
-        scan_results = [queue.scan_urls(app, targets, profile=profile, get_certs=get_certs, timeout=timeout)
+        scan_results = [queue.scan_urls(app, targets, profile=profile, prefs=prefs,
+                                        get_certs=get_certs, timeout=timeout)
                         for targets in chunks]
         result = queue.collect(scan_results)
 

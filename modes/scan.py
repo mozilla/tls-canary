@@ -26,13 +26,6 @@ class ScanMode(BaseMode):
 
         super(ScanMode, self).__init__(args, module_dir, tmp_dir)
 
-        # argument validation logic to make sure user has specified only test build
-        if args.test is None:
-            logger.critical('Must specify test build for scan')
-            sys.exit(1)
-        elif args.base is not None:
-            logger.debug('Found base build parameter, ignoring')
-
         # Define instance attributes for later use
         self.url_set = None
         self.info_uri_set = None
@@ -43,6 +36,13 @@ class ScanMode(BaseMode):
 
     def setup(self):
         global logger
+
+        # argument validation logic to make sure user has specified only test build
+        if self.args.test is None:
+            logger.critical('Must specify test build for scan')
+            sys.exit(1)
+        elif self.args.base is not None:
+            logger.debug('Found base build parameter, ignoring')
 
         # Code paths after this will generate a report, so check
         # whether the report dir is a valid target. Specifically, prevent
@@ -72,7 +72,8 @@ class ScanMode(BaseMode):
     def run(self):
         # Perform the scan
         self.start_time = datetime.datetime.now()
-        self.info_uri_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile, get_info=True,
+        self.info_uri_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile,
+                                          prefs=self.args.prefs, get_info=True,
                                           get_certs=True, progress=True, return_only_errors=False)
 
     def report(self):

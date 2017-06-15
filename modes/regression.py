@@ -41,10 +41,25 @@ class RegressionMode(BaseMode):
     def setup(self):
         global logger
 
+        # argument validation logic to make sure user has test build
+        if self.args.test is None:
+            logger.critical('Must specify test build for scan')
+            sys.exit(1)
+        elif self.args.base is None:
+            logger.critical('Must specify base build for scan')
+            sys.exit(1)
+
+        if self.args.prefs is not None:
+            if self.args.prefs_test is not None or self.args.prefs_base is not None:
+                logger.warning("Detected both global prefs and individual build prefs.")
+
         # Code paths after this will generate a report, so check
         # whether the report dir is a valid target. Specifically, prevent
         # writing to the module directory.
         module_dir = pkgr.require("tls_canary")[0].location
+
+        logging.info ("module dir: %s", module_dir)
+        logging.info ("report dir: %s", os.path.normcase(os.path.realpath(self.args.reportdir)))
         if os.path.normcase(os.path.realpath(self.args.reportdir))\
                 .startswith(os.path.normcase(os.path.realpath(module_dir))):
             logger.critical("Refusing to write report to module directory. Please set --reportdir")
@@ -109,11 +124,13 @@ class RegressionMode(BaseMode):
 
         logger.info("Starting first pass with %d URLs" % len(self.url_set))
 
-        test_error_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile, progress=True)
+        test_error_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile,
+                                       prefs=self.args.prefs_test, progress=True)
         logger.info("First test candidate pass yielded %d error URLs" % len(test_error_set))
         logger.debug("First test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile, progress=True)
+        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
+                                       prefs=self.args.prefs_base, progress=True)
         logger.info("First baseline candidate pass yielded %d error URLs" % len(base_error_set))
         logger.debug(
             "First baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
@@ -128,12 +145,14 @@ class RegressionMode(BaseMode):
         logger.info("Starting second pass with %d URLs" % len(error_set))
 
         test_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile,
+                                       prefs=self.args.prefs_test,
                                        num_workers=int(ceil(self.args.parallel / 1.414)),
                                        n_per_worker=int(ceil(self.args.requestsperworker / 1.414)))
         logger.info("Second test candidate pass yielded %d error URLs" % len(test_error_set))
         logger.debug("Second test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile)
+        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
+                                       prefs=self.args.prefs_base)
         logger.info("Second baseline candidate pass yielded %d error URLs" % len(base_error_set))
         logger.debug(
             "Second baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
@@ -147,13 +166,13 @@ class RegressionMode(BaseMode):
 
         logger.info("Starting third pass with %d URLs" % len(error_set))
 
-        test_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile, num_workers=2,
-                                       n_per_worker=10)
+        test_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile,
+                                       prefs=self.args.prefs_test, num_workers=2, n_per_worker=10)
         logger.info("Third test candidate pass yielded %d error URLs" % len(test_error_set))
         logger.debug("Third test candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
 
-        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile, num_workers=2,
-                                       n_per_worker=10)
+        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
+                                       prefs=self.args.prefs_base, num_workers=2, n_per_worker=10)
         logger.info("Third baseline candidate pass yielded %d error URLs" % len(base_error_set))
         logger.debug(
             "Third baseline candidate pass errors: %s" % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
@@ -166,8 +185,9 @@ class RegressionMode(BaseMode):
         # - Have workers return extra runtime information, including certificates
 
         logger.info("Extracting runtime information from %d URLs" % (len(error_set)))
-        final_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile, num_workers=1,
-                                        n_per_worker=10, get_info=True, get_certs=True)
+        final_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile,
+                                        prefs=self.args.prefs_test, num_workers=1, n_per_worker=10,
+                                        get_info=True, get_certs=True)
 
         # Final set includes additional result data, so filter that out before comparison
         stripped_final_set = set()
