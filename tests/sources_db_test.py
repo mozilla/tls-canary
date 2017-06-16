@@ -5,7 +5,7 @@
 from nose.tools import *
 import os
 
-import sources_db as sdb
+import tlscanary.sources_db as sdb
 import tests
 
 

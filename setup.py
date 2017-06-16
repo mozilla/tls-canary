@@ -4,26 +4,64 @@
 
 from setuptools import setup, find_packages
 
-PACKAGE_VERSION = '3.1.0-alpha.3'
+PACKAGE_NAME = 'tlscanary'
+PACKAGE_VERSION = '3.1.0a14'
 
-# Dependencies
-with open('requirements.txt') as f:
-    deps = f.read().splitlines()
+INSTALL_REQUIRES = [
+    'coloredlogs',
+    'cryptography',
+    'ipython',
+    'worq'
+]
 
-setup(name='tls_canary',
-      version=PACKAGE_VERSION,
-      description='TLS/SSL Test Suite for Firefox',
-      classifiers=[],
-      keywords='mozilla',
-      author='Christiane Ruetten',
-      author_email='cr@mozilla.com',
-      url='https://github.com/cr/tls-canary',
-      license='MPL',
-      packages=find_packages(),
-      include_package_data=True,
-      zip_safe=False,
-      install_requires=deps,
-      entry_points={"console_scripts": [
-                    "tls_canary = main:main"
-      ]}
+TESTS_REQUIRE = [
+    'nose',
+    'mock'
+]
+
+DEV_REQUIRES = [
+    'nose',
+    'mock',
+    'pep8'
+]
+
+setup(
+    name=PACKAGE_NAME,
+    version=PACKAGE_VERSION,
+    description='TLS/SSL Test Suite for Mozilla Firefox',
+    classifiers=[
+        'Environment :: Console',
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
+        'Natural Language :: English',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows :: Windows 10',
+        'Operating System :: Microsoft :: Windows :: Windows 7',
+        'Operating System :: Microsoft :: Windows :: Windows 8',
+        'Operating System :: Microsoft :: Windows :: Windows 8.1',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Software Development :: Quality Assurance',
+        'Topic :: Software Development :: Testing'
+    ],
+    keywords=['mozilla', 'firefox', 'tls', 'regression-testing', 'testing'],
+    author='Christiane Ruetten',
+    author_email='cr@mozilla.com',
+    url='https://github.com/mozilla/tls-canary',
+    download_url='https://github.com/mozilla/tls-canary/archive/latest.tar.gz',
+    license='MPL2',
+    packages=find_packages(exclude=["tests"]),
+    include_package_data=True,  # See MANIFEST.in
+    zip_safe=False,
+    use_2to3=False,
+    install_requires=INSTALL_REQUIRES,
+    tests_require=TESTS_REQUIRE,
+    extras_require={'dev': DEV_REQUIRES},  # For `pip install -e .[dev]`
+    test_suite='nose.collector',
+    entry_points={
+        'console_scripts': [
+            'tlscanary = tlscanary.main:main'
+        ]
+    }
 )

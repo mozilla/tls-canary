@@ -7,7 +7,7 @@ from nose.tools import *
 import os
 from time import sleep
 
-import firefox_downloader as fd
+import tlscanary.firefox_downloader as fd
 import tests
 
 
@@ -45,6 +45,7 @@ def test_firefox_downloader_exceptions():
 @mock.patch('sys.stdout')  # to silence progress bar
 def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     """Test the download function"""
+    del mock_stdout
 
     # This test is checking caching behavior, hence:
     # Using a test-specific test directory to not wipe regular cache.
@@ -55,14 +56,14 @@ def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     mock_req = mock.Mock()
     mock_read = mock.Mock(side_effect=("foo", "bar", None))
     mock_info = mock.Mock()
-    mock_getheader = mock.Mock(return_value="6")
-    mock_info.return_value = mock.Mock(getheader=mock_getheader)
+    mock_get = mock.Mock(return_value="6")
+    mock_info.return_value = mock.Mock(get=mock_get)
     mock_req.info = mock_info
     mock_req.read = mock_read
     mock_urlopen.return_value = mock_req
 
     output_file_name = fdl.download("nightly", "linux", use_cache=True)
-    assert_equal(mock_getheader.call_args_list, [(("Content-Length",),)],
+    assert_equal(mock_get.call_args_list, [(("Content-Length",),)],
                  "only checks content length (assumed by test mock)")
     expected_url = """https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US"""
     assert_true(mock_urlopen.call_args_list == [((expected_url,),)], "downloads the expected URL")
@@ -90,8 +91,8 @@ def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     assert_true(mock_read.called, "re-downloads when cache is stale")
 
     # Test caching when file changes upstream (checks file size).
-    mock_getheader.reset_mock()
-    mock_getheader.return_value = "7"
+    mock_get.reset_mock()
+    mock_get.return_value = "7"
     mock_read.reset_mock()
     mock_read.side_effect = ("foo", "barr", None)
     fdl.download("nightly", "linux", use_cache=True)

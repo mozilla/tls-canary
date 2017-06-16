@@ -8,7 +8,7 @@ from nose.tools import *
 from time import sleep
 
 import tests
-import xpcshell_worker as xw
+import tlscanary.xpcshell_worker as xw
 
 
 @mock.patch('sys.stdout')  # to silence progress bar

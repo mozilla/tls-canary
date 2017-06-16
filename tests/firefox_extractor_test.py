@@ -5,11 +5,12 @@
 from nose import SkipTest
 from nose.tools import *
 import os
+import pkg_resources as pkgr
 import subprocess
 
 
-import firefox_extractor as fe
-import firefox_app as fa
+import tlscanary.firefox_extractor as fe
+import tlscanary.firefox_app as fa
 import tests
 
 
@@ -22,7 +23,7 @@ def test_osx_extractor():
     if sz_version < 16:
         raise SkipTest('7-zip version 16 required to extract DMG images')
 
-    test_archive = os.path.join(tests.test_dir, "files", "firefox-nightly_osx-dummy.dmg")
+    test_archive = pkgr.resource_filename(__name__, "files/firefox-nightly_osx-dummy.dmg")
     assert_true(os.path.isfile(test_archive))
 
     app = fe.extract(test_archive, tests.tmp_dir)
@@ -41,7 +42,7 @@ def test_osx_extractor():
 def test_linux_extractor():
     """Extractor can extract a Linux Nightly archive"""
 
-    test_archive = os.path.join(tests.test_dir, "files", "firefox-nightly_linux-dummy.tar.bz2")
+    test_archive = pkgr.resource_filename(__name__, "files/firefox-nightly_linux-dummy.tar.bz2")
     assert_true(os.path.isfile(test_archive))
 
     app = fe.extract(test_archive, tests.tmp_dir)
@@ -60,7 +61,7 @@ def test_linux_extractor():
 def test_win_extractor():
     """Extractor can extract a Windows Nightly archive"""
 
-    test_archive = os.path.join(tests.test_dir, "files", "firefox-nightly_win-dummy.exe")
+    test_archive = pkgr.resource_filename(__name__, "files/firefox-nightly_win-dummy.exe")
     assert_true(os.path.isfile(test_archive))
 
     app = fe.extract(test_archive, tests.tmp_dir)
