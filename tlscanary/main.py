@@ -55,10 +55,6 @@ def get_argparser():
                         choices=[0, 1],
                         action='store',
                         default=1)
-    parser.add_argument('-i', '--ipython',
-                        help='Drop into ipython shell after test run',
-                        action='store_true',
-                        default=False)
     parser.add_argument('-j', '--parallel',
                         help='Number of parallel worker instances (default: 4)',
                         type=int,
@@ -125,11 +121,9 @@ def get_argparser():
                         action='store',
                         default=3)
     parser.add_argument('mode',
-                        help='Test mode to run. (default: `%s`)' % modes.default_mode,
+                        help='Test mode to run (mandatory)',
                         choices=modes.all_mode_names,
-                        action='store',
-                        nargs='?',
-                        default=modes.default_mode)
+                        action='store')
     return parser
 
 
@@ -275,9 +269,5 @@ def main():
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
         return False
-
-    if args.ipython:
-        from IPython import embed
-        embed()
 
     return True

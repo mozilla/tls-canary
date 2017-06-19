@@ -23,5 +23,3 @@ def __subclasses_of(cls):
 all_modes = dict([(mode.name, mode) for mode in __subclasses_of(basemode.BaseMode)])
 all_mode_names = all_modes.keys()
 all_mode_names.sort()
-default_mode = "regression"  # name of the default mode as listed in <mode class>.name
-assert default_mode in all_mode_names
