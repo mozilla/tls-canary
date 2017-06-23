@@ -69,8 +69,8 @@ class RegressionMode(BaseMode):
         self.base_metadata = self.collect_worker_info(self.base_app)
 
         # Setup custom profiles
-        self.test_profile = self.make_profile("test_profile")
-        self.base_profile = self.make_profile("base_profile")
+        self.test_profile = self.make_profile("test_profile", self.args.onecrl)
+        self.base_profile = self.make_profile("base_profile", "production")
 
         # Compile the set of URLs to test
         db = sdb.SourcesDB(self.args)

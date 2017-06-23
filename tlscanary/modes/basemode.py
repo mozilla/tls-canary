@@ -76,7 +76,7 @@ class BaseMode(object):
         worker.terminate()
         return result
 
-    def make_profile(self, profile_name):
+    def make_profile(self, profile_name, one_crl_env='production'):
         global logger
 
         # create directories for profiles
@@ -90,9 +90,9 @@ class BaseMode(object):
         dir_util.copy_tree(default_profile_dir, new_profile_dir)
 
         logger.info("Updating OneCRL revocation data")
-        if self.args.onecrl == "production" or self.args.onecrl == "stage":
+        if one_crl_env == "production" or one_crl_env == "stage":
             # overwrite revocations file in test profile with live OneCRL entries from requested environment
-            revocations_file = one_crl.get_list(self.args.onecrl, self.args.workdir)
+            revocations_file = one_crl.get_list(one_crl_env, self.args.workdir)
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
             logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
             shutil.copyfile(revocations_file, profile_file)
