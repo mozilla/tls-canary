@@ -254,7 +254,7 @@ def main():
             else:
                 default = ""
             print "  - %s [%d hosts]%s" % (handle, len(test_set), default)
-        sys.exit(1)
+        return 0
 
     # Create workdir (usually ~/.tlscanary, used for caching etc.)
     # Assumes that no previous code must write to it.
@@ -268,6 +268,6 @@ def main():
 
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
-        return False
+        return 10
 
-    return True
+    return 0
