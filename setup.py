@@ -5,7 +5,7 @@
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'tlscanary'
-PACKAGE_VERSION = '3.1.0a15'
+PACKAGE_VERSION = '3.1.0a16'
 
 INSTALL_REQUIRES = [
     'coloredlogs',
