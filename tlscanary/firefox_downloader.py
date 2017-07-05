@@ -114,7 +114,10 @@ class FirefoxDownloader(object):
         # We internally use slightly different platform naming, so translate
         # internal platform name to the platform name used in download URL.
         download_platform = FirefoxDownloader.__platforms[platform]['platform']
-        return FirefoxDownloader.build_urls[build].format(platform=download_platform)
+        if build in FirefoxDownloader.build_urls:
+            return FirefoxDownloader.build_urls[build].format(platform=download_platform)
+        else:
+            return None
 
     def __init__(self, workdir, cache_timeout=24*60*60):
         self.__workdir = workdir

@@ -41,8 +41,8 @@ def get_argparser():
     parser = argparse.ArgumentParser(prog="tlscanary")
     parser.add_argument('--version', action='version', version='%(prog)s ' + pkg_version)
     parser.add_argument('-b', '--base',
-                        help='Firefox base version to compare against (default: `%s`)' % base_default,
-                        choices=release_choice,
+                        help=('Firefox base version to compare against. It can be one of {%s}, a package file, '
+                              'or a build directory (default: `%s`)') % (",".join(release_choice), base_default),
                         action='store',
                         default=base_default)
     parser.add_argument('-d', '--debug',
@@ -106,8 +106,8 @@ def get_argparser():
                         action='store',
                         default=testset_default)
     parser.add_argument('-t', '--test',
-                        help='Firefox version to test (default: `%s`)' % test_default,
-                        choices=release_choice,
+                        help=('Firefox version to test. It can be one of {%s}, a package file, '
+                              'or a build directory (default: `%s`)') % (",".join(release_choice), test_default),
                         action='store',
                         default=test_default)
     parser.add_argument('-w', '--workdir',
