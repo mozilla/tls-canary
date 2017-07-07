@@ -141,7 +141,7 @@ Argument | Choices / **default** | Description
 -f --filter | 0, **1** | The default filter level 1 removes network timeouts from reports which may appear spuriously. Filter level 0 applies no filtering.
 -h --help | | Longer usage information
 -j --parallel | 4 | Number of parallel firefox worker instances the host set will be distributed among
--l --limit | | The number of hosts in the test set is limited to the given number. The default is to scan all the hosts in the set.
+-l --limit | 100000 | The number of hosts in the test set is limited to the given number. Default is 100000 hosts. You can increase the limit, but such runs will require LOTS of memory (90 GBytes and more) and can cause instability.
 -m --timeout | 10 | Request timeout in seconds. Running more requests in parallel increases network latency and results in more timeouts.
 -n --requestsperworker | 50 | Chunk size of hosts that a worker will query in parallel.
 -o --onecrl | **production**, stage, custom | OneCRL revocation list to install to the test profiles. `custom` uses a pre-configured, static list.

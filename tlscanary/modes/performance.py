@@ -36,8 +36,8 @@ class PerformanceMode(RegressionMode):
         # because 1000 URIs x 20 scans per URI x 2 builds is a lot of data
         # will investigate upper limit later
         if self.args.limit > 1000:
-            logger.critical("Limiting performance test to 1000 URIs for now")
-            sys.exit(1)
+            logger.warning("Limiting performance tests to 1000 hosts.")
+            self.args.limit = 1000
         if self.args.scans > 20:
             logger.critical("Limiting performance test to 20 scans per URI list for now")
             sys.exit(1)
