@@ -97,9 +97,13 @@ class FirefoxApp(object):
         # Determine Firefox version
         ini_parser = ConfigParser.SafeConfigParser()
         ini_parser.read(self.app_ini)
+        self.application_ini = dict(ini_parser.items("App"))
         self.version = ini_parser.get("App", "Version")
         # For versions that have no `CodeName` specified, extract it from the repo name.
         try:
             self.release = ini_parser.get("App", "CodeName")
         except ConfigParser.NoOptionError:
             self.release = ini_parser.get("App", "sourcerepository").split("-")[-1]
+
+        # Field for optional package origin metadata (must be provided externally)
+        self.package_origin = None

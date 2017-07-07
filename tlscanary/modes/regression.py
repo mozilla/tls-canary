@@ -5,13 +5,12 @@
 import datetime
 import logging
 from math import ceil
-import os
 import pkg_resources as pkgr
 import sys
 
 from basemode import BaseMode
-import tlscanary.firefox_downloader as fd
 import tlscanary.report as report
+import tlscanary.runlog as rl
 import tlscanary.sources_db as sdb
 
 
@@ -21,6 +20,7 @@ logger = logging.getLogger(__name__)
 class RegressionMode(BaseMode):
 
     name = "regression"
+    help = "Run a TLS regression test on two Firefox versions"
 
     def __init__(self, args, module_dir, tmp_dir):
         global logger
@@ -28,39 +28,29 @@ class RegressionMode(BaseMode):
         super(RegressionMode, self).__init__(args, module_dir, tmp_dir)
 
         # Define instance attributes for later use
+        self.start_time = None
         self.test_app = None
         self.base_app = None
         self.test_metadata = None
         self.base_metadata = None
         self.test_profile = None
         self.base_profile = None
-        self.start_time = None
         self.url_set = None
-        self.error_set = None
 
     def setup(self):
         global logger
 
-        # argument validation logic to make sure user has test build
+        # Argument validation logic to make sure user has test build
         if self.args.test is None:
-            logger.critical('Must specify test build for scan')
-            sys.exit(1)
+            logger.critical("Must specify test build for regression testing")
+            sys.exit(5)
         elif self.args.base is None:
-            logger.critical('Must specify base build for scan')
-            sys.exit(1)
+            logger.critical("Must specify base build for regression testing")
+            sys.exit(5)
 
         if self.args.prefs is not None:
             if self.args.prefs_test is not None or self.args.prefs_base is not None:
                 logger.warning("Detected both global prefs and individual build prefs.")
-
-        # Code paths after this will generate a report, so check
-        # whether the report dir is a valid target. Specifically, prevent
-        # writing to the module directory.
-        module_dir = pkgr.require("tlscanary")[0].location
-        if os.path.normcase(os.path.realpath(self.args.reportdir))\
-                .startswith(os.path.normcase(os.path.realpath(module_dir))):
-            logger.critical("Refusing to write report to module directory. Please set --reportdir")
-            sys.exit(1)
 
         self.test_app = self.get_test_candidate(self.args.test)
         self.base_app = self.get_test_candidate(self.args.base)
@@ -82,31 +72,40 @@ class RegressionMode(BaseMode):
         global logger
 
         logger.info("Testing Firefox %s %s against Firefox %s %s" %
-                    (self.test_metadata["appVersion"], self.test_metadata["branch"],
-                     self.base_metadata["appVersion"], self.base_metadata["branch"]))
+                    (self.test_metadata["app_version"], self.test_metadata["branch"],
+                     self.base_metadata["app_version"], self.base_metadata["branch"]))
 
         self.start_time = datetime.datetime.now()
-        self.error_set = self.run_regression_passes(self.module_dir, self.test_app, self.base_app)
 
-    def report(self):
-        header = {
-            "mode": self.args.mode,
-            "timestamp": self.start_time.strftime("%Y-%m-%d-%H-%M-%S"),
-            "branch": self.test_metadata["branch"].capitalize(),
-            "description": "Fx%s %s vs Fx%s %s" % (self.test_metadata["appVersion"], self.test_metadata["branch"],
-                                                   self.base_metadata["appVersion"], self.base_metadata["branch"]),
-            "source": self.args.source,
-            "test build url": fd.FirefoxDownloader.get_download_url(self.args.test, self.test_app.platform),
-            "release build url": fd.FirefoxDownloader.get_download_url(self.args.base, self.base_app.platform),
-            "test build metadata": "%s, %s" % (self.test_metadata["nssVersion"], self.test_metadata["nsprVersion"]),
-            "release build metadata": "%s, %s" % (self.base_metadata["nssVersion"], self.base_metadata["nsprVersion"]),
-            "Total time": "%d minutes" % int(round((datetime.datetime.now() - self.start_time).total_seconds() / 60))
+        meta = {
+            "tlscanary_version": pkgr.require("tlscanary")[0].version,
+            "mode": self.name,
+            "args": vars(self.args),
+            "argv": sys.argv,
+            "test_metadata": self.test_metadata,
+            "base_metadata": self.base_metadata,
+            "run_start_time": datetime.datetime.utcnow().isoformat()
         }
-        report.generate(self.args, header, self.error_set, self.start_time)
+
+        rldb = rl.RunLogDB(self.args)
+        log = rldb.new_log()
+        log.start(meta=meta)
+
+        error_set = self.run_regression_passes(self.module_dir, self.test_app, self.base_app)
+
+        for rank, host, result in error_set:
+            log.log(result.as_dict())
+
+        meta["run_finish_time"] = datetime.datetime.utcnow().isoformat()
+        self.save_profile(self.test_profile, "test_profile", log)
+        self.save_profile(self.base_profile, "base_profile", log)
+        log.stop(meta=meta)
 
     def teardown(self):
-        self.save_profile("test_profile", self.start_time)
-        self.save_profile("base_profile", self.start_time)
+        # TODO: move profile saving to run
+        # self.save_profile("test_profile", self.start_time)
+        # self.save_profile("base_profile", self.start_time)
+        pass
 
     def run_regression_passes(self, module_dir, test_app, base_app):
         del module_dir, test_app, base_app  # unused parameters
@@ -184,7 +183,8 @@ class RegressionMode(BaseMode):
         logger.info("Extracting runtime information from %d URLs" % (len(error_set)))
         final_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile,
                                         prefs=self.args.prefs_test, num_workers=1, n_per_worker=10,
-                                        get_info=True, get_certs=True)
+                                        get_info=True, get_certs=True,
+                                        return_only_errors=False)  # FIXME: Remove this
 
         # Final set includes additional result data, so filter that out before comparison
         stripped_final_set = set()

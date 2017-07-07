@@ -10,6 +10,7 @@ import pkg_resources
 import shutil
 import sys
 import tempfile
+import time
 
 import cleanup
 import firefox_downloader as fd
@@ -19,112 +20,44 @@ import sources_db as sdb
 
 
 # Initialize coloredlogs
+logging.Formatter.converter = time.gmtime
 logger = logging.getLogger(__name__)
 coloredlogs.DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s"
-coloredlogs.install(level='INFO')
+coloredlogs.install(level="INFO")
 
 
-def get_argparser():
+def parse_args(argv=None):
     """
-    Argument parsing
-    :return: Parsed arguments object
+    Argument parsing. Parses from sys.argv if argv is None.
+    :param argv: argument vector to parse
+    :return: parsed arguments
     """
+    if argv is None:
+        argv = sys.argv[1:]
+
     pkg_version = pkg_resources.require("tlscanary")[0].version
-    home = os.path.expanduser('~')
-    # By nature of workdir being undetermined at this point, user-defined test sets in
-    # the override directory can not override the default test set. The defaulting logic
-    # needs to move behind the argument parser for that to happen.
-    src = sdb.SourcesDB()
-    testset_default = src.default
-    release_choice, _, test_default, base_default = fd.FirefoxDownloader.list()
+    home = os.path.expanduser("~")
 
+    # Set up the parent parser with shared arguments
     parser = argparse.ArgumentParser(prog="tlscanary")
-    parser.add_argument('--version', action='version', version='%(prog)s ' + pkg_version)
-    parser.add_argument('-b', '--base',
-                        help=('Firefox base version to compare against. It can be one of {%s}, a package file, '
-                              'or a build directory (default: `%s`)') % (",".join(release_choice), base_default),
-                        action='store',
-                        default=base_default)
-    parser.add_argument('-d', '--debug',
-                        help='Enable debug',
-                        action='store_true',
-                        default=False)
-    parser.add_argument('-f', '--filter',
-                        help='Filter level for results 0:none 1:timeouts (default: 1)',
-                        type=int,
-                        choices=[0, 1],
-                        action='store',
-                        default=1)
-    parser.add_argument('-j', '--parallel',
-                        help='Number of parallel worker instances (default: 4)',
-                        type=int,
-                        action='store',
-                        default=4)
-    parser.add_argument('-l', '--limit',
-                        help='Limit for number of hosts to test (default: no limit)',
-                        type=int,
-                        action='store',
-                        default=None)
-    parser.add_argument('-m', '--timeout',
-                        help='Timeout for worker requests (default: 10)',
-                        type=float,
-                        action='store',
-                        default=10)
-    parser.add_argument('-n', '--requestsperworker',
-                        help='Number of requests per worker (default: 50)',
-                        type=int,
-                        action='store',
-                        default=50)
-    parser.add_argument('-o', '--onecrl',
-                        help='OneCRL set to test (default: production)',
-                        type=str.lower,
-                        choices=["production", "stage", "custom"],
-                        action='store',
-                        default='production')
-    parser.add_argument('-p', '--prefs',
-                        help='Prefs to apply to all builds',
-                        type=str,
-                        action='append',
-                        default=None)
-    parser.add_argument('-p1', '--prefs_test',
-                        help='Prefs to apply to test build',
-                        type=str,
-                        action='append',
-                        default=None)
-    parser.add_argument('-p2', '--prefs_base',
-                        help='Prefs to apply to base build',
-                        type=str,
-                        action='append',
-                        default=None)
-    parser.add_argument('-r', '--reportdir',
-                        help='Path to report output directory (default: cwd)',
+    parser.add_argument("--version", action="version", version="%(prog)s " + pkg_version)
+    parser.add_argument("-d", "--debug",
+                        help="Enable debug",
+                        action="store_true")
+    parser.add_argument("-w", "--workdir",
+                        help="Path to working directory",
                         type=os.path.abspath,
-                        action='store',
-                        default=os.getcwd())
-    parser.add_argument('-s', '--source',
-                        help='Test set to run. Use `list` for info. (default: `%s`)' % testset_default,
-                        action='store',
-                        default=testset_default)
-    parser.add_argument('-t', '--test',
-                        help=('Firefox version to test. It can be one of {%s}, a package file, '
-                              'or a build directory (default: `%s`)') % (",".join(release_choice), test_default),
-                        action='store',
-                        default=test_default)
-    parser.add_argument('-w', '--workdir',
-                        help='Path to working directory',
-                        type=os.path.abspath,
-                        action='store',
-                        default='%s/.tlscanary' % home)
-    parser.add_argument('-x', '--scans',
-                        help='Number of scans per host (default: 3)',
-                        type=int,
-                        action='store',
-                        default=3)
-    parser.add_argument('mode',
-                        help='Test mode to run (mandatory)',
-                        choices=modes.all_mode_names,
-                        action='store')
-    return parser
+                        action="store",
+                        default="%s/.tlscanary" % home)
+
+    # Set up subparsers, one for each mode
+    subparsers = parser.add_subparsers(help="Run mode", dest="mode")
+    for mode_name in modes.all_modes:
+        mode_class = modes.all_modes[mode_name]
+        sub_parser = subparsers.add_parser(mode_name, help=mode_class.help)
+        mode_class.setup_args(sub_parser)
+
+    return parser.parse_args(argv)
 
 
 tmp_dir = None
@@ -222,13 +155,12 @@ class ResetTerminalEncoding(cleanup.CleanUp):
 
 
 # This is the entry point used in setup.py
-def main():
+def main(argv=None):
     global logger, tmp_dir, module_dir
 
     module_dir = os.path.split(__file__)[0]
 
-    parser = get_argparser()
-    args = parser.parse_args()
+    args = parse_args(argv)
 
     if args.debug:
         coloredlogs.install(level='DEBUG')
@@ -240,7 +172,7 @@ def main():
     tmp_dir = __create_tempdir()
 
     # If 'list' is specified as test, list available test sets, builds, and platforms
-    if args.source == "list":
+    if "source" in args and args.source == "list":
         coloredlogs.install(level='ERROR')
         db = sdb.SourcesDB(args)
         build_list, platform_list, _, _ = fd.FirefoxDownloader.list()

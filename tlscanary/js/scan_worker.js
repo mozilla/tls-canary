@@ -22,14 +22,9 @@ let nssErrorsService = Cc['@mozilla.org/nss_errors_service;1'].getService(nsINSS
 
 
 function get_runtime_info() {
-
-    let nss_info = Cc["@mozilla.org/security/nssversion;1"].getService(Ci.nsINSSVersion);
-
     return {
-        nssVersion: "NSS " + nss_info.NSS_Version,
-        nsprVersion: "NSPR " + nss_info.NSPR_Version,
-        branch: AppConstants.MOZ_UPDATE_CHANNEL,
-        appVersion: AppConstants.MOZ_APP_VERSION_DISPLAY
+        nssInfo: Cc["@mozilla.org/security/nssversion;1"].getService(Ci.nsINSSVersion),
+        appConstants: AppConstants
     };
 }
 

@@ -4,10 +4,11 @@
 
 import datetime
 import logging
+import pkg_resources as pkgr
 import sys
 
 from regression import RegressionMode
-import tlscanary.firefox_downloader as fd
+import tlscanary.runlog as rl
 import tlscanary.report as report
 
 
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 class PerformanceMode(RegressionMode):
 
     name = "performance"
+    help = "Run a performance regression test on two Firefox versions"
 
     def __init__(self, args, module_dir, tmp_dir):
         global logger
@@ -28,7 +30,6 @@ class PerformanceMode(RegressionMode):
         self.test_uri_set = None
         self.base_uri_set = None
         self.total_change = None
-        self.error_set = None
 
     def setup(self):
         # Additional argument validation for hard-coded limits,
@@ -42,11 +43,24 @@ class PerformanceMode(RegressionMode):
             sys.exit(1)
         super(PerformanceMode, self).setup()
 
-
-
     def run(self):
         # Perform the scan
         self.start_time = datetime.datetime.now()
+
+        meta = {
+            "tlscanary_version": pkgr.require("tlscanary")[0].version,
+            "mode": self.name,
+            "args": vars(self.args),
+            "argv": sys.argv,
+            "test_metadata": self.test_metadata,
+            "base_metadata": self.base_metadata,
+            "run_start_time": datetime.datetime.utcnow().isoformat()
+        }
+
+        rldb = rl.RunLogDB(self.args)
+        log = rldb.new_log()
+        log.start(meta=meta)
+
         test_uri_sets = []
         base_uri_sets = []
 
@@ -94,7 +108,15 @@ class PerformanceMode(RegressionMode):
             test_record[2].response.connection_speed_base_samples = base_record[2].response.connection_speed_samples
 
         self.total_change = float((test_speed_aggregate - base_speed_aggregate) / base_speed_aggregate) * 100
-        self.error_set = self.test_uri_set
+
+        for rank, host, result in self.test_uri_set:
+            log.log(result.as_dict())
+
+        meta["run_finish_time"] = datetime.datetime.utcnow().isoformat()
+        meta["total_change"] = self.total_change
+        self.save_profile(self.test_profile, "test_profile", log)
+        self.save_profile(self.base_profile, "base_profile", log)
+        log.stop(meta=meta)
 
     @staticmethod
     def extract_connection_speed(uri_set):
@@ -116,24 +138,3 @@ class PerformanceMode(RegressionMode):
                 temp_speeds.append(speed)
             record[2].response.connection_speed_average = speed_aggregate / self.args.scans
             record[2].response.connection_speed_samples = str(temp_speeds).strip('[]')
-
-    def report(self):
-        header = {
-            "mode": self.args.mode,
-            "timestamp": self.start_time.strftime("%Y-%m-%d-%H-%M-%S"),
-            "branch": self.test_metadata["branch"].capitalize(),
-            "description": "Fx%s %s vs Fx%s %s" % (self.test_metadata["appVersion"], self.test_metadata["branch"],
-                                                   self.base_metadata["appVersion"], self.base_metadata["branch"]),
-            "source": self.args.source,
-            "test build url": fd.FirefoxDownloader.get_download_url(self.args.test, self.test_app.platform),
-            "release build url": fd.FirefoxDownloader.get_download_url(self.args.base, self.base_app.platform),
-            "test build metadata": "%s, %s" % (self.test_metadata["nssVersion"], self.test_metadata["nsprVersion"]),
-            "release build metadata": "%s, %s" % (self.base_metadata["nssVersion"], self.base_metadata["nsprVersion"]),
-            "Total time": "%d minutes" % int(round((datetime.datetime.now() - self.start_time).total_seconds() / 60)),
-            "Total percent speed change": "%s" % int(self.total_change)
-        }
-        # For now, do not update runs log, as this is not a regression test.
-        #
-        # We will change the reporting UI later to accomodate the display
-        # of all types of test modes.
-        report.generate(self.args, header, self.error_set, self.start_time, False)

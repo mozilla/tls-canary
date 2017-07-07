@@ -23,6 +23,7 @@ class SourceUpdateMode(BaseMode):
     """
 
     name = "srcupdate"
+    help = "Update hosts databases used by other modes"
 
     # There are various top sites databases that might be considered for querying here.
     # The other notable database is the notorious `Alexa Top 1M` which is available at
@@ -44,7 +45,6 @@ class SourceUpdateMode(BaseMode):
         self.sources = None
         self.app = None
         self.profile = None
-        self.result = None
 
     def setup(self):
         global logger
@@ -154,13 +154,9 @@ class SourceUpdateMode(BaseMode):
         if len(final_src) < limit:
             logger.warning("Ran out of hosts to complete the working set")
 
-        self.result = final_src
-
-    def report(self):
-        # There is no actual report for this mode, just write out the database
-        logger.info("Collected %d working hosts for the updated test set" % len(self.result))
-        logger.info("Writing updated `%s` host database" % self.result.handle)
-        self.db.write(self.result)
+        logger.info("Collected %d working hosts for the updated test set" % len(final_src))
+        logger.info("Writing updated `%s` host database" % final_src.handle)
+        self.db.write(final_src)
 
     def teardown(self):
         # Free some memory
@@ -168,4 +164,3 @@ class SourceUpdateMode(BaseMode):
         self.sources = None
         self.app = None
         self.profile = None
-        self.result = None

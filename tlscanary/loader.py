@@ -20,10 +20,9 @@ def run(args, module_dir, tmp_dir):
     try:
         current_mode = modes.all_modes[args.mode](args, module_dir, tmp_dir)
     except KeyError:
-        logger.critical("Unknown run mode `%s`. Choose one of: %s" % (args.mode, ", ".join(args.all_mode_names)))
-        sys.exit(1)
+        logger.critical("Unknown run mode `%s`. Choose one of: %s" % (args.mode, ", ".join(modes.all_mode_names)))
+        sys.exit(5)
 
     current_mode.setup()
     current_mode.run()
-    current_mode.report()
     current_mode.teardown()

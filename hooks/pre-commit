@@ -43,7 +43,13 @@ def main():
                 os.makedirs(filepath)
             with file(filename, 'w') as f:
                 system('git', 'show', ':' + name, stdout=f)
-    output = system('pep8', '--show-source', '--max-line-length=120', '.', cwd=tempdir)
+    try:
+        output = system('pep8', '--show-source', '--max-line-length=120', '.', cwd=tempdir)
+    except OSError:
+        print "The `pip8` checker is required for commits."
+        print "You probably haven't activated TLS Canary's Python dev environment."
+        sys.exit(1)
+
     shutil.rmtree(tempdir)
     if output:
         print output,

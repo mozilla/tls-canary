@@ -4,13 +4,12 @@
 
 import datetime
 import logging
-import os
 import pkg_resources as pkgr
 import sys
 
 from basemode import BaseMode
-import tlscanary.firefox_downloader as fd
 import tlscanary.report as report
+import tlscanary.runlog as rl
 import tlscanary.sources_db as sdb
 
 
@@ -20,6 +19,7 @@ logger = logging.getLogger(__name__)
 class ScanMode(BaseMode):
 
     name = "scan"
+    help = "Collect SSL connection state info on hosts"
 
     def __init__(self, args, module_dir, tmp_dir):
         global logger
@@ -27,31 +27,22 @@ class ScanMode(BaseMode):
         super(ScanMode, self).__init__(args, module_dir, tmp_dir)
 
         # Define instance attributes for later use
+        self.log = None
+        self.start_time = None
         self.url_set = None
-        self.info_uri_set = None
         self.test_profile = None
         self.test_app = None
         self.test_metadata = None
-        self.start_time = None
 
     def setup(self):
         global logger
 
-        # argument validation logic to make sure user has specified only test build
+        # Argument validation logic to make sure user has specified only test build
         if self.args.test is None:
-            logger.critical('Must specify test build for scan')
-            sys.exit(1)
+            logger.critical("Must specify test build for scan")
+            sys.exit(5)
         elif self.args.base is not None:
-            logger.debug('Found base build parameter, ignoring')
-
-        # Code paths after this will generate a report, so check
-        # whether the report dir is a valid target. Specifically, prevent
-        # writing to the module directory.
-        module_dir = pkgr.require("tlscanary")[0].location
-        if os.path.normcase(os.path.realpath(self.args.reportdir))\
-                .startswith(os.path.normcase(os.path.realpath(module_dir))):
-            logger.critical("Refusing to write report to module directory. Please set --reportdir")
-            sys.exit(1)
+            logger.debug("Ignoring base build parameter")
 
         # Compile the set of URLs to test
         db = sdb.SourcesDB(self.args)
@@ -67,27 +58,36 @@ class ScanMode(BaseMode):
         self.test_app = self.get_test_candidate(self.args.test)
         self.test_metadata = self.collect_worker_info(self.test_app)
         logger.info("Testing Firefox %s %s scan run" %
-                    (self.test_metadata["appVersion"], self.test_metadata["branch"]))
+                    (self.test_metadata["app_version"], self.test_metadata["branch"]))
 
     def run(self):
-        # Perform the scan
+        global logger
+
+        logger.info("Testing Firefox %s %s" %
+                    (self.test_metadata["app_version"], self.test_metadata["branch"]))
+
         self.start_time = datetime.datetime.now()
-        self.info_uri_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile,
-                                          prefs=self.args.prefs, get_info=True,
-                                          get_certs=True, progress=True, return_only_errors=False)
 
-    def report(self):
-        header = {
-            "mode": self.args.mode,
-            "timestamp": self.start_time.strftime("%Y-%m-%d-%H-%M-%S"),
-            "branch": self.test_metadata["branch"].capitalize(),
-            "description": "Fx%s %s scan run" % (self.test_metadata["appVersion"], self.test_metadata["branch"]),
-            "source": self.args.source,
-            "test build url": fd.FirefoxDownloader.get_download_url(self.args.test, self.test_app.platform),
-            "test build metadata": "%s, %s" % (self.test_metadata["nssVersion"], self.test_metadata["nsprVersion"]),
-            "Total time": "%d minutes" % int(round((datetime.datetime.now() - self.start_time).total_seconds() / 60))
+        meta = {
+            "tlscanary_version": pkgr.require("tlscanary")[0].version,
+            "mode": self.name,
+            "args": vars(self.args),
+            "argv": sys.argv,
+            "test_metadata": self.test_metadata,
+            "run_start_time": datetime.datetime.utcnow().isoformat()
         }
-        report.generate(self.args, header, self.info_uri_set, self.start_time, False)
 
-    def teardown(self):
-        self.save_profile("test_profile", self.start_time)
+        rldb = rl.RunLogDB(self.args)
+        log = rldb.new_log()
+        log.start(meta=meta)
+
+        info_uri_set = self.run_test(self.test_app, self.url_set, profile=self.test_profile,
+                                     prefs=self.args.prefs, get_info=True,
+                                     get_certs=True, progress=True, return_only_errors=False)
+
+        for rank, host, result in info_uri_set:
+            log.log(result.as_dict())
+
+        meta["run_finish_time"] = datetime.datetime.utcnow().isoformat()
+        self.save_profile(self.test_profile, "test_profile", log)
+        log.stop(meta=meta)
