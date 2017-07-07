@@ -93,7 +93,7 @@ class BaseMode(object):
                            help="Limit for number of hosts to test (default: no limit)",
                            type=int,
                            action="store",
-                           default=None)
+                           default=100000)
 
         group = parser.add_argument_group("worker configuration")
         group.add_argument("-j", "--parallel",
