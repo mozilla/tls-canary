@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class SourceUpdateMode(BaseMode):
     """
-    Mode to update the `top` host database from publicly available top sites data
+    Mode to update host databases from publicly available top sites data
     """
 
     name = "srcupdate"
@@ -103,36 +103,42 @@ class SourceUpdateMode(BaseMode):
         working_set = set()
 
         # Chop unfiltered sources data into chunks and iterate over each
-        chunk_size = max(int(limit / 20), 1000)
+        # .iter_chunks() returns a generator method to call for next chunk
+        next_chunk = self.sources.iter_chunks(chunk_size=limit / 20, min_chunk_size=1000)
+        chunk_size = self.sources.chunk_size
+
         # TODO: Remove this log line once progress reporting is done properly
-        logger.warning("Progress is reported per chunk of %d hosts, not overall" % chunk_size)
+        logger.warning("Progress is reported per chunk of %d hosts, not overall" % self.sources.chunk_size)
 
-        for chunk_start in xrange(0, len(self.sources), chunk_size):
-
+        while True:
             hosts_to_go = max(0, limit - len(working_set))
             # Check if we're done
             if hosts_to_go == 0:
                 break
             logger.info("%d hosts to go to complete the working set" % hosts_to_go)
 
-            chunk_end = chunk_start + chunk_size
             # Shrink chunk if it contains way more hosts than required to complete the working set
+            #
+            # CAVE: This assumes that this is the last chunk we require. The downsized chunk
+            # is still 50% larger than required to complete the set to compensate for broken
+            # hosts. If the error rate in the chunk is greater than 50%, another chunk will be
+            # consumed, resulting in a gap of untested hosts between the end of this downsized
+            # chunk and the beginning of the next. Not too bad, but important to be aware of.
             if chunk_size > hosts_to_go * 2:
-                # CAVE: This assumes that this is the last chunk we require. The downsized chunk
-                # is still 50% larger than required to complete the set to compensate for broken
-                # hosts. If the error rate in the chunk is greater than 50%, another chunk will be
-                # consumed, resulting in a gap of untested hosts between the end of this downsized
-                # chunk and the beginning of the next. Not too bad, but important to be aware of.
-                chunk_end = chunk_start + hosts_to_go * 2
-            # Check if we're running out of data for completing the set
-            if chunk_end > len(self.sources):
-                chunk_end = len(self.sources)
+                chunk_size = min(chunk_size, hosts_to_go * 2)
+            pass_chunk = next_chunk(chunk_size, as_set=True)
+
+            # Check if we ran out of data for completing the set
+            if pass_chunk is None:
+                logger.warning("Ran out of hosts to complete the working set")
+                break
 
             # Run chunk through multiple passes of Firefox, leaving only persistent errors in the
             # error set.
+            chunk_end = self.sources.chunk_offset
+            chunk_start = chunk_end - len(pass_chunk)
             logger.info("Processing chunk of %d hosts from the unfiltered set (#%d to #%d)"
                         % (chunk_end - chunk_start, chunk_start, chunk_end - 1))
-            pass_chunk = self.sources.as_set(start=chunk_start, end=chunk_end)
             pass_errors = pass_chunk
             for _ in xrange(self.args.scans):
                 pass_errors = self.run_test(self.app, pass_errors, profile=self.profile, get_info=False,

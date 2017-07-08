@@ -86,3 +86,39 @@ def test_sources_sorting():
     assert_false(int(src.rows[0]["rank"]) < int(src.rows[1]["rank"]) < int(src.rows[2]["rank"]), "list is scrambled")
     src.sort()
     assert_true(int(src.rows[0]["rank"]) < int(src.rows[1]["rank"]) < int(src.rows[2]["rank"]), "sorting works")
+
+
+def test_sources_chunking():
+    """Sources object can be iterated in chunks"""
+
+    src_set = {(1, "mozilla.org"), (2, "mozilla.com"), (3, "addons.mozilla.org"),
+               (4, "irc.mozilla.org"), (5, "firefox.com")}
+    assert_equal(len(src_set), 5, "hardcoded test set has expected length")
+    src = sdb.Sources("foo")
+    src.from_set(src_set)
+    next_chunk = src.iter_chunks(chunk_start=1, chunk_stop=20, chunk_size=2, min_chunk_size=100)
+    assert_equal(src.chunk_size, 100, "chunking respects minimum size setting")
+    assert_equal(src.chunk_start, 1, "chunking respects chunk start setting")
+    chunk = next_chunk(20)
+    assert_equal(len(chunk), 4, "chunks are not larger than remaining data")
+
+    read_set = set()
+    next_chunk = src.iter_chunks(chunk_size=2)
+    lengths = list()
+    for _ in xrange(10):
+        chunk = next_chunk(as_set=True)
+        if chunk is None:
+            break
+        lengths.append(len(chunk))
+        read_set.update(chunk)
+    assert_equal(lengths, [2, 2, 1], "chunks have expected lengths")
+    assert_equal(src_set, read_set, "chunks cover full set")
+
+    next_chunk = src.iter_chunks(chunk_size=10)
+    lengths = list()
+    lengths.append(len(next_chunk(1)))
+    lengths.append(len(next_chunk(2)))
+    lengths.append(len(next_chunk(3)))
+    assert_true(next_chunk() is None, "after last chunk comes None")
+    assert_true(next_chunk() is None, "after last chunk comes None again")
+    assert_equal(lengths, [1, 2, 2], "chunks size can be varied on-the-fly")

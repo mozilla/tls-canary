@@ -158,6 +158,11 @@ class Sources(object):
         self.handle = handle
         self.is_default = is_default
         self.rows = []
+        # State for chunked iteration
+        self.chunk_start = None
+        self.chunk_stop = None
+        self.chunk_size = None
+        self.chunk_offset = None
 
     def __len__(self):
         return len(self.rows)
@@ -272,3 +277,51 @@ class Sources(object):
             return set([(int(row["rank"]), row["hostname"]) for row in self.rows[start:end]])
         else:
             return set([(0, row["hostname"]) for row in self.rows[start:end]])
+
+    def iter_chunks(self, chunk_size=None, min_chunk_size=1, chunk_start=0, chunk_stop=None):
+        """
+        Start iterating rows in chunks. chunk_size defaults to 1/20 of overall iteration size,
+        but not to less than min_chunk_size. Returns generator function of Sources.next_chunk
+        to call for obtaining the next chunk.
+
+        This method is not re-entrant. Do not try to iterate the same Sources object concurrently.
+
+        :param chunk_size: int
+        :param min_chunk_size: int
+        :param chunk_start: int
+        :param chunk_stop: int
+        :return: function
+        """
+        self.chunk_start = chunk_start
+        self.chunk_stop = len(self) if chunk_stop is None else min(chunk_stop, len(self))
+        self.chunk_size = (self.chunk_stop - self.chunk_start) / 20 if chunk_size is None else chunk_size
+        self.chunk_size = max(self.chunk_size, min_chunk_size)
+        self.chunk_offset = self.chunk_start
+        return self.next_chunk
+
+    def next_chunk(self, chunk_size=None, as_set=False):
+        """
+        Generator for obtaining next chunk as configured by .iter_chunk(). You can change chunk size on
+        the fly by specifying chunk_size. The new size is remembered, but not subject to min_chunk_size
+        given to .inter_chunks(). Returns None if chunk_stop was reached
+
+        This method is not re-entrant. Do not try to iterate the same Sources object concurrently.
+
+        :param chunk_size: int
+        :param as_set: bool
+        :return: list of rows or set of (int rank, str hostname) or None
+        """
+        # Iteration might have completed
+        if self.chunk_offset >= self.chunk_stop:
+            return None
+        # Set new chunk size if given
+        if chunk_size is not None:
+            self.chunk_size = chunk_size
+        # There might not be enough to fill a whole chunk
+        current_chunk_start = self.chunk_offset
+        current_chunk_stop = min(current_chunk_start + self.chunk_size, self.chunk_stop)
+        self.chunk_offset = current_chunk_stop
+        if as_set:
+            return self.as_set(current_chunk_start, current_chunk_stop)
+        else:
+            return self.rows[current_chunk_start:current_chunk_stop]
