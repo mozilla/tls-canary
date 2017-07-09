@@ -16,11 +16,13 @@ INSTALL_REQUIRES = [
 ]
 
 TESTS_REQUIRE = [
+    'coverage',
     'nose',
     'mock'
 ]
 
 DEV_REQUIRES = [
+    'coverage',
     'nose',
     'mock',
     'pep8'

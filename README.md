@@ -188,11 +188,15 @@ pip install -e .[dev]
 There are two ways to run the test suite:
 ```
 python setup.py test
-nosetests -sv
+nosetests -v
 ```
 
 They are largely equivalent, but the former takes care of missing test dependencies, while running `nosetests`
-directly offers more control.
+directly offers more control. To get test coverage, for example, use
+
+```
+nosetests -v --with-coverage --cover-erase --cover-package=tlscanary
+```
 
 ### Installing the pre-commit hook for git
 There's a pre-commit hook for git that you can use for automated [PEP 8](https://www.python.org/dev/peps/pep-0008/)
