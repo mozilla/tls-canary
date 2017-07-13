@@ -14,7 +14,7 @@ import cache
 logger = logging.getLogger(__name__)
 
 
-def get_list(onecrl_env, workdir, use_cache=True, cache_timeout=60*60):
+def get_list(onecrl_env, workdir, commit, use_cache=True, cache_timeout=60*60):
     global logger
 
     dc = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout, purge=True)
@@ -41,10 +41,24 @@ def get_list(onecrl_env, workdir, use_cache=True, cache_timeout=60*60):
 
         # Install / update oneCRL2RevocationsTxt package
         package = "github.com/mozmark/OneCRL-Tools/oneCRL2RevocationsTxt"
+        repo_dir = os.path.join(go_path, "src", "github.com", "mozmark", "OneCRL-Tools")
+        # If the packaga has already been downloaded, checkout master, else `go get` will fail
+        if os.path.isdir(os.path.join(repo_dir, ".git")):
+            logger.debug("Checking out commit `master` in `%s` for update" % repo_dir)
+            if subprocess.call(["git", "checkout", "-q", "master"], cwd=repo_dir) != 0:
+                logger.critical("Cannot checkout OneCRL-Tools git commit `master`")
+                sys.exit(5)
+        # `go get` internally uses `git pull`. `-d` prevents installation
         logger.debug("Installing / updating Go package `%s`" % package)
-        if subprocess.call([go_bin, "get", "-u", package], env=go_env) != 0:
+        if subprocess.call([go_bin, "get", "-u", "-d", package], env=go_env) != 0:
             logger.critical("Cannot get Go package `%s`" % package)
             sys.exit(5)
+        # Checkout a known-working commit before installation
+        logger.debug("Checking out commit `%s` in `%s`" % (commit, repo_dir))
+        if subprocess.call(["git", "checkout", "-q", commit], cwd=repo_dir) != 0:
+            logger.critical("Cannot checkout OneCRL-Tools git commit `%s`" % commit)
+            sys.exit(5)
+        # Install package
         if subprocess.call([go_bin, "install", package], env=go_env) != 0:
             logger.critical("Cannot install Go package `%s`" % package)
             sys.exit(5)

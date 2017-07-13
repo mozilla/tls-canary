@@ -68,6 +68,10 @@ class BaseMode(object):
                            choices=["production", "stage", "custom"],
                            action="store",
                            default="production")
+        group.add_argument("--onecrlpin",
+                           help="OneCRL-Tools git commit to use (default: 244e704)",
+                           action="store",
+                           default="244e704")
         group.add_argument("-p", "--prefs",
                            help="Prefs to apply to all builds",
                            type=str,
@@ -228,7 +232,7 @@ class BaseMode(object):
         logger.info("Updating OneCRL revocation data")
         if one_crl_env == "production" or one_crl_env == "stage":
             # overwrite revocations file in test profile with live OneCRL entries from requested environment
-            revocations_file = one_crl.get_list(one_crl_env, self.args.workdir)
+            revocations_file = one_crl.get_list(one_crl_env, self.args.workdir, self.args.onecrlpin)
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
             logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
             shutil.copyfile(revocations_file, profile_file)

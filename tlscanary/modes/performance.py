@@ -9,7 +9,6 @@ import sys
 
 from regression import RegressionMode
 import tlscanary.runlog as rl
-import tlscanary.report as report
 
 
 logger = logging.getLogger(__name__)
