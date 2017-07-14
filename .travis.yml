@@ -1,0 +1,20 @@
+sudo: required
+os:
+  - linux
+# OS X python is currently broken due to SSL include problems
+# See
+  - osx
+dist: trusty
+
+language: generic
+
+# build dependencies
+install:
+  - pwd
+  - ls -alR
+  - bootstrap/bootstrap.sh
+  # Fix openssl / python hashlib on OS X Travis CI
+  - if which brew &>/dev/null ; then export LDFLAGS=-L/usr/local/opt/openssl/lib CPPFLAGS=-I/usr/local/opt/openssl/include PKG_CONFIG_PATH=/usr/local/opt/openssl/lib/pkgconfig ; fi
+
+# command to run tests, takes care of python dependencies
+script: python setup.py test
