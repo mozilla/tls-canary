@@ -37,7 +37,7 @@ def test_runlog_db_file_handling():
 
 
 def test_runlog_db_rw():
-    """RunlogDB can read and write"""
+    """RunLogDB can read and write"""
 
     test_tmp_dir = os.path.join(tests.tmp_dir, "runlog_db_rw_test")
     db = rl.RunLogDB(tests.ArgsMock(workdir=test_tmp_dir))

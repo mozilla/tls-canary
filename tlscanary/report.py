@@ -141,6 +141,14 @@ def html_report(log, report_dir):
     if not os.path.isdir(run_dir):
         os.makedirs(run_dir)
 
+    # Copy profiles
+    if "profiles" in meta:
+        for profile in meta["profiles"]:
+            log_zip = log.part(profile["log_part"])
+            run_dir_zip = os.path.join(run_dir, profile["log_part"])
+            logger.debug("Copying `%s` profile archive from `%s` to `%s`" % (profile["name"], log_zip, run_dir_zip))
+            shutil.copyfile(log_zip, run_dir_zip)
+
     cert_dir = os.path.join(run_dir, "certs")
     __extract_certificates(log, cert_dir)
 

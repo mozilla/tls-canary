@@ -262,7 +262,9 @@ class BaseMode(object):
         with zipfile.ZipFile(zip_file_path, "w", zipfile.ZIP_DEFLATED) as z:
             for root, _, files in os.walk(profile_path):
                 for f in files:
-                    z.write(os.path.join(root, f))
+                    file_name = os.path.join(root, f)
+                    arc_name = os.path.relpath(file_name, profile_path)
+                    z.write(file_name, arc_name)
 
         if "profiles" not in log.meta:
             log.meta["profiles"] = []
