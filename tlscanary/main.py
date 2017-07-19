@@ -10,6 +10,7 @@ import pkg_resources
 import shutil
 import sys
 import tempfile
+import threading
 import time
 
 import cleanup
@@ -201,5 +202,11 @@ def main(argv=None):
     except KeyboardInterrupt:
         logger.critical("\nUser interrupt. Quitting...")
         return 10
+
+    if len(threading.enumerate()) > 1:
+        logger.info("Waiting for background threads to finish")
+        while len(threading.enumerate()) > 1:
+            logger.debug("Remaining threads: %s" % threading.enumerate())
+            time.sleep(2)
 
     return 0
