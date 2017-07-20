@@ -3,13 +3,19 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import datetime
+import json
 import logging
+import mock
 import pkg_resources as pkgr
 import sys
+import StringIO
+
 
 from regression import RegressionMode
 import tlscanary.runlog as rl
 
+from scan import ScanMode
+from log import LogMode
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +29,6 @@ class PerformanceMode(RegressionMode):
         global logger
 
         super(PerformanceMode, self).__init__(args, module_dir, tmp_dir)
-
         # Define instance attributes for later use
         self.start_time = None
         self.test_uri_set = None
@@ -42,7 +47,44 @@ class PerformanceMode(RegressionMode):
             sys.exit(1)
         super(PerformanceMode, self).setup()
 
+
     def run(self):
+        argv = self.args
+        #argv.limit = 8
+        # argv.prefs_test = "security.tls.version.min;4"
+
+        for i in xrange(0,argv.scans):
+            s = ScanMode(argv, self.module_dir, self.tmp_dir)
+            s.setup()
+            s.run()
+
+        # read the data back in and analyze it
+        argv.action="json"
+        argv.include = ['1']
+        argv.exclude = []
+
+        with mock.patch('sys.stdout', new=StringIO.StringIO()) as mock_stdout:
+            foo = LogMode(argv, self.module_dir, self.tmp_dir)
+            foo.setup()
+            foo.run()
+            stdout = mock_stdout.getvalue()
+        log = json.loads(stdout)
+
+        logging.info (log)
+
+        # Now remove those logs
+        # Should probably create a new args object,
+        # but for now, reuse the existing one
+        argv.action="delete"
+        argv.really=True
+        argv.include = [str(argv.scans)]
+        argv.exclude = []
+        l = LogMode(argv, self.module_dir, self.tmp_dir)
+        l.setup()
+        l.run()
+
+
+    def run2(self):
         # Perform the scan
         self.start_time = datetime.datetime.now()
 
