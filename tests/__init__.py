@@ -2,12 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import logging
 import shutil
 import tempfile
 
 import tlscanary.firefox_downloader as fd
 import tlscanary.firefox_extractor as fe
 
+# Silence logging
+logging.disable(logging.INFO)
+logging.disable(logging.WARNING)
+logging.disable(logging.ERROR)
+logging.disable(logging.CRITICAL)
 
 # Global variables for all tests
 # CAVE: Must be accessed as tests.var to get the dynamic results written by setup_package().

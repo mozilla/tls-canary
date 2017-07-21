@@ -1,5 +1,7 @@
 # TLS Canary
 
+[![Build Status](https://travis-ci.org/mozilla/tls-canary.svg?branch=master)](https://travis-ci.org/mozilla/tls-canary)
+[![License](https://img.shields.io/badge/license-MPL2-blue.svg)](https://raw.githubusercontent.com/mozilla/tls-canary/master/LICENSE.txt)
 [![PyPI Package version](https://badge.fury.io/py/tlscanary.svg)](https://pypi.python.org/pypi/tlscanary)
 
 TLS Canary is a [TLS/SSL](https://en.wikipedia.org/wiki/Transport_Layer_Security) testing framework for the
@@ -43,8 +45,11 @@ The script may or may not work for your other favourite Debian-based distributio
 ### Dependencies for Mac users
 Assuming that your're using [Homebrew](https://brew.sh/) for package management, this should set you up:
 ```
-brew install python p7zip go openssl libffi
+brew install openssl libffi python p7zip go
 ```
+
+The script [osx_bootstrap.sh](bootstrap/osx_bootstrap.sh) provides bootstrapping for Travis CI's Mac OS X instances
+using homebrew for package management. It may work for your OS X desktop environment as well.
 
 ### Dependencies for Windows users
 Windows support targets **PowerShell 5.1** on **Windows 10**. Windows 7 and 8 are generally able to run TLS Canary,
@@ -188,11 +193,15 @@ pip install -e .[dev]
 There are two ways to run the test suite:
 ```
 python setup.py test
-nosetests -sv
+nosetests -v
 ```
 
 They are largely equivalent, but the former takes care of missing test dependencies, while running `nosetests`
-directly offers more control.
+directly offers more control. To get test coverage, for example, use
+
+```
+nosetests -v --with-coverage --cover-erase --cover-package=tlscanary
+```
 
 ### Installing the pre-commit hook for git
 There's a pre-commit hook for git that you can use for automated [PEP 8](https://www.python.org/dev/peps/pep-0008/)

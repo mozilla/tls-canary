@@ -18,3 +18,4 @@ pip-selfcheck.json
 dist/
 .eggs/
 doc/
+.coverage
