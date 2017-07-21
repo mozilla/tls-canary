@@ -47,41 +47,68 @@ class PerformanceMode(RegressionMode):
             sys.exit(1)
         super(PerformanceMode, self).setup()
 
+    def getKey(host):
+        return host["rank"]
+
 
     def run(self):
         argv = self.args
         #argv.limit = 8
         # argv.prefs_test = "security.tls.version.min;4"
 
+
+        # should do scans for both builds
+        
         for i in xrange(0,argv.scans):
             s = ScanMode(argv, self.module_dir, self.tmp_dir)
             s.setup()
             s.run()
 
+
         # read the data back in and analyze it
-        argv.action="json"
-        argv.include = ['1']
-        argv.exclude = []
+        temp_log = {}
+        temp_log["data"] = []
 
-        with mock.patch('sys.stdout', new=StringIO.StringIO()) as mock_stdout:
-            foo = LogMode(argv, self.module_dir, self.tmp_dir)
-            foo.setup()
-            foo.run()
-            stdout = mock_stdout.getvalue()
-        log = json.loads(stdout)
+        initialize = True
 
-        logging.info (log)
+        for json_log in xrange(0,argv.scans):
 
-        # Now remove those logs
-        # Should probably create a new args object,
-        # but for now, reuse the existing one
-        argv.action="delete"
-        argv.really=True
-        argv.include = [str(argv.scans)]
-        argv.exclude = []
-        l = LogMode(argv, self.module_dir, self.tmp_dir)
-        l.setup()
-        l.run()
+            with mock.patch('sys.stdout', new=StringIO.StringIO()) as mock_stdout:
+                argv.action = "json"
+                argv.include = ['1']
+                argv.exclude = []
+                foo = LogMode(argv, self.module_dir, self.tmp_dir)
+                foo.setup()
+                foo.run()
+                stdout = mock_stdout.getvalue()
+            log = json.loads(stdout)[0]
+            host_list = sorted(log["data"], key=lambda x: x["rank"])
+
+            if (initialize):
+                temp_log["data"] = host_list
+                for i in xrange(0, argv.limit):
+                    temp_log["data"][i]["connection_speeds"] = []
+                    initialize = False
+
+            for j in xrange(0, argv.limit):
+                temp_log["data"][j]["connection_speeds"].append(
+                    host_list[j]["response"]["response_time"] - host_list[j]["response"]["command_time"]
+                )
+            # Now remove last log
+            # Should probably create a new args object,
+            # but for now, reuse the existing one
+            argv.action="delete"
+            argv.really=True
+            argv.include = ['1']
+            argv.exclude = []
+            l = LogMode(argv, self.module_dir, self.tmp_dir)
+            l.setup()
+            l.run()
+
+        logging.info(temp_log["data"][0]["host"])
+        logging.info(temp_log["data"][0]["connection_speeds"])
+
+
 
 
     def run2(self):
