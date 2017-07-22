@@ -11,12 +11,20 @@ from cryptography.x509.oid import ExtensionOID
 
 
 class Cert(object):
+    """Class for handling X509 certificates"""
 
     def __init__(self, data):
+        """
+        Cert constructor
+
+        It can handle PEM and DER encoded strings and lists of int bytes.
+
+        :param data: str or list of int
+        """
         if type(data) == list:
-            data= ''.join([chr(x) for x in data])
+            data = ''.join([chr(x) for x in data])
         if type(data) != str:
-            raise Exception("data must be string or list of uint8")
+            raise Exception("data must be string or list of int bytes")
         self.__raw_data = data
         if "-----BEGIN CERTIFICATE-----" in data:
             self.x509 = x509.load_pem_x509_certificate(data, backends.default_backend())
@@ -26,15 +34,35 @@ class Cert(object):
             self.__raw_type = "DER"
 
     def as_pem(self):
+        """
+        Convert certificate to PEM-encoded string
+
+        :return: str
+        """
         return self.x509.public_bytes(encoding=serialization.Encoding.PEM)
 
     def as_der(self):
+        """
+        Convert certificate to DER-encoded string
+
+        :return: str
+        """
         return self.x509.public_bytes(encoding=serialization.Encoding.DER)
 
     def signature_hash_algorithm(self):
+        """
+        Extract certificate's hash algorithm
+
+        :return: str
+        """
         return self.x509.signature_hash_algorithm.name
 
     def subject_alt_name(self):
+        """
+        Extract certificate's alt names
+
+        :return: unicode
+        """
         try:
             alt_names = self.x509.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME).value
             alt_name_strings = [alt_name.value for alt_name in alt_names]
@@ -43,6 +71,11 @@ class Cert(object):
             return "(no subject alt name)"
 
     def ext_key_usage(self):
+        """
+        Extract certificate's permitted extended usages
+
+        :return: str
+        """
         try:
             usages = self.x509.extensions.get_extension_for_oid(ExtensionOID.EXTENDED_KEY_USAGE).value
             usages_strings = [usage._name for usage in usages]
