@@ -53,60 +53,58 @@ class PerformanceMode(RegressionMode):
 
     def run(self):
         argv = self.args
-        #argv.limit = 8
-        # argv.prefs_test = "security.tls.version.min;4"
-
+        temp_log = {}
+        temp_log["data"] = []
+        initialize = True
 
         # should do scans for both builds
-        
         for i in xrange(0,argv.scans):
+            argv.test = "release"
             s = ScanMode(argv, self.module_dir, self.tmp_dir)
             s.setup()
             s.run()
 
-
         # read the data back in and analyze it
-        temp_log = {}
-        temp_log["data"] = []
-
-        initialize = True
-
-        for json_log in xrange(0,argv.scans):
+        for scan_log in xrange(0,argv.scans):
 
             with mock.patch('sys.stdout', new=StringIO.StringIO()) as mock_stdout:
                 argv.action = "json"
                 argv.include = ['1']
                 argv.exclude = []
-                foo = LogMode(argv, self.module_dir, self.tmp_dir)
-                foo.setup()
-                foo.run()
+                scan_run = LogMode(argv, self.module_dir, self.tmp_dir)
+                scan_run.setup()
+                scan_run.run()
                 stdout = mock_stdout.getvalue()
-            log = json.loads(stdout)[0]
-            host_list = sorted(log["data"], key=lambda x: x["rank"])
+            current_log = json.loads(stdout)[0]
+            host_list = sorted(current_log["data"], key=lambda x: x["rank"])
+
+            if current_log["meta"]["args"]["test"] != "release":
+                speed_sample_array_name = "connection_speeds"
+            else:
+                speed_sample_array_name = "connection_speeds_release"
 
             if (initialize):
                 temp_log["data"] = host_list
+                temp_log["meta"] = current_log["meta"]
                 for i in xrange(0, argv.limit):
-                    temp_log["data"][i]["connection_speeds"] = []
+                    temp_log["data"][i][speed_sample_array_name] = []
                     initialize = False
 
             for j in xrange(0, argv.limit):
-                temp_log["data"][j]["connection_speeds"].append(
+                temp_log["data"][j][speed_sample_array_name].append(
                     host_list[j]["response"]["response_time"] - host_list[j]["response"]["command_time"]
                 )
             # Now remove last log
-            # Should probably create a new args object,
-            # but for now, reuse the existing one
             argv.action="delete"
             argv.really=True
             argv.include = ['1']
             argv.exclude = []
-            l = LogMode(argv, self.module_dir, self.tmp_dir)
-            l.setup()
-            l.run()
+            log_delete = LogMode(argv, self.module_dir, self.tmp_dir)
+            log_delete.setup()
+            log_delete.run()
 
         logging.info(temp_log["data"][0]["host"])
-        logging.info(temp_log["data"][0]["connection_speeds"])
+        logging.info(temp_log["data"][0]["connection_speeds_release"])
 
 
 
