@@ -1,14 +1,19 @@
 #!/bin/bash
 # AWS Ubuntu linux bootstrap
 sudo apt-get update
-sudo apt-get install libgtk-3-0
-sudo apt-get install libxt6
-sudo apt-get install libasound2
-sudo apt-get install python
-sudo apt-get install python-dev
-sudo apt-get install virtualenv
-sudo apt-get install gcc
-sudo apt-get install golang-go
-sudo apt-get install p7zip-full
-sudo apt-get install libssl-dev
-sudo apt-get install libffi-dev
+sudo apt-get -y install \
+    gcc \
+    golang-go \
+    libasound2 \
+    libffi-dev \
+    libgtk-3-0 \
+    libssl-dev \
+    libxt6 \
+    p7zip-full \
+    python \
+    python-dev \
+    python-pip
+
+# The virtualenv package is not consistently named across distros
+sudo apt-get -y install virtualenv \
+	|| sudo apt-get -y install python-virtualenv
