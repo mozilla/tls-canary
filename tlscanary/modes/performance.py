@@ -76,6 +76,7 @@ class PerformanceMode(RegressionMode):
 
         argv = self.args
         test_build = self.args.test
+        base_build = self.args.base
         self.temp_hosts = []
 
         initialize = True
@@ -105,13 +106,17 @@ class PerformanceMode(RegressionMode):
                     self.temp_hosts[i]["connection_speeds_base"] = []
                     initialize = False
 
-            self.process_scan(argv, "connection_speeds")
+            #self.process_scan(argv, "connection_speeds")
 
-            argv.test = "release"
+            argv.test = base_build
             s = ScanMode(argv, self.module_dir, self.tmp_dir)
             s.setup()
             s.run()
+            #self.process_scan(argv, "connection_speeds_base")
+
+        for perf_scan in xrange(0, argv.scans):
             self.process_scan(argv, "connection_speeds_base")
+            self.process_scan(argv, "connection_speeds")
 
         # Sort sample arrays and extract average, median
         for i in xrange(0, argv.limit):
