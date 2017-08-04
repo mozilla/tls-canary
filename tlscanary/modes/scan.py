@@ -72,6 +72,7 @@ class ScanMode(BaseMode):
             "mode": self.name,
             "args": vars(self.args),
             "argv": sys.argv,
+            "sources_size": len(self.sources),
             "test_metadata": self.test_metadata,
             "run_start_time": datetime.datetime.utcnow().isoformat()
         }

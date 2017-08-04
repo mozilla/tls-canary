@@ -51,6 +51,7 @@ class PerformanceMode(RegressionMode):
             "mode": self.name,
             "args": vars(self.args),
             "argv": sys.argv,
+            "sources_size": len(self.sources),
             "test_metadata": self.test_metadata,
             "base_metadata": self.base_metadata,
             "run_start_time": datetime.datetime.utcnow().isoformat()
