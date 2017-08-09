@@ -60,7 +60,7 @@ function set_prefs(prefs) {
 
 function set_profile(profile_path) {
     let file = Cc["@mozilla.org/file/local;1"]
-        .createInstance(Ci.nsILocalFile);
+        .createInstance(Ci.nsIFile);
     file.initWithPath(profile_path);
     let dir_service = Cc["@mozilla.org/file/directory_service;1"]
         .getService(Ci.nsIProperties);
