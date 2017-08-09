@@ -61,7 +61,14 @@ def test_runlog_rw():
     now = datetime.datetime.utcnow().strftime("%Y-%m-%dZ%H-%M-%S")
     log = rl.RunLog(now, "w", db)
 
-    # Write something to log
+    # Write something to log using the with statement
+    with log:
+        log.log({"foo": 5})
+        log.update_meta({"just": "testing"})
+        assert_true(log.is_running, "log is running in with")
+    assert_false(log.is_running, "log is not running after with")
+
+    # Write something to log. Previous content will be overwritten
     log.start(meta={"first_meta": "one"})
     log.log([{"foo": 1}, {"foo": 2}])
     log.log({"foo": 3})
