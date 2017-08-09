@@ -73,9 +73,9 @@ class BaseMode(object):
                            action="store",
                            default="production")
         group.add_argument("--onecrlpin",
-                           help="OneCRL-Tools git commit to use (default: 3bf3462)",
+                           help="OneCRL-Tools git branch, tag, or commit to use (default: stable)",
                            action="store",
-                           default="3bf3462")
+                           default="stable")
         group.add_argument("-p", "--prefs",
                            help="Prefs to apply to all builds",
                            type=str,
