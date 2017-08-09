@@ -268,7 +268,7 @@ function scan_host(args, response_cb) {
     }
 }
 
-function do_test(args, response_cb) {
+function do_test(args, response_cb, cmd) {
     if (args.count_to) {
         print("DEBUG: Counting to", args.count_to);
         for (let x = 1; x <= args.count_to; x++) {
@@ -278,6 +278,26 @@ function do_test(args, response_cb) {
             }
         }
         response_cb(true, "ACK");
+    } else if (args.disconnect) {
+        let delay = args.disconnect;
+        let probability = args.probability ? args.probability : 1.0;
+        print("DEBUG: disconnecting after " + delay + " seconds with P=" + probability);
+        let perhaps_disconnect = {
+            notify: function () {
+                if (Math.random() < probability) {
+                    cmd.connection.close();
+                } else {
+                    response_cb(true, "ACK");
+                }
+            }
+        };
+        if (delay === 0) {
+            // Timer doesn't like 0 values, so handle synchronously
+            perhaps_disconnect.notify()
+        } else {
+            let timer = CC("@mozilla.org/timer;1", "nsITimer", "initWithCallback");
+            timer(perhaps_disconnect, 1000 * delay, Ci.nsITimer.TYPE_ONE_SHOT);
+        }
     } else if (args.sleep) {
         print("DEBUG: sleeping for " + args.sleep + " seconds");
         let timer = CC("@mozilla.org/timer;1", "nsITimer", "initWithCallback");
@@ -294,23 +314,23 @@ function do_test(args, response_cb) {
 }
 
 
-
 // Command object definition. Must be in-sync with Python world.
 // This is used for keeping state throughout async command handling.
 function Command(json_string, connection) {
     this.connection = connection;
     let parsed_command = {};
-    this.id = parsed_command.id ? parsed_command.id : uuid4();
     this.start_time = new Date();
     try {
         parsed_command = JSON.parse(json_string);
     } catch (error) {
+        this.id = uuid4();
         this.mode = null;
         this.args = null;
         this.original_cmd = null;
         this.reply(false, {origin: "Command", error: error.message, info: "invalid JSON"});
         throw error;
     }
+    this.id = parsed_command.id ? parsed_command.id : uuid4();
     this.mode = parsed_command.mode;
     this.args = parsed_command.args;
     this.original_cmd = parsed_command;
@@ -329,7 +349,6 @@ Command.prototype.reply = function _report_result(success, result) {
         "response_time": new Date().getTime(),
     });
     send_reply(reply, this.connection);
-// TODO:    while (main_thread.hasPendingEvents()) main_thread.processNextEvent(true);
 };
 
 Command.prototype.handle = function _handle() {
@@ -359,7 +378,7 @@ Command.prototype.handle = function _handle() {
                 break;
             case "test":
                 // Command mode used for unit testing
-                do_test(this.args, this.reply.bind(this));
+                do_test(this.args, this.reply.bind(this), this);
                 break;
             case "quit":
                 script_running = false;
@@ -430,7 +449,7 @@ let SocketListener = {
             let reader = new StreamReader(connection);
             input_stream.asyncWait(reader, 0, 0, main_thread);
         } catch (e) {
-            print("ERROR: Command listener failed handling streams:", e.message);
+            print("ERROR: Command listener failed handling streams:", e.toString());
             transport.close(Cr.NS_BINDING_ABORTED);
         }
     },
@@ -458,8 +477,11 @@ Connection.prototype = {
             cos.flush();
             this.output.flush();
         } catch (e) {
-            print("ERROR: Unable to send reply:", e.message);
-            this.close();
+            print("ERROR: Unable to send reply:", e.toString());
+            if (!this.isAlive()) {
+                print("DEBUG: Connection has died");
+                this.close();
+            }
         }
     },
     close: function () {
@@ -469,9 +491,12 @@ Connection.prototype = {
             this.input.close();
             this.output.close();
         } catch (e) {
-            print("ERROR: Unable to flush and close connection:", e.message)
+            print("ERROR: Unable to flush and close connection:", e.toString())
         }
         this.transport.close(Cr.NS_OK);
+    },
+    isAlive: function () {
+        return this.transport.isAlive();
     }
 };
 
@@ -486,27 +511,30 @@ StreamReader.prototype = {
 
         // First check if there is data available.
         // This check may fail when the peer has closed the connection.
-        let data_available = false;
+        let data_available = null;
         try {
             data_available = input_stream.available() > 0;
         } catch (e) {
-            if (e.message.indexOf("NS_BASE_STREAM_CLOSED") !== -1) {
-                print("WARNING: Base stream was closed");
+            if (e.result === Cr.NS_BASE_STREAM_CLOSED) {
+                print("WARNING: Base stream was closed:", e.toString());
             } else {
-                print("ERROR: Unable to check stream availability:", e.message);
+                print("ERROR: Unable to check stream availability:", e.toString());
             }
             if (this.buffer.length > 0)
                 print("WARNING: Dropping non-empty buffer:", this.buffer);
-            this.connection.close();
+            if (this.connection.isAlive()) {
+                print("WARNING: Connection has died. Closing");
+                this.connection.close();
+            }
             return;
         }
 
-        // An empty input stream means that the connection was closed.
+        // An empty input stream means connection is at EOF, but not closed.
         if (!data_available) {
-            print("DEBUG: Connection closed by peer");
-            if (this.buffer.length > 0)
-                print("WARNING: Dropping non-empty buffer:", this.buffer);
-            this.connection.close();
+            print("DEBUG: Stream is at EOL");
+            // if (this.buffer.length > 0)
+            //     print("WARNING: Dropping non-empty buffer:", this.buffer);
+            // this.connection.close();
             return;
         }
 
@@ -514,9 +542,10 @@ StreamReader.prototype = {
         let cis = new ConverterInputStream(input_stream, "UTF-8", 0, 0x0);
         let str = {};
         try {
+            // .onInputStreamReady() is called again when not everything was read.
             cis.readString(4096, str);
         } catch (e) {
-            print("ERROR: Unable to read input stream: ", e.message);
+            print("ERROR: Unable to read input stream: ", e.toString());
             if (this.buffer.length > 0)
                 print("WARNING: Dropping non-empty buffer:", this.buffer);
             this.connection.close();
@@ -583,14 +612,14 @@ var command_server;
 try {
     command_server = new ServerSocket(command_port, true, 20);
 } catch (e) {
-    if (e.message.indexOf("(NS_ERROR_SOCKET_ADDRESS_IN_USE") !== -1) {
+    if (e.result === Cr.NS_ERROR_SOCKET_ADDRESS_IN_USE) {
         print("ERROR: Port in use");
         quit(11);
-    } else if (e.message.indexOf("(NS_ERROR_CONNECTION_REFUSED") !== -1) {
+    } else if (e.result === Cr.NS_ERROR_CONNECTION_REFUSED) {
         print("ERROR: Port refused");
         quit(12);
     } else {
-        print("ERROR:", e.message);
+        print("ERROR:", e.toString());
         quit(13);
     }
 }

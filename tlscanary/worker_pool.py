@@ -3,7 +3,7 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
-import time
+import select
 from worq.pool.thread import WorkerPool
 from worq import get_broker, get_queue, TaskSpace
 
@@ -82,71 +82,71 @@ class ScanResult(object):
 
 
 @ts.task
-def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeout=10):
+def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeout=10, parallel=50):
     global logger
 
-    logger.debug("scan_urls task called with %s" % repr(target_list))
+    logger.debug("scan_urls task called with %d targets" % len(target_list))
 
     # Spawn a worker instance
     xpcw = xw.XPCShellWorker(app, profile=profile, prefs=prefs)
     xpcw.spawn()
 
-    # Enqueue all host scans for this worker instance
-    wakeup_cmd = xw.Command("wakeup")
-    cmd_count = 0
-    for rank, host in target_list:
-        scan_cmd = xw.Command("scan", host=host, rank=rank, include_certificates=get_certs, timeout=timeout)
-        xpcw.send(scan_cmd)
-        if cmd_count % 10 == 0:
-            xpcw.send(wakeup_cmd)
-        cmd_count += 1
+    next_target = iter(target_list)
+    in_flight = {}
+    results = []
 
-    # Fetch results from queue, until all results are in or until the last
-    # scan must have into timeout. Note that ACKs come in strict sequence of
-    # their respective commands.
-    results = {}
-    timeout_time = time.time() + timeout + 1
-    while time.time() < timeout_time:
-        for response in xpcw.receive():
-            if response.result == "ACK":
-                # Reset timeout when scan commands are ACKed.
-                if response.original_cmd["mode"] == "scan":
-                    timeout_time = time.time() + timeout + 1
-                # Ignore other ACKs.
-                continue
-            # Else we know this is the result of a scan command.
-            result = ScanResult(response)
-            results[result.host] = result
-        if len(results) >= len(target_list):
-            break
-        if xpcw.send(wakeup_cmd):
-            time.sleep(0.1)
-        else:
+    while len(results) < len(target_list):
+
+        while len(in_flight) < parallel:
+            # Enqueue next target
+            try:
+                rank, host = next_target.next()
+            except StopIteration:
+                # Nothing left to do but wait for outstanding results
+                break
+            conn = xpcw.get_connection(timeout=1.5*timeout)
+            conn.connect()
+            cmd = xw.Command("scan", host=host, rank=rank, include_certificates=get_certs, timeout=timeout)
+            conn.send(cmd)
+            in_flight[conn.id] = (cmd, conn)
+
+        # Compile list of all in-flight sockets
+        read_conns = [in_flight[i][1] for i in in_flight]
+
+        # Select readables and exceptions
+        readable, _, exceptions = select.select(read_conns, [], read_conns, 1.5*timeout)
+
+        if len(readable) == 0 and len(exceptions) == 0:
+            logger.warning("Task's socket select ran into timeout. Dropping outstanding results")
             break
 
-    if len(results) < len(target_list):
-        logger.warning("Worker task dropped results, yielded %d instead of %d" % (len(results), len(target_list)))
+        # Do all the reads
+        for conn in readable:
+            res = conn.receive(timeout=2)
+            if res is None:
+                cmd = in_flight[conn.id][0]
+                logger.warning("Requeueing command %s" % cmd.id)
+                print "Requeueing command %s" % cmd.id
+                conn.send(cmd)
+            else:
+                results.append(ScanResult(res))
+                del in_flight[conn.id]
+
+        # Drop all the exceptions
+        if len(exceptions) > 0:
+            for i in in_flight:
+                cmd, conn = in_flight[i]
+                if conn in exceptions:
+                    logger.error("Task dropping command %s" % cmd.id)
+                    results.append(None)  # TODO: append ad-hoc result object
+                    del in_flight[i]
 
     # Wind down the worker
-    xpcw.send(xw.Command("quit"))
-    xpcw.terminate()
+    xpcw.quit()
 
     logger.debug("Worker task finished, returning %d results" % len(results))
 
     return results
-
-
-@ts.task
-def collect(result_dicts):
-    combined_results = {}
-    for result in result_dicts:
-        combined_results.update(result)
-    return combined_results
-
-
-def __as_chunks(flat_list, chunk_size):
-    for i in range(0, len(flat_list), chunk_size):
-        yield flat_list[i:i + chunk_size]
 
 
 # CAVE: run_scans is not re-entrant due to use of global variables.
@@ -156,33 +156,25 @@ def run_scans(app, target_list, profile=None, prefs=None, num_workers=4, targets
 
     pool = start_pool(worq_url, timeout=1, num_workers=num_workers)
 
-    chunks = __as_chunks(target_list, targets_per_worker)
     try:
         queue = get_queue(worq_url, target=__name__)
 
         # Enqueue tasks to be executed in parallel
-        scan_results = [queue.scan_urls(app, targets, profile=profile, prefs=prefs,
-                                        get_certs=get_certs, timeout=timeout)
-                        for targets in chunks]
-        result = queue.collect(scan_results)
+        result = queue.scan_urls(app, target_list, profile=profile, prefs=prefs,
+                                 get_certs=get_certs, timeout=timeout, parallel=targets_per_worker)
 
-        queue_len = len(queue)
-        logged_len = 0  # Required to correct for "overlogging" due to chunking
+        # from IPython import embed
+        # embed()
 
-        while True:
-            finished = result.wait(timeout=10)
-            current_queue_len = len(queue)
-            chunks_done = queue_len - current_queue_len
-            logger.debug("After queue wait: %d old - %d new = %d done" % (queue_len, current_queue_len, chunks_done))
-            queue_len = current_queue_len
-            # Check finished first to ensure that the final chunk is not logged,
-            # because the final chunk might not have the full chunk size.
-            if finished:
-                break
-            if progress_callback is not None and chunks_done > 0:
-                # We must assume the maximum chunk size here to calculate the number of results
-                progress_callback(chunks_done * targets_per_worker)
-                logged_len += chunks_done * targets_per_worker
+        finished = False
+        while not finished:
+            finished = result.wait(timeout=0.1)
+
+        num_results = len(result.value)
+        if num_results != len(target_list):
+            logger.warning("Got %d instead of %d results" % (num_results, len(target_list)))
+
+        progress_callback(num_results)
 
     except KeyboardInterrupt:
         logger.critical("Ctrl-C received. Winding down workers...")
@@ -192,14 +184,5 @@ def run_scans(app, target_list, profile=None, prefs=None, num_workers=4, targets
 
     finally:
         stop()
-
-    # Log the results of the final chunk
-    if progress_callback is not None:
-        actual_len = len(result.value)
-        logger.debug("Chunkwise logging reported on %d results, actually received %d" % (logged_len, actual_len))
-        len_correction = actual_len - logged_len
-        if len_correction != 0:
-            logger.debug("Logging correction for %d results" % len_correction)
-            progress_callback(len_correction)
 
     return result.value

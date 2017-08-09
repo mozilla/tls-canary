@@ -48,7 +48,7 @@ def test_xpcshell_worker():
 
     # Skip test if there is no app for this platform
     if tests.test_app is None:
-        raise SkipTest("XPCShell worker can not be tested on this platform")
+        raise SkipTest("worker can not be tested on this platform")
 
     # Spawn a worker
     worker_one = new_worker(tests.test_app)
@@ -132,7 +132,7 @@ def test_xpcshell_worker_load():
 
     # Skip test if there is no app for this platform
     if tests.test_app is None:
-        raise SkipTest("XPCShell worker load can not be tested on this platform")
+        raise SkipTest("worker load can not be tested on this platform")
 
     # Spawn a worker
     worker = new_worker(tests.test_app)
@@ -163,7 +163,7 @@ def test_xpcshell_worker_timeout():
 
     # Skip test if there is no app for this platform
     if tests.test_app is None:
-        raise SkipTest("XPCShell worker timeouts can not be tested on this platform")
+        raise SkipTest("worker timeouts can not be tested on this platform")
 
     # Spawn a worker
     worker = new_worker(tests.test_app)
@@ -183,17 +183,51 @@ def test_xpcshell_worker_timeout():
 
 
 @with_setup(set_fox_trap, kill_stray_foxes)
+def test_xpcshell_worker_disconnect():
+    """XPCShell worker handles disconnects"""
+
+    # Skip test if there is no app for this platform
+    if tests.test_app is None:
+        raise SkipTest("worker disconnects not be tested on this platform")
+
+    # Spawn a worker
+    worker = new_worker(tests.test_app)
+    worker.spawn()
+    assert_true(worker.is_running() and worker.helpers_running(), "worker running for scan test")
+    conn = worker.get_connection(timeout=1)
+
+    res = conn.ask(xw.Command("info"))
+    assert_true(type(res) is xw.Response, "connection is automatically opened")
+
+    reconnect_required = conn.send(xw.Command("info"))
+    assert_false(reconnect_required, "open connections are not reconnected for send")
+
+    conn.shutdown()
+    res = conn.receive()
+    assert_true(res is None, "receive on closed connection yields None")
+
+    reconnect_required = conn.send(xw.Command("info"))
+    assert_true(reconnect_required, "closed connection is automatically reconnected for send")
+
+    worker.terminate()
+    time.sleep(0.05)
+
+    with assert_raises(socket.timeout):  # "connect on closed port eventually runs into timeout"
+        conn.connect(timeout=0.05, retry_delay=0.01)
+
+
+@with_setup(set_fox_trap, kill_stray_foxes)
 def test_xpcshell_worker_scan_command():
     """XPCShell worker can scan hosts"""
 
     # Skip test if there is no app for this platform
     if tests.test_app is None:
-        raise SkipTest("XPCShell worker scans not be tested on this platform")
+        raise SkipTest("worker scans not be tested on this platform")
 
     # Spawn a worker
     worker = new_worker(tests.test_app)
     worker.spawn()
-    assert_true(worker.is_running() and worker.helpers_running(), "XPCShell worker running for scan test")
+    assert_true(worker.is_running() and worker.helpers_running(), "worker running for scan test")
 
     # Scans bail on first redirect, thus redirecting hosts come
     # through the error handler and are marked non-successful.

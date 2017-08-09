@@ -89,12 +89,13 @@ class XPCShellWorker(object):
             return False
 
         if self.__profile is not None:
-            logger.debug("Changing worker profile to `%s`" % self.__profile)
-            res = conn.ask(Command("useprofile", path=self.__profile))
-            if res is None or not res.is_ack() or not res.is_success():
-                logger.error("Worker failed to switch profile to `%s`" % self.__profile)
-                self.terminate()
-                return False
+            logger.critical("Changing profiles is currently disabled due to Nightly breakage")
+            # logger.debug("Changing worker profile to `%s`" % self.__profile)
+            # res = conn.ask(Command("useprofile", path=self.__profile))
+            # if res is None or not res.is_ack() or not res.is_success():
+            #     logger.error("Worker failed to switch profile to `%s`" % self.__profile)
+            #     self.terminate()
+            #     return False
 
         if self.__prefs is not None:
             logger.debug("Setting worker prefs to `%s`" % self.__prefs)
@@ -207,86 +208,11 @@ class WorkerReader(Thread):
             elif line.startswith("CRITICAL:"):
                 logger.critical("Worker %s: %s" % (self.worker.id, line[10:]))
             else:
-                logger.critical("Invalid output from worker %s: %s" % (self.worker.id, line))
+                logger.critical("Unexpected output from worker %s: %s" % (self.worker.id, line))
 
         self.worker.worker_process.stdout.close()
         logger.debug('Reader thread finished for worker %s' % self.worker.id)
         del self.worker  # Breaks cyclic reference
-
-
-class Command(object):
-    """Worker command object"""
-
-    def __init__(self, mode_or_dict, **kwargs):
-        if type(mode_or_dict) is str:
-            self.id = str(uuid1())
-            self.mode = mode_or_dict
-            self.args = kwargs
-        elif type(mode_or_dict) is dict:
-            self.id = mode_or_dict["id"]
-            self.mode = mode_or_dict["mode"]
-            self.args = mode_or_dict["args"]
-        else:
-            raise Exception("Argument must be mode string or dict with command specs")
-
-    def as_dict(self):
-        return {"id": self.id, "mode": self.mode, "args": self.args}
-
-    def __str__(self):
-        return json.dumps(self.as_dict())
-
-
-class Response(object):
-
-    def __init__(self, message_string):
-        global logger
-
-        self.id = None
-        self.worker_id = None
-        self.original_cmd = None
-        self.success = None
-        self.result = None
-        self.elapsed_ms = None
-        message = json.loads(message_string)  # May throw ValueError
-        if "id" in message:
-            self.id = message["id"]
-        if "worker_id" in message:
-            self.worker_id = message["worker_id"]
-        if "original_cmd" in message:
-            self.original_cmd = message["original_cmd"]
-        if "success" in message:
-            self.success = message["success"]
-        if "result" in message:
-            self.result = message["result"]
-        if "command_time" in message:
-            self.command_time = message["command_time"]
-        if "response_time" in message:
-            self.response_time = message["response_time"]
-        if len(message) != 7:
-            logger.error("Worker response has unexpected format: %s" % message_string)
-
-    def is_ack(self):
-        try:
-            return self.result.startswith("ACK")
-        except AttributeError:
-            return False
-
-    def is_success(self):
-        return self.success
-
-    def as_dict(self):
-        return {
-            "id": self.id,
-            "original_cmd": self.original_cmd,
-            "worker_id": self.worker_id,
-            "success": self.success,
-            "result": self.result,
-            "command_time": self.command_time,
-            "response_time": self.response_time,
-        }
-
-    def __str__(self):
-        return json.dumps(self.as_dict())
 
 
 class WorkerConnection(object):
@@ -298,12 +224,17 @@ class WorkerConnection(object):
     It generally tries to re-send requests when a connection fails.
     """
     def __init__(self, port, host="localhost", timeout=120):
+        self.id = str(uuid1())
         self.host = host
         self.port = port
         self.timeout = timeout
         self.s = None  # None here signifies closed connection and socket
 
-    def connect(self, reuse=False, timeout=-1):
+    def fileno(self):
+        """Method required for select.select()"""
+        return self.s.fileno()
+
+    def connect(self, reuse=False, retry_delay=2, timeout=-1):
         timeout = timeout if timeout is None or timeout >= 0 else self.timeout
 
         if self.s is not None:
@@ -328,13 +259,13 @@ class WorkerConnection(object):
 
             except socket.error as err:
                 if err.errno == 61:
-                    logger.warning("Worker refused connection. Is it listening?. Retrying")
-                    time.sleep(5)
+                    logger.warning("Worker refused connection. Is it even listening? Retrying")
+                    time.sleep(retry_delay)
                     continue
                 elif err.errno == 49:  # Can't assign requested address
                     # The OS may need some time to garbage collect closed sockets.
                     logger.warning("OS is probably out of sockets. Retrying")
-                    time.sleep(1)
+                    time.sleep(retry_delay)
                     continue
                 else:
                     self.close()
@@ -373,7 +304,7 @@ class WorkerConnection(object):
     def send(self, request, retry=True, timeout=-1):
         timeout = timeout if timeout is None or timeout >= 0 else self.timeout
 
-        request = str(request).strip() + "\n"
+        request = str(request).strip()
 
         if timeout is None:
             timeout = self.timeout
@@ -386,17 +317,20 @@ class WorkerConnection(object):
                 raise socket.timeout("Worker timeout while sending request")
 
             try:
-                logger.debug("Sending request `%s` on port %d" % (request, self.port))
+                logger.error("Sending request `%s` on port %d" % (request, self.port))
                 self.s.settimeout(timeout)
-                self.s.send(request)
+                r = self.s.send(request + "\n")
+                logger.critical(r)
                 break
 
-            except Exception as err:
-                logger.warning("Error sending request: %s Reconnecting" % err)
-                self.reconnect()
-                reconnected = True
-                if not retry:
-                    break
+            except socket.error as err:
+                logger.error("Fooo: %s", err)
+                if err.errno == 32:  # Broken pipe
+                    if retry:
+                        self.reconnect()
+                        reconnected = True
+                        break
+                raise err
 
         return reconnected
 
@@ -413,7 +347,7 @@ class WorkerConnection(object):
                     logger.warning("Empty read likely caused by peer closing connection")
                     logger.critical("Received %s" % repr(received))
                     return None
-                received += r
+                received += r.decode("utf-8")
 
         except socket.error as err:
             if err.errno == 54:
@@ -496,3 +430,78 @@ class WorkerConnection(object):
                 replies.append(received)
                 if len(replies) == len(requests):
                     return replies
+
+
+class Command(object):
+    """Worker command object"""
+
+    def __init__(self, mode_or_dict, **kwargs):
+        if type(mode_or_dict) is str:
+            self.id = str(uuid1())
+            self.mode = mode_or_dict
+            self.args = kwargs
+        elif type(mode_or_dict) is dict:
+            self.id = mode_or_dict["id"]
+            self.mode = mode_or_dict["mode"]
+            self.args = mode_or_dict["args"]
+        else:
+            raise Exception("Argument must be mode string or dict with command specs")
+
+    def as_dict(self):
+        return {"id": self.id, "mode": self.mode, "args": self.args}
+
+    def __str__(self):
+        return json.dumps(self.as_dict())
+
+
+class Response(object):
+
+    def __init__(self, message_string):
+        global logger
+
+        self.id = None
+        self.worker_id = None
+        self.original_cmd = None
+        self.success = None
+        self.result = None
+        self.elapsed_ms = None
+        message = json.loads(message_string)  # May throw ValueError
+        if "id" in message:
+            self.id = message["id"]
+        if "worker_id" in message:
+            self.worker_id = message["worker_id"]
+        if "original_cmd" in message:
+            self.original_cmd = message["original_cmd"]
+        if "success" in message:
+            self.success = message["success"]
+        if "result" in message:
+            self.result = message["result"]
+        if "command_time" in message:
+            self.command_time = message["command_time"]
+        if "response_time" in message:
+            self.response_time = message["response_time"]
+        if len(message) != 7:
+            logger.error("Worker response has unexpected format: %s" % message_string)
+
+    def is_ack(self):
+        try:
+            return self.result.startswith("ACK")
+        except AttributeError:
+            return False
+
+    def is_success(self):
+        return self.success
+
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "original_cmd": self.original_cmd,
+            "worker_id": self.worker_id,
+            "success": self.success,
+            "result": self.result,
+            "command_time": self.command_time,
+            "response_time": self.response_time,
+        }
+
+    def __str__(self):
+        return json.dumps(self.as_dict())

@@ -215,9 +215,8 @@ class BaseMode(object):
     def collect_worker_info(app):
         worker = xw.XPCShellWorker(app)
         worker.spawn()
-        worker.send(xw.Command("info"))
-        result = worker.wait().result
-        worker.terminate()
+        result = worker.ask(xw.Command("info"), timeout=2).result
+        worker.quit()
         # Add convenience shortcuts and metadata not returned by worker
         result["nss_version"] = "NSS %s" % result["nssInfo"]["NSS_Version"]
         result["nspr_version"] = "NSPR %s" % result["nssInfo"]["NSPR_Version"]
@@ -310,22 +309,25 @@ class BaseMode(object):
         except KeyboardInterrupt:
             logger.critical('User abort')
             wp.stop()
-            sys.exit(1)
+            raise KeyboardInterrupt
 
         run_results = set()
 
-        for host in results:
+        # Results are of type ScanResult which are post-processed regarding success.
+        for result in results:
             if return_only_errors:
-                if not results[host].success:
+                if not result.success:
                     if get_info:
-                        run_results.add((results[host].rank, host, results[host]))
+                        run_results.add((result.rank, result.host, result))
                     else:
-                        run_results.add((results[host].rank, host))
+                        run_results.add((result.rank, result.host))
             else:
                 if get_info:
-                    run_results.add((results[host].rank, host, results[host]))
+                    run_results.add((result.rank, result.host, result))
                 else:
-                    run_results.add((results[host].rank, host))
+                    run_results.add((result.rank, result.host))
+
+        # FIXME: having inconsisten number of elements in lists for result sets might thwart set operations.
 
         return run_results
 
