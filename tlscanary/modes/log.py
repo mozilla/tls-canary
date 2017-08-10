@@ -218,6 +218,10 @@ class LogMode(BaseMode):
             if not log.is_compatible():
                 print "%s\t\t\t\t\t\tINCOMPATIBLE LOG FORMAT" % log_name
             elif mode == "regression" or mode == "performance":
+                size = os.path.getsize((log.part("log.bz2")))
+                if size > 100*1024*1024:
+                    logger.warning("Log `%s` contains %.1f MBytes of data. counting may take a while"
+                                   % (log.handle, size/1024.0/10124.0))
                 print "%s%s\tlines=%-6d\tmode=%-12s\tFx %s %s / %s vs. Fx %s %s / %s" % (
                     log_name,
                     incomplete_marker,
@@ -230,6 +234,10 @@ class LogMode(BaseMode):
                     meta["base_metadata"]["branch"].capitalize(),
                     meta["base_metadata"]["nss_version"])
             elif mode == "scan":
+                size = os.path.getsize((log.part("log.bz2")))
+                if size > 100*1024*1024:
+                    logger.warning("Log `%s` contains %.1f MBytes of data. Counting may take a while"
+                                   % (log.handle, size/1024.0/1024.0))
                 print "%s%s\tlines=%-6d\tmode=%-12s\tFx %s %s / %s" % (
                     log_name,
                     incomplete_marker,
