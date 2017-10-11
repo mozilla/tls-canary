@@ -40,8 +40,8 @@ def get_list(onecrl_env, workdir, commit, use_cache=True, cache_timeout=60*60):
         go_env["GOPATH"] = go_path
 
         # Install / update oneCRL2RevocationsTxt package
-        package = "github.com/mozmark/OneCRL-Tools/oneCRL2RevocationsTxt"
-        repo_dir = os.path.join(go_path, "src", "github.com", "mozmark", "OneCRL-Tools")
+        package = "github.com/mozilla/OneCRL-Tools/oneCRL2RevocationsTxt"
+        repo_dir = os.path.join(go_path, "src", "github.com", "mozilla", "OneCRL-Tools")
         # If the package has already been downloaded, checkout master, else `go get` will fail
         if os.path.isdir(os.path.join(repo_dir, ".git")):
             logger.debug("Checking out commit `master` in `%s` for update" % repo_dir)
