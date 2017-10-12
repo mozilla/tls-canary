@@ -69,9 +69,9 @@ class BaseMode(object):
                            action="store",
                            default="production")
         group.add_argument("--onecrlpin",
-                           help="OneCRL-Tools git commit to use (default: 244e704)",
+                           help="OneCRL-Tools git commit to use (default: 3bf3462)",
                            action="store",
-                           default="244e704")
+                           default="3bf3462")
         group.add_argument("-p", "--prefs",
                            help="Prefs to apply to all builds",
                            type=str,
@@ -87,6 +87,10 @@ class BaseMode(object):
                            type=str,
                            action="append",
                            default=None)
+        group.add_argument("-c", "--cache",
+                           help='Allow profiles to cache web content',
+                           action="store_true",
+                           default=False)
 
         group = parser.add_argument_group("host database selection")
         group.add_argument("-s", "--source",
@@ -240,10 +244,12 @@ class BaseMode(object):
             # leave the existing revocations file alone
             logger.info("Testing with custom OneCRL entries from default profile")
 
-        # make all files in profiles read-only to prevent caching
-        for root, dirs, files in os.walk(new_profile_dir, topdown=False):
-            for name in files:
-                os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
+        logger.debug("Allow profile cache: %s " % self.args.cache)
+        if not self.args.cache:
+            # make all files in profiles read-only to prevent caching
+            for root, dirs, files in os.walk(new_profile_dir, topdown=False):
+                for name in files:
+                    os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
         return new_profile_dir
 
