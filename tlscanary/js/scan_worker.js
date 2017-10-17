@@ -122,8 +122,12 @@ function collect_request_info(xhr, report_certs) {
         sec_info.QueryInterface(Ci.nsITransportSecurityInfo);
         info.transport_security_info_status = true;
         info.security_state = sec_info.securityState;
-        info.security_description = sec_info.shortSecurityDescription;
         info.raw_error = sec_info.errorMessage;
+        try {
+            info.short_error_message = info.raw_error.split("Error code:")[1].split(">")[1].split("<")[0];
+        } catch (e) {
+            info.short_error_message = info.raw_error;
+        }
     }
 
     if (sec_info instanceof Ci.nsISSLStatusProvider) {
