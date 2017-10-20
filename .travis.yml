@@ -1,8 +1,11 @@
 sudo: required
 os:
-  - linux
-# OS X python is currently broken due to SSL include problems
-# See
+# Travis' Mac OS X python environment is broken due to SSL include problems.
+# We're hence bootstrapping regular containers.
+# 
+# Linux testing temporarily disabled due to version conflict in
+# `six` dependencies (1.5 vs. 1.6)
+#   - linux
   - osx
 dist: trusty
 
