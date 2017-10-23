@@ -119,6 +119,11 @@ class BaseMode(object):
                            type=int,
                            action="store",
                            default=50)
+        group.add_argument("-u", "--max_timeout",
+                           help="Maximum timeout for worker requests (default: 20)",
+                           type=float,
+                           action="store",
+                           default=20)
         group.add_argument("-x", "--scans",
                            help="Number of scans per host (default: 3)",
                            type=int,

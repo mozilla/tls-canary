@@ -145,18 +145,10 @@ class RegressionMode(BaseMode):
         num_workers = self.args.parallel
         requests_per_worker = self.args.requestsperworker
         timeout = self.args.timeout
-        #max_timeout = self.args.max_timeout
-        # temp
-        max_timeout = 30
-        # TODO: add max timeout to CLI
+        max_timeout = self.args.max_timeout
 
         for current_scan in xrange(1, self.args.scans + 1):
-            # Slow down number of workers and scans with each pass
-            # to make results more precise
-
-            num_workers = max(1, int(num_workers * 0.75))
-            requests_per_worker = max(1, int(requests_per_worker * 0.75))
-            timeout = min(max_timeout, timeout * 1.25)
+            logger.info("Current timeout is %f" % timeout)
 
             # Specify different callback only for initial test scan
             if current_scan == 1:
@@ -187,6 +179,12 @@ class RegressionMode(BaseMode):
             # If no errors, no need to keep scanning
             if len(current_host_set) == 0:
                 break
+            else:
+                # Slow down number of workers and scans with each pass
+                # to make results more precise
+                num_workers = max(1, int(num_workers * 0.75))
+                requests_per_worker = max(1, int(requests_per_worker * 0.75))
+                timeout = min(max_timeout, timeout * 1.25)
 
         last_error_set = current_host_set
 
