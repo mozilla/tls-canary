@@ -62,6 +62,10 @@ class BaseMode(object):
                            default=base_default)
 
         group = parser.add_argument_group("profile setup")
+        group.add_argument("-c", "--cache",
+                           help='Allow profiles to cache web content',
+                           action="store_true",
+                           default=False)
         group.add_argument("-o", "--onecrl",
                            help="OneCRL set to test (default: production)",
                            type=str.lower,
@@ -115,6 +119,11 @@ class BaseMode(object):
                            type=int,
                            action="store",
                            default=50)
+        group.add_argument("-u", "--max_timeout",
+                           help="Maximum timeout for worker requests (default: 20)",
+                           type=float,
+                           action="store",
+                           default=20)
         group.add_argument("-x", "--scans",
                            help="Number of scans per host (default: 3)",
                            type=int,
@@ -240,10 +249,12 @@ class BaseMode(object):
             # leave the existing revocations file alone
             logger.info("Testing with custom OneCRL entries from default profile")
 
-        # make all files in profiles read-only to prevent caching
-        for root, dirs, files in os.walk(new_profile_dir, topdown=False):
-            for name in files:
-                os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
+        logger.debug("Allow profile cache: %s" % self.args.cache)
+        if not self.args.cache:
+            # make all files in profiles read-only to prevent caching
+            for root, dirs, files in os.walk(new_profile_dir, topdown=False):
+                for name in files:
+                    os.chmod(os.path.join(root, name), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
         return new_profile_dir
 

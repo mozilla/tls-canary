@@ -13,12 +13,10 @@ import tlscanary.progress as pr
 import tlscanary.runlog as rl
 import tlscanary.sources_db as sdb
 
-
 logger = logging.getLogger(__name__)
 
 
 class RegressionMode(BaseMode):
-
     name = "regression"
     help = "Run a TLS regression test on two Firefox versions"
 
@@ -40,12 +38,17 @@ class RegressionMode(BaseMode):
     def setup(self):
         global logger
 
-        # Argument validation logic to make sure user has test build
+        # Argument validation logic
+        # Make sure user has test build
         if self.args.test is None:
             logger.critical("Must specify test build for regression testing")
             sys.exit(5)
         elif self.args.base is None:
             logger.critical("Must specify base build for regression testing")
+            sys.exit(5)
+
+        if self.args.scans < 2:
+            logger.critical("Must specify minimum of 2 scans for regression testing")
             sys.exit(5)
 
         if self.args.prefs is not None:
@@ -130,99 +133,86 @@ class RegressionMode(BaseMode):
 
     def run_regression_passes(self, host_set, report_completed=None, report_overhead=None):
         global logger
+        # Compile set of error hosts in multiple scans
 
-        # Compile set of error hosts in three passes
+        # Each scan:
+        # - Runs full test set against the test candidate
+        # - Runs new error set against baseline candidate
+        # - Take any remaining errors and repeat the above steps
 
-        # First pass:
-        # - Run full test set against the test candidate
-        # - Run new error set against baseline candidate
-        # - Filter for errors from test candidate but not baseline
+        current_host_set = host_set
+        current_scan = 0
+        num_workers = self.args.parallel
+        requests_per_worker = self.args.requestsperworker
+        timeout = self.args.timeout
+        max_timeout = self.args.max_timeout
 
-        logger.info("Starting first pass with %d hosts" % len(host_set))
+        for current_scan in xrange(1, self.args.scans + 1):
+            logger.info("Current timeout is %f" % timeout)
 
-        test_error_set = self.run_test(self.test_app, host_set, profile=self.test_profile,
-                                       prefs=self.args.prefs_test, report_callback=report_completed)
-        logger.info("First test candidate pass yielded %d error hosts" % len(test_error_set))
-        logger.debug("First test candidate pass errors: %s"
-                     % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
+            # Specify different callback only for initial test scan
+            if current_scan == 1:
+                report_callback_value = report_completed
+            else:
+                report_callback_value = report_overhead
 
-        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
-                                       prefs=self.args.prefs_base, report_callback=report_overhead)
-        logger.info("First baseline candidate pass yielded %d error hosts" % len(base_error_set))
-        logger.debug("First baseline candidate pass errors: %s"
-                     % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
+            # Actual test running for both builds
+            test_error_set = self.run_test(self.test_app, current_host_set, profile=self.test_profile,
+                                           prefs=self.args.prefs_test, num_workers=num_workers,
+                                           n_per_worker=requests_per_worker, timeout=timeout,
+                                           report_callback=report_callback_value)
+            logger.info("Scan #%d with test candidate yielded %d error hosts"
+                        % (current_scan, len(test_error_set)))
+            logger.debug("Scan #%d test candidate errors: %s"
+                         % (current_scan, ' '.join(["%d,%s" % (r, u) for r, u in test_error_set])))
+            base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
+                                           prefs=self.args.prefs_base, num_workers=num_workers,
+                                           n_per_worker=requests_per_worker, timeout=timeout,
+                                           report_callback=report_overhead)
+            logger.info("Scan #%d with baseline candidate yielded %d error hosts"
+                        % (current_scan, len(base_error_set)))
+            logger.debug("Scan #%d baseline candidate errors: %s"
+                         % (current_scan, ' '.join(["%d,%s" % (r, u) for r, u in base_error_set])))
 
-        error_set = test_error_set.difference(base_error_set)
+            current_host_set = test_error_set.difference(base_error_set)
 
-        # Second pass:
-        # - Run error set from first pass against the test candidate
-        # - Run new error set against baseline candidate, slower with higher timeout
-        # - Filter for errors from test candidate but not baseline
+            # If no errors, no need to keep scanning
+            if len(current_host_set) == 0:
+                break
+            else:
+                # Slow down number of workers and scans with each pass
+                # to make results more precise
+                num_workers = max(1, int(num_workers * 0.75))
+                requests_per_worker = max(1, int(requests_per_worker * 0.75))
+                timeout = min(max_timeout, timeout * 1.25)
 
-        logger.info("Starting second pass with %d hosts" % len(error_set))
+        last_error_set = current_host_set
 
-        test_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile,
-                                       prefs=self.args.prefs_test,
-                                       num_workers=int(ceil(self.args.parallel / 1.414)),
-                                       n_per_worker=int(ceil(self.args.requestsperworker / 1.414)),
-                                       report_callback=report_overhead)
-        logger.info("Second test candidate pass yielded %d error hosts" % len(test_error_set))
-        logger.debug("Second test candidate pass errors: %s"
-                     % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
-
-        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
-                                       prefs=self.args.prefs_base, report_callback=report_overhead)
-        logger.info("Second baseline candidate pass yielded %d error hosts" % len(base_error_set))
-        logger.debug("Second baseline candidate pass errors: %s"
-                     % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
-
-        error_set = test_error_set.difference(base_error_set)
-
-        # Third pass:
-        # - Run error set from first pass against the test candidate with less workers
-        # - Run new error set against baseline candidate with less workers
-        # - Filter for errors from test candidate but not baseline
-
-        logger.info("Starting third pass with %d hosts" % len(error_set))
-
-        test_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile,
-                                       prefs=self.args.prefs_test, num_workers=2, n_per_worker=10,
-                                       report_callback=report_overhead)
-        logger.info("Third test candidate pass yielded %d error hosts" % len(test_error_set))
-        logger.debug("Third test candidate pass errors: %s"
-                     % ' '.join(["%d,%s" % (r, u) for r, u in test_error_set]))
-
-        base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
-                                       prefs=self.args.prefs_base, num_workers=2, n_per_worker=10,
-                                       report_callback=report_overhead)
-        logger.info("Third baseline candidate pass yielded %d error hosts" % len(base_error_set))
-        logger.debug("Third baseline candidate pass errors: %s"
-                     % ' '.join(["%d,%s" % (r, u) for r, u in base_error_set]))
-
-        error_set = test_error_set.difference(base_error_set)
-        if len(error_set) > 0:
-            logger.warning("%d regressions found: %s"
-                           % (len(error_set), ' '.join(["%d,%s" % (r, u) for r, u in error_set])))
-
-        # Fourth pass, information extraction:
-        # - Run error set from third pass against the test candidate with less workers
+        # Final pass, information extraction only:
+        # - Run error set from previous pass against the test candidate with minimal workers, requests
         # - Have workers return extra runtime information, including certificates
 
-        logger.debug("Extracting runtime information from %d hosts" % (len(error_set)))
-        final_error_set = self.run_test(self.test_app, error_set, profile=self.test_profile,
-                                        prefs=self.args.prefs_test, num_workers=1, n_per_worker=10,
+        logger.debug("Extracting runtime information from %d hosts" % (len(last_error_set)))
+        final_error_set = self.run_test(self.test_app, last_error_set, profile=self.test_profile,
+                                        prefs=self.args.prefs_test, num_workers=1, n_per_worker=1,
                                         get_info=True, get_certs=True,
-                                        return_only_errors=False,  # FIXME: Remove this
                                         report_callback=report_overhead)
 
-        # Final set includes additional result data, so filter that out before comparison
-        stripped_final_set = set()
+        if len(final_error_set) > 0:
+            logger.warning("%d potential regressions found: %s"
+                           % (len(final_error_set), ' '.join(["%d,%s" % (r, u) for r, u, d in final_error_set])))
 
-        for rank, host, data in final_error_set:
-            stripped_final_set.add((rank, host))
+        # Find out if the information extraction pass changed the results
+        if self.args.debug:
+            # Final set includes additional result data, so filter that out before comparison
+            stripped_final_set = set()
 
-        if stripped_final_set != error_set:
-            diff_set = error_set.difference(stripped_final_set)
-            logger.warning("Domains dropped out of final error set: %s" % diff_set)
+            for rank, host, data in final_error_set:
+                stripped_final_set.add((rank, host))
+
+            if stripped_final_set != last_error_set:
+                diff_set = last_error_set.difference(stripped_final_set)
+                logger.debug("Number of hosts dropped out of final error set: %d" % len(diff_set))
+                logger.debug(diff_set)
 
         return final_error_set
