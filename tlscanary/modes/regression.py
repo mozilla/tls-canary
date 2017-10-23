@@ -94,12 +94,12 @@ class RegressionMode(BaseMode):
         rldb = rl.RunLogDB(self.args)
         log = rldb.new_log()
         log.start(meta=meta)
-        progress = pr.ProgressTracker(total=len(self.sources), unit="hosts", average=30 * 60.0)
+        progress = pr.ProgressTracker(total=len(self.sources), unit="hosts", average=30*60.0)
 
         limit = len(self.sources) if self.args.limit is None else self.args.limit
 
         # Split work into 50 chunks to conserve memory, but make no chunk smaller than 1000 hosts
-        next_chunk = self.sources.iter_chunks(chunk_size=limit / 50, min_chunk_size=1000)
+        next_chunk = self.sources.iter_chunks(chunk_size=limit/50, min_chunk_size=1000)
 
         try:
             while True:
@@ -142,15 +142,21 @@ class RegressionMode(BaseMode):
 
         current_host_set = host_set
         current_scan = 0
+        num_workers = self.args.parallel
+        requests_per_worker = self.args.requestsperworker
+        timeout = self.args.timeout
+        #max_timeout = self.args.max_timeout
+        # temp
+        max_timeout = 30
+        # TODO: add max timeout to CLI
 
-        while current_scan < self.args.scans:
+        for current_scan in xrange(1, self.args.scans + 1):
             # Slow down number of workers and scans with each pass
             # to make results more precise
-            scans_remaining = self.args.scans - current_scan
-            current_scan += 1
-            pct_remaining = (float(scans_remaining) / float(self.args.scans))
-            adjusted_workers = int(ceil(self.args.parallel * pct_remaining))
-            adjusted_requests_per_worker = int(ceil(self.args.requestsperworker * pct_remaining))
+
+            num_workers = max(1, int(num_workers * 0.75))
+            requests_per_worker = max(1, int(requests_per_worker * 0.75))
+            timeout = min(max_timeout, timeout * 1.25)
 
             # Specify different callback only for initial test scan
             if current_scan == 1:
@@ -160,16 +166,16 @@ class RegressionMode(BaseMode):
 
             # Actual test running for both builds
             test_error_set = self.run_test(self.test_app, current_host_set, profile=self.test_profile,
-                                           prefs=self.args.prefs_test, num_workers=adjusted_workers,
-                                           n_per_worker=adjusted_requests_per_worker,
+                                           prefs=self.args.prefs_test, num_workers=num_workers,
+                                           n_per_worker=requests_per_worker, timeout=timeout,
                                            report_callback=report_callback_value)
             logger.info("Scan #%d with test candidate yielded %d error hosts"
                         % (current_scan, len(test_error_set)))
             logger.debug("Scan #%d test candidate errors: %s"
                          % (current_scan, ' '.join(["%d,%s" % (r, u) for r, u in test_error_set])))
             base_error_set = self.run_test(self.base_app, test_error_set, profile=self.base_profile,
-                                           prefs=self.args.prefs_base, num_workers=adjusted_workers,
-                                           n_per_worker=adjusted_requests_per_worker,
+                                           prefs=self.args.prefs_base, num_workers=num_workers,
+                                           n_per_worker=requests_per_worker, timeout=timeout,
                                            report_callback=report_overhead)
             logger.info("Scan #%d with baseline candidate yielded %d error hosts"
                         % (current_scan, len(base_error_set)))
@@ -195,7 +201,7 @@ class RegressionMode(BaseMode):
                                         report_callback=report_overhead)
 
         if len(final_error_set) > 0:
-            logger.warning("%d regressions found: %s"
+            logger.warning("%d potential regressions found: %s"
                            % (len(final_error_set), ' '.join(["%d,%s" % (r, u) for r, u, d in final_error_set])))
 
         # Find out if the information extraction pass changed the results

@@ -62,6 +62,10 @@ class BaseMode(object):
                            default=base_default)
 
         group = parser.add_argument_group("profile setup")
+        group.add_argument("-c", "--cache",
+                           help='Allow profiles to cache web content',
+                           action="store_true",
+                           default=False)
         group.add_argument("-o", "--onecrl",
                            help="OneCRL set to test (default: production)",
                            type=str.lower,
@@ -87,10 +91,6 @@ class BaseMode(object):
                            type=str,
                            action="append",
                            default=None)
-        group.add_argument("-c", "--cache",
-                           help='Allow profiles to cache web content',
-                           action="store_true",
-                           default=False)
 
         group = parser.add_argument_group("host database selection")
         group.add_argument("-s", "--source",
@@ -244,7 +244,7 @@ class BaseMode(object):
             # leave the existing revocations file alone
             logger.info("Testing with custom OneCRL entries from default profile")
 
-        logger.debug("Allow profile cache: %s " % self.args.cache)
+        logger.debug("Allow profile cache: %s" % self.args.cache)
         if not self.args.cache:
             # make all files in profiles read-only to prevent caching
             for root, dirs, files in os.walk(new_profile_dir, topdown=False):
