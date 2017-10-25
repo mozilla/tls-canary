@@ -148,7 +148,6 @@ class RegressionMode(BaseMode):
         max_timeout = self.args.max_timeout
 
         for current_scan in xrange(1, self.args.scans + 1):
-            logger.info("Current timeout is %f" % timeout)
 
             # Specify different callback only for initial test scan
             if current_scan == 1:

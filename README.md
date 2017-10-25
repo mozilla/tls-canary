@@ -142,6 +142,7 @@ The run modes `performance`, `regression`, and `scan` share a common set command
 Argument | Choices / **default** | Description
 ----------|----------|----------
 -b --base | **release**, nightly, beta, aurora, esr, *build tree*, *package file* | Baseline test candidate to test against. Only used by comparative test modes.
+-c --cache | false | Enable content caching in profiles
 -d --debug | | Enable verbose debug logging to the terminal
 -f --filter | 0, **1** | The default filter level 1 removes network timeouts from reports which may appear spuriously. Filter level 0 applies no filtering.
 -h --help | | Longer usage information
@@ -152,8 +153,9 @@ Argument | Choices / **default** | Description
 -o --onecrl | **production**, stage, custom | OneCRL revocation list to install to the test profiles. `custom` uses a pre-configured, static list.
 -s --source | **top**, list, ... | Set of hosts to run the test against. Pass `list` to get info on available test sets.
 -t --test | release, **nightly**, beta, aurora, esr, *build tree*, *package file* | Specify the main test candidate. Used by every run mode.
+-u --max_timeout | 20 | Maximum request timeout in seconds. Each scan increases the timeout, up to this value
 -w --workdir | **~/.tlscanary** | Directory where cached files and other state is stored
--x --scans | 3 | Number of scans to run against each host during performance mode. Currently limited to 20.
+-x --scans | 3 | Number of scans to run against each host during performance or regression mode.
 MODE | performance, regression, scan, srcupdate | Test mode to run, given as positional parameter. This is a mandatory argument.
 
 ## For developers
