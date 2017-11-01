@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TLS Canary report page</title>
+
+  <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="/bower_components/polymer/polymer.html">
+  <link rel="import" href="/bower_components/vaadin-grid/vaadin-grid.html">
+  <link rel="import" href="/bower_components/vaadin-grid/vaadin-grid-sorter.html">
+  <link rel="import" href="/bower_components/vaadin-grid/vaadin-grid-filter.html">
+
+  <script src="./log_handler.js"></script>
+
+<custom-style>
+  <style is="custom-style">
+    body {
+      font-family: sans-serif;
+      font-size: 14px;
+      margin: 0;
+      padding: 24px;
+      background-color: #fafafa;
+    }
+    
+    .vertical-section-container {
+      height:600;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .centered {
+      max-width: 90%;
+      height: 600;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    :root {
+      --primary-color: #00B4F0;
+      --light-primary-color: #7CD8F7;
+      --dark-primary-color: #0078A0;
+      --error-color: #E61E6E;
+    }
+
+    h3 .anchor {
+      color: grey;
+      text-decoration: none;
+      opacity: 0;
+      font-size: 14px;
+      margin-left: -1.6em;
+      width: 1.6em;
+      display: inline-block;
+      outline: none;
+    }
+
+    h3:hover .anchor {
+      opacity: 1;
+    }
+
+    #fields
+    {
+      visibility:hidden;
+    }
+    #graph
+    {
+      visibility:hidden;
+    }
+    #run_info
+    {
+      visibility:hidden;
+    }
+
+
+
+    #tabs ul {
+      font-size: 20px;
+      font-weight: none;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+    }
+
+    #tabs li {
+      background: #cff;
+      border-radius: 5px 5px 0 0;
+      color: #a80;
+      display: inline;
+      margin: 2px 2px 0 0;
+      padding: 1em 2em;
+    }
+
+    #tabs li:hover {
+      background: #9ff;
+      color: #540;
+    }
+
+    #tabs a {
+      color: black;
+      padding: 0 1em;
+      text-decoration: none;
+    }
+
+    #tabs a:hover {
+      padding: 0 1em;
+      background: #9ff;
+    }
+
+    #tabs #selected {
+      background: #9ff;
+      color: #540;
+      padding-bottom: 2px;
+      font-weight: bold;
+    }
+
+    #tabs #selected a {
+      background: #9ff;
+      font-weight: bold;
+    }
+  </style>
+</custom-style>
+  <script>
+  function updateUI(arg)
+  {
+    window.document.getElementById("results_tab").innerHTML = "Results: " + arg;
+  }
+  function go(meta)
+  {
+    var desc = "Fx " + meta.test_metadata.application_ini.version + meta.test_metadata.branch + " vs Fx " + meta.base_metadata.application_ini.version + " " + meta.base_metadata.branch;
+    var time = meta.run_start_time.split(".")[0].replace("T","-").replace(":","-").replace(":","-");
+    window.document.getElementById("header").innerHTML = desc + "<br>" + time;
+    //visible_columns.success = true;
+  }
+
+  function navigate(tab)
+  {
+    // disable for now
+    return;
+    var tabs = ["grid", "graph", "fields", "run_info"];
+    for (var i=0;i<tabs.length;i++)
+    {
+          window.document.getElementById(tabs[i]).style.visibility = "hidden";
+    }
+    window.document.getElementById(tab).style.visibility = "visible";
+  }
+  </script>
+</head>
+
+<body>
+  <div class="vertical-section-container centered">    
+    <img src="logo.png" width=200 height=70>
+    <p id="header"></p>
+    <br>
+    <br>
+    <p>
+    <!--a href="javascript:go()">go</a-->
+    <p>
+  </div>
+    <div class="vertical-section-container centered" id="tabs">
+          <ul class="tabs">
+          <li class="active"><a href="javascript:navigate('grid')" id="results_tab">Results</a></li>
+          <li><a href="javascript:navigate('graph')">Graph</a></li>
+          <li><a href="javascript:navigate('fields')">Fields</a></li>
+          <li><a href="javascript:navigate('run_info')">Run Info</a></li>
+      </ul>
+      <p>
+  </div>
+  <div id="master">
+    <div id="graph" class="vertical-section-container centered"></div>
+    <div id="fields" class="vertical-section-container centered"></div>
+    <div id="run_info" class="vertical-section-container centered"></div>
+    <div id="grid" class="vertical-section-container centered">
+      <x-tls-canary></x-tls-canary>
+      <dom-module id="x-tls-canary">
+        <template>
+          <style>
+          vaadin-grid {
+            display: block;
+                  height: 540px;
+                  background: var(--primary-background-color, #fff);
+                  box-sizing: border-box;
+                  border: 1px solid var(--divider-color, rgba(0, 0, 0, 0.08));
+            }
+
+            :host(:focus) {
+              -webkit-tap-highlight-color: transparent;
+            }
+
+            :host(:focus) {
+              outline: none;
+            }
+
+            #scroller {
+              height: 100%;
+              width: 100%;
+            }
+          </style>
+
+          <vaadin-grid id="grid" data-provider="[[dataProvider]]" size= "[[size]]" column-reordering-allowed>
+          <template is="dom-repeat" items="[[columns]]" as="column">
+
+          <vaadin-grid-column resizable>
+            <template class="header">
+              <vaadin-grid-sorter path="[[column]]">[[column]]</vaadin-grid-sorter>
+            </template>
+            <template>[[get(column, item)]]</template>
+            <template class="footer">
+              <vaadin-grid-filter aria-label="[[column]]" path="[[column]]" value="[[_filterColumn]]">
+                <!--input placeholder="[[column]]" slot="filter" value="[[column::input]]" focus-target-->
+              </vaadin-grid-filter>
+            </template>
+          </vaadin-grid-column>
+        </template>
+          </vaadin-grid>
+        </template>
+
+        <script>
+          window.load_transform();
+
+          addEventListener('WebComponentsReady', function() {
+            Polymer({
+              is: 'x-tls-canary',
+              properties: {
+                columns: Array
+              },
+              ready: function() {
+                this.size = 50;
+                this.init = false;
+                //alert(this._filterHost)
+
+                this.findProp = function (obj, prop, defval){
+                  if (defval == undefined) defval = null;
+                  prop = prop.split('.');
+                  for (var i = 0; i < prop.length; i++) {
+                      if(typeof obj[prop[i]] == 'undefined')
+                          return defval;
+                      obj = obj[prop[i]];
+                  }
+                  return obj;
+                }
+                this.sortBy = function(field, reverse, primer) {
+                   var key = primer ? 
+                       function(x) {return primer(this.findProp(x,field))}.bind(this) : 
+                       function(x) {return this.findProp(x,field)}.bind(this);
+                   reverse = !reverse ? 1 : -1;
+                   return function (a, b) {
+                     return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+                  } 
+                }
+                this.dataProvider = function(params, callback) {
+                  var url = "log.json";
+
+                  this.columns = [];
+                  this.columnFilters = {};
+                  for (var i in window.visible_columns)
+                  {
+                    if (window.visible_columns[i])
+                    {
+                      this.columns.push (i);
+                      var first = i.substr(0,1).toUpperCase();
+                      var last = i.substr(1,i.length)
+                      this.columnFilters[i] = "_filter"+first+last+"::input";
+
+                    } 
+                  }
+
+                  if (!grid.init)
+                  {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onload = function(arg) {
+                      json_data =  JSON.parse(xhr.responseText)[0];
+                      this.meta = json_data["meta"];
+                      window.go(this.meta);
+                      this.hosts = window.transform_log (json_data);
+                      this.hosts.sort(this.sortBy("rank", false, parseInt));
+                      callback(this.hosts);
+                      window.updateUI(this.hosts.length);
+                      this.init = true;
+                    }.bind(this);        
+                    xhr.open('GET', url, true);
+                    xhr.send();      
+                    grid.init = true;
+                  } else {
+                    var newData = [];
+                    for (var host in this.hosts)
+                    {
+                      var matches = 0;
+                      for (var i in params.filters)
+                      {
+                          var item = String(this.findProp(this.hosts[host],params.filters[i].path));
+                          if (item.indexOf(params.filters[i].value) != -1)
+                          {
+                            matches++;
+                          }   
+                      }
+                      if (matches == params.filters.length)
+                      {
+                        newData.push (this.hosts[host]);
+                      }  
+                    }
+
+                    if (params.sortOrders.length)
+                    {
+                      var field = params.sortOrders[0].path
+                      var reverse = false;
+                      var primer;
+                      if (params.sortOrders[0].direction == "desc")
+                      {
+                        reverse = true;
+                      } else if (params.sortOrders[0].direction == "asc")
+                      {
+                        reverse = false;
+                      } else {
+                        field = "rank";
+                      }
+                      if (field == "rank" && field == "response.worker_id")
+                      {
+                        primer = parseInt;
+                        alert(parseInt)
+                      }
+                      newData.sort(this.sortBy(field, reverse, primer))                
+                    } 
+                    window.updateUI(newData.length);
+                    callback(newData);
+                  }
+                }.bind(this);
+              }
+            });
+          });
+        </script>
+      </dom-module>
+    </div>
+  </div>
+
+</body>
+</html>

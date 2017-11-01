@@ -1,0 +1,3908 @@
+[
+    {
+        "data": [
+            {
+                "host": "ad.doubleclick.net", 
+                "rank": 90, 
+                "response": {
+                    "command_time": 1508971852143, 
+                    "id": 16637756483121713000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "ad.doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 90, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971852658, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://ad.doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to ad.doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://ad.doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 16291961641778162000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "clients1.google.com", 
+                "rank": 33, 
+                "response": {
+                    "command_time": 1508971850878, 
+                    "id": 9871082420947860000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "clients1.google.com", 
+                            "include_certificates": true, 
+                            "rank": 33, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971851598, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://clients1.google.com/", 
+                            "raw_error": "An error occurred during a connection to clients1.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://clients1.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 679794700129542100
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.microsoft.com", 
+                "rank": 119, 
+                "response": {
+                    "command_time": 1508971817904, 
+                    "id": 11920583253952967000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.microsoft.com", 
+                            "include_certificates": true, 
+                            "rank": 119, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971818008, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.microsoft.com/", 
+                            "raw_error": "An error occurred during a connection to www.microsoft.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.microsoft.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 7666969061799696000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "addthis.com", 
+                "rank": 144, 
+                "response": {
+                    "command_time": 1508971810003, 
+                    "id": 4361524596737104000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "addthis.com", 
+                            "include_certificates": true, 
+                            "rank": 144, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971810108, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://addthis.com/", 
+                            "raw_error": "An error occurred during a connection to addthis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://addthis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13389064478990643000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "yt3.ggpht.com", 
+                "rank": 125, 
+                "response": {
+                    "command_time": 1508971825626, 
+                    "id": 9175576333778878000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "yt3.ggpht.com", 
+                            "include_certificates": true, 
+                            "rank": 125, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971826350, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://yt3.ggpht.com/", 
+                            "raw_error": "An error occurred during a connection to yt3.ggpht.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://yt3.ggpht.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 2445618017757378600
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "googletagmanager.com", 
+                "rank": 101, 
+                "response": {
+                    "command_time": 1508971803251, 
+                    "id": 11064440687141556000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "googletagmanager.com", 
+                            "include_certificates": true, 
+                            "rank": 101, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971804475, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://googletagmanager.com/", 
+                            "raw_error": "An error occurred during a connection to googletagmanager.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://googletagmanager.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 12496294280471962000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "lh3.googleusercontent.com", 
+                "rank": 69, 
+                "response": {
+                    "command_time": 1508971855409, 
+                    "id": 5038416128825573000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "lh3.googleusercontent.com", 
+                            "include_certificates": true, 
+                            "rank": 69, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971856018, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://lh3.googleusercontent.com/", 
+                            "raw_error": "An error occurred during a connection to lh3.googleusercontent.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://lh3.googleusercontent.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 5130258268763257000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "tpc.googlesyndication.com", 
+                "rank": 45, 
+                "response": {
+                    "command_time": 1508971844651, 
+                    "id": 17255299857129992000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "tpc.googlesyndication.com", 
+                            "include_certificates": true, 
+                            "rank": 45, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971845165, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://tpc.googlesyndication.com/", 
+                            "raw_error": "An error occurred during a connection to tpc.googlesyndication.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://tpc.googlesyndication.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 4868850105154079000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.googletagmanager.com", 
+                "rank": 103, 
+                "response": {
+                    "command_time": 1508971811794, 
+                    "id": 1777321819098591200, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.googletagmanager.com", 
+                            "include_certificates": true, 
+                            "rank": 103, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971812416, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.googletagmanager.com/", 
+                            "raw_error": "An error occurred during a connection to www.googletagmanager.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.googletagmanager.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 16145021870698828000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "pki.google.com", 
+                "rank": 151, 
+                "response": {
+                    "command_time": 1508971842652, 
+                    "id": 12891361323750265000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "pki.google.com", 
+                            "include_certificates": true, 
+                            "rank": 151, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971843165, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://pki.google.com/", 
+                            "raw_error": "An error occurred during a connection to pki.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://pki.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 18106533784895360000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "translate.googleapis.com", 
+                "rank": 112, 
+                "response": {
+                    "command_time": 1508971805428, 
+                    "id": 14378614800167514000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "translate.googleapis.com", 
+                            "include_certificates": true, 
+                            "rank": 112, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971806141, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://translate.googleapis.com/", 
+                            "raw_error": "An error occurred during a connection to translate.googleapis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://translate.googleapis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 7469571312909457000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "pubads.g.doubleclick.net", 
+                "rank": 104, 
+                "response": {
+                    "command_time": 1508971829859, 
+                    "id": 10533015207657523000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "pubads.g.doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 104, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971830475, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://pubads.g.doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to pubads.g.doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://pubads.g.doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 6557863978712189000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.googleadservices.com", 
+                "rank": 23, 
+                "response": {
+                    "command_time": 1508971857913, 
+                    "id": 6267026866731620000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.googleadservices.com", 
+                            "include_certificates": true, 
+                            "rank": 23, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971858428, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.googleadservices.com/", 
+                            "raw_error": "An error occurred during a connection to www.googleadservices.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.googleadservices.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 11982739030721206000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "clients2.google.com", 
+                "rank": 49, 
+                "response": {
+                    "command_time": 1508971836476, 
+                    "id": 1645361194327136300, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "clients2.google.com", 
+                            "include_certificates": true, 
+                            "rank": 49, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971836983, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://clients2.google.com/", 
+                            "raw_error": "An error occurred during a connection to clients2.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://clients2.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 10872410752140265000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "msn.com", 
+                "rank": 50, 
+                "response": {
+                    "command_time": 1508971807730, 
+                    "id": 1243940108460494800, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "msn.com", 
+                            "include_certificates": true, 
+                            "rank": 50, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971809460, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://msn.com/", 
+                            "raw_error": "An error occurred during a connection to msn.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://msn.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13147722489531816000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "edge-mqtt.facebook.com", 
+                "rank": 82, 
+                "response": {
+                    "command_time": 1508971799973, 
+                    "id": 10494400909327096000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "edge-mqtt.facebook.com", 
+                            "include_certificates": true, 
+                            "rank": 82, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971800176, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://edge-mqtt.facebook.com/", 
+                            "raw_error": "An error occurred during a connection to edge-mqtt.facebook.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://edge-mqtt.facebook.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 11043258391804030000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "criteo.com", 
+                "rank": 99, 
+                "response": {
+                    "command_time": 1508971807094, 
+                    "id": 6380089675074150000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "criteo.com", 
+                            "include_certificates": true, 
+                            "rank": 99, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971807508, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://criteo.com/", 
+                            "raw_error": "An error occurred during a connection to criteo.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://criteo.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 8236059374472974000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "stats.g.doubleclick.net", 
+                "rank": 56, 
+                "response": {
+                    "command_time": 1508971786451, 
+                    "id": 13347226453279044000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "stats.g.doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 56, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971787176, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://stats.g.doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to stats.g.doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://stats.g.doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 881677906417252400
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "ib.adnxs.com", 
+                "rank": 110, 
+                "response": {
+                    "command_time": 1508971851817, 
+                    "id": 11715979043520922000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "ib.adnxs.com", 
+                            "include_certificates": true, 
+                            "rank": 110, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971851924, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://ib.adnxs.com/", 
+                            "raw_error": "An error occurred during a connection to ib.adnxs.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://ib.adnxs.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 12448931350114589000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "google.com", 
+                "rank": 1, 
+                "response": {
+                    "command_time": 1508971816164, 
+                    "id": 18159971363924089000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "google.com", 
+                            "include_certificates": true, 
+                            "rank": 1, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971817683, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://google.com/", 
+                            "raw_error": "An error occurred during a connection to google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14971353025333387000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "s.youtube.com", 
+                "rank": 79, 
+                "response": {
+                    "command_time": 1508971858650, 
+                    "id": 2507218397691214000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "s.youtube.com", 
+                            "include_certificates": true, 
+                            "rank": 79, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971859375, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://s.youtube.com/", 
+                            "raw_error": "An error occurred during a connection to s.youtube.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://s.youtube.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 2708400889065853000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "ogs.google.com", 
+                "rank": 149, 
+                "response": {
+                    "command_time": 1508971834914, 
+                    "id": 13939998143097864000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "ogs.google.com", 
+                            "include_certificates": true, 
+                            "rank": 149, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971835829, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://ogs.google.com/", 
+                            "raw_error": "An error occurred during a connection to ogs.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://ogs.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 2618307063887671300
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "ssl.google-analytics.com", 
+                "rank": 77, 
+                "response": {
+                    "command_time": 1508971801457, 
+                    "id": 7735838051005952000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "ssl.google-analytics.com", 
+                            "include_certificates": true, 
+                            "rank": 77, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971801969, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://ssl.google-analytics.com/", 
+                            "raw_error": "An error occurred during a connection to ssl.google-analytics.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://ssl.google-analytics.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 9208444108889215000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "bing.com", 
+                "rank": 36, 
+                "response": {
+                    "command_time": 1508971795038, 
+                    "id": 3253610441997533000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "bing.com", 
+                            "include_certificates": true, 
+                            "rank": 36, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971795349, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://bing.com/", 
+                            "raw_error": "An error occurred during a connection to bing.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://bing.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 3710532423191591000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "play.googleapis.com", 
+                "rank": 64, 
+                "response": {
+                    "command_time": 1508971824895, 
+                    "id": 15536045500134277000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "play.googleapis.com", 
+                            "include_certificates": true, 
+                            "rank": 64, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971825408, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://play.googleapis.com/", 
+                            "raw_error": "An error occurred during a connection to play.googleapis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://play.googleapis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 17369623386086170000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "rubiconproject.com", 
+                "rank": 114, 
+                "response": {
+                    "command_time": 1508971836049, 
+                    "id": 14135664398400836000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "rubiconproject.com", 
+                            "include_certificates": true, 
+                            "rank": 114, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971836252, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://rubiconproject.com/", 
+                            "raw_error": "An error occurred during a connection to rubiconproject.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://rubiconproject.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 17930305466118142000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "skype.com", 
+                "rank": 83, 
+                "response": {
+                    "command_time": 1508971813470, 
+                    "id": 16365290037468727000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "skype.com", 
+                            "include_certificates": true, 
+                            "rank": 83, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971815299, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://skype.com/", 
+                            "raw_error": "An error occurred during a connection to skype.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://skype.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 6220219411829907000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "netflix.com", 
+                "rank": 2, 
+                "response": {
+                    "command_time": 1508971863567, 
+                    "id": 6516435355146539000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "netflix.com", 
+                            "include_certificates": true, 
+                            "rank": 2, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971863777, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://netflix.com/", 
+                            "raw_error": "An error occurred during a connection to netflix.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://netflix.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 8527406411832429000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.facebook.com", 
+                "rank": 14, 
+                "response": {
+                    "command_time": 1508971819383, 
+                    "id": 2265310411873712000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.facebook.com", 
+                            "include_certificates": true, 
+                            "rank": 14, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971819491, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.facebook.com/", 
+                            "raw_error": "An error occurred during a connection to www.facebook.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.facebook.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15213119454614490000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.googleapis.com", 
+                "rank": 17, 
+                "response": {
+                    "command_time": 1508971820036, 
+                    "id": 1646065131271594000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.googleapis.com", 
+                            "include_certificates": true, 
+                            "rank": 17, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971820652, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.googleapis.com/", 
+                            "raw_error": "An error occurred during a connection to www.googleapis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.googleapis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13289160891853620000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "apis.google.com", 
+                "rank": 38, 
+                "response": {
+                    "command_time": 1508971860657, 
+                    "id": 12579650183564206000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "apis.google.com", 
+                            "include_certificates": true, 
+                            "rank": 38, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971862191, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://apis.google.com/", 
+                            "raw_error": "An error occurred during a connection to apis.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://apis.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 3841510794589731000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "android.clients.google.com", 
+                "rank": 66, 
+                "response": {
+                    "command_time": 1508971811063, 
+                    "id": 12942885461431663000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "android.clients.google.com", 
+                            "include_certificates": true, 
+                            "rank": 66, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971811575, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://android.clients.google.com/", 
+                            "raw_error": "An error occurred during a connection to android.clients.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://android.clients.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 10326557099145218000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "live.com", 
+                "rank": 27, 
+                "response": {
+                    "command_time": 1508971846535, 
+                    "id": 16649799003057717000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "live.com", 
+                            "include_certificates": true, 
+                            "rank": 27, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971848568, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://live.com/", 
+                            "raw_error": "An error occurred during a connection to live.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://live.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 698882338996510700
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "s.ytimg.com", 
+                "rank": 118, 
+                "response": {
+                    "command_time": 1508971845383, 
+                    "id": 15723999942705736000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "s.ytimg.com", 
+                            "include_certificates": true, 
+                            "rank": 118, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971845993, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://s.ytimg.com/", 
+                            "raw_error": "An error occurred during a connection to s.ytimg.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://s.ytimg.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13223158638958110000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "officeapps.live.com", 
+                "rank": 97, 
+                "response": {
+                    "command_time": 1508971848792, 
+                    "id": 3569726477406384000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "officeapps.live.com", 
+                            "include_certificates": true, 
+                            "rank": 97, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971849924, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://officeapps.live.com/", 
+                            "raw_error": "An error occurred during a connection to officeapps.live.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://officeapps.live.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13673865496223752000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "ajax.googleapis.com", 
+                "rank": 78, 
+                "response": {
+                    "command_time": 1508971793302, 
+                    "id": 14252042995127126000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "ajax.googleapis.com", 
+                            "include_certificates": true, 
+                            "rank": 78, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971794016, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://ajax.googleapis.com/", 
+                            "raw_error": "An error occurred during a connection to ajax.googleapis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://ajax.googleapis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 3215438603953815600
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "safebrowsing.googleapis.com", 
+                "rank": 63, 
+                "response": {
+                    "command_time": 1508971806359, 
+                    "id": 14815300402742847000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "safebrowsing.googleapis.com", 
+                            "include_certificates": true, 
+                            "rank": 63, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971806869, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://safebrowsing.googleapis.com/", 
+                            "raw_error": "An error occurred during a connection to safebrowsing.googleapis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://safebrowsing.googleapis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14575510787448973000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "facebook.com", 
+                "rank": 6, 
+                "response": {
+                    "command_time": 1508971826894, 
+                    "id": 17108538663532513000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "facebook.com", 
+                            "include_certificates": true, 
+                            "rank": 6, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971826996, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://facebook.com/", 
+                            "raw_error": "An error occurred during a connection to facebook.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://facebook.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 17315691146198833000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "googleads.g.doubleclick.net", 
+                "rank": 11, 
+                "response": {
+                    "command_time": 1508971798165, 
+                    "id": 6417692380748595000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "googleads.g.doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 11, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971798678, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://googleads.g.doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to googleads.g.doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://googleads.g.doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 484589275310342140
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "cm.g.doubleclick.net", 
+                "rank": 74, 
+                "response": {
+                    "command_time": 1508971862834, 
+                    "id": 8651703091313912000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "cm.g.doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 74, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971863348, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://cm.g.doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to cm.g.doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://cm.g.doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15955035308192377000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "googleadservices.com", 
+                "rank": 21, 
+                "response": {
+                    "command_time": 1508971795549, 
+                    "id": 8660048476607963000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "googleadservices.com", 
+                            "include_certificates": true, 
+                            "rank": 21, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971796057, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://googleadservices.com/", 
+                            "raw_error": "An error occurred during a connection to googleadservices.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://googleadservices.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 8105996249531378000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "pagead2.googlesyndication.com", 
+                "rank": 31, 
+                "response": {
+                    "command_time": 1508971798901, 
+                    "id": 7305785465977164000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "pagead2.googlesyndication.com", 
+                            "include_certificates": true, 
+                            "rank": 31, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971799418, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://pagead2.googlesyndication.com/", 
+                            "raw_error": "An error occurred during a connection to pagead2.googlesyndication.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://pagead2.googlesyndication.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15482887431098956000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "match.adsrvr.org", 
+                "rank": 143, 
+                "response": {
+                    "command_time": 1508971859594, 
+                    "id": 18081770732764105000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "match.adsrvr.org", 
+                            "include_certificates": true, 
+                            "rank": 143, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971859701, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://match.adsrvr.org/", 
+                            "raw_error": "An error occurred during a connection to match.adsrvr.org.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://match.adsrvr.org/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15092154556031910000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "yahoo.com", 
+                "rank": 39, 
+                "response": {
+                    "command_time": 1508971800398, 
+                    "id": 18232183079179110000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "yahoo.com", 
+                            "include_certificates": true, 
+                            "rank": 39, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971800501, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://yahoo.com/", 
+                            "raw_error": "An error occurred during a connection to yahoo.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://yahoo.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14944276394217925000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "sb.scorecardresearch.com", 
+                "rank": 126, 
+                "response": {
+                    "command_time": 1508971809680, 
+                    "id": 14192891473304707000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "sb.scorecardresearch.com", 
+                            "include_certificates": true, 
+                            "rank": 126, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971809783, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://sb.scorecardresearch.com/", 
+                            "raw_error": "An error occurred during a connection to sb.scorecardresearch.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://sb.scorecardresearch.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14776401387376857000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "hola.org", 
+                "rank": 9, 
+                "response": {
+                    "command_time": 1508971862410, 
+                    "id": 6684270216951583000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "hola.org", 
+                            "include_certificates": true, 
+                            "rank": 9, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971862615, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://hola.org/", 
+                            "raw_error": "An error occurred during a connection to hola.org.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://hola.org/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1375718863641563100
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "mtalk.google.com", 
+                "rank": 67, 
+                "response": {
+                    "command_time": 1508971853203, 
+                    "id": 1560650201427792000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "mtalk.google.com", 
+                            "include_certificates": true, 
+                            "rank": 67, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971853716, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://mtalk.google.com/", 
+                            "raw_error": "An error occurred during a connection to mtalk.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://mtalk.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1973628975163875300
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "youtube.com", 
+                "rank": 15, 
+                "response": {
+                    "command_time": 1508971802512, 
+                    "id": 6211870076399831000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "youtube.com", 
+                            "include_certificates": true, 
+                            "rank": 15, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971803028, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://youtube.com/", 
+                            "raw_error": "An error occurred during a connection to youtube.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://youtube.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 5564924535102546000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "connect.facebook.net", 
+                "rank": 43, 
+                "response": {
+                    "command_time": 1508971827213, 
+                    "id": 7984405362359122000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "connect.facebook.net", 
+                            "include_certificates": true, 
+                            "rank": 43, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971827316, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://connect.facebook.net/", 
+                            "raw_error": "An error occurred during a connection to connect.facebook.net.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://connect.facebook.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13758405835283122000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "icloud.com", 
+                "rank": 73, 
+                "response": {
+                    "command_time": 1508971846211, 
+                    "id": 2044125984518649900, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "icloud.com", 
+                            "include_certificates": true, 
+                            "rank": 73, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971846317, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://icloud.com/", 
+                            "raw_error": "An error occurred during a connection to icloud.com.\n\nPeer could not decode an SSL handshake message.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_DECODE_ERROR_ALERT\">SSL_ERROR_DECODE_ERROR_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_DECODE_ERROR_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394081, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://icloud.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 17373812099937882000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "secure.netflix.com", 
+                "rank": 62, 
+                "response": {
+                    "command_time": 1508971815838, 
+                    "id": 373141096282261500, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "secure.netflix.com", 
+                            "include_certificates": true, 
+                            "rank": 62, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971815944, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://secure.netflix.com/", 
+                            "raw_error": "An error occurred during a connection to secure.netflix.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://secure.netflix.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1655193061273471000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.bing.com", 
+                "rank": 111, 
+                "response": {
+                    "command_time": 1508971820870, 
+                    "id": 11649386345710789000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.bing.com", 
+                            "include_certificates": true, 
+                            "rank": 111, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971821590, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://www.bing.com/", 
+                            "raw_error": "An error occurred during a connection to www.bing.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.bing.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 4271937626471852000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.google-analytics.com", 
+                "rank": 20, 
+                "response": {
+                    "command_time": 1508971791773, 
+                    "id": 10110784262546317000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.google-analytics.com", 
+                            "include_certificates": true, 
+                            "rank": 20, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971792283, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.google-analytics.com/", 
+                            "raw_error": "An error occurred during a connection to www.google-analytics.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.google-analytics.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 4376096211839897600
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.youtube.com", 
+                "rank": 25, 
+                "response": {
+                    "command_time": 1508971850143, 
+                    "id": 11969758850051238000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.youtube.com", 
+                            "include_certificates": true, 
+                            "rank": 25, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971850658, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.youtube.com/", 
+                            "raw_error": "An error occurred during a connection to www.youtube.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.youtube.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 5160199835493892000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "scorecardresearch.com", 
+                "rank": 47, 
+                "response": {
+                    "command_time": 1508971838369, 
+                    "id": 4562001652931821600, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "scorecardresearch.com", 
+                            "include_certificates": true, 
+                            "rank": 47, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971840201, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://scorecardresearch.com/", 
+                            "raw_error": "An error occurred during a connection to scorecardresearch.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://scorecardresearch.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 7080158087544136000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "crashlytics.com", 
+                "rank": 107, 
+                "response": {
+                    "command_time": 1508971792488, 
+                    "id": 11029183247750949000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "crashlytics.com", 
+                            "include_certificates": true, 
+                            "rank": 107, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971792692, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://crashlytics.com/", 
+                            "raw_error": "An error occurred during a connection to crashlytics.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://crashlytics.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 12671024882418827000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "accounts.google.com", 
+                "rank": 40, 
+                "response": {
+                    "command_time": 1508971804694, 
+                    "id": 11096041985671481000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "accounts.google.com", 
+                            "include_certificates": true, 
+                            "rank": 40, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971805209, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://accounts.google.com/", 
+                            "raw_error": "An error occurred during a connection to accounts.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://accounts.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13566758017204613000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "outlook.com", 
+                "rank": 141, 
+                "response": {
+                    "command_time": 1508971790447, 
+                    "id": 18198250410933955000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "outlook.com", 
+                            "include_certificates": true, 
+                            "rank": 141, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971791573, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://outlook.com/", 
+                            "raw_error": "An error occurred during a connection to outlook.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://outlook.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15229297267234742000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "securepubads.g.doubleclick.net", 
+                "rank": 51, 
+                "response": {
+                    "command_time": 1508971821808, 
+                    "id": 12254916469495976000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "securepubads.g.doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 51, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971822518, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://securepubads.g.doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to securepubads.g.doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://securepubads.g.doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15187888511677802000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "nexus.officeapps.live.com", 
+                "rank": 152, 
+                "response": {
+                    "command_time": 1508971830695, 
+                    "id": 68879345713993730, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "nexus.officeapps.live.com", 
+                            "include_certificates": true, 
+                            "rank": 152, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971834694, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://nexus.officeapps.live.com/", 
+                            "raw_error": "An error occurred during a connection to nexus.officeapps.live.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://nexus.officeapps.live.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 11652153261470734000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "doubleclick.net", 
+                "rank": 7, 
+                "response": {
+                    "command_time": 1508971829126, 
+                    "id": 8614369157024182000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 7, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971829637, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 10608537975875195000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "clients3.google.com", 
+                "rank": 75, 
+                "response": {
+                    "command_time": 1508971787376, 
+                    "id": 3450404489977207000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "clients3.google.com", 
+                            "include_certificates": true, 
+                            "rank": 75, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971788103, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://clients3.google.com/", 
+                            "raw_error": "An error occurred during a connection to clients3.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://clients3.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 3755289153153413000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "dpm.demdex.net", 
+                "rank": 153, 
+                "response": {
+                    "command_time": 1508971828802, 
+                    "id": 4913074452463215000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "dpm.demdex.net", 
+                            "include_certificates": true, 
+                            "rank": 153, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971828908, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://dpm.demdex.net/", 
+                            "raw_error": "An error occurred during a connection to dpm.demdex.net.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://dpm.demdex.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15227454464989760000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "clients5.google.com", 
+                "rank": 137, 
+                "response": {
+                    "command_time": 1508971841925, 
+                    "id": 4927342404298230000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "clients5.google.com", 
+                            "include_certificates": true, 
+                            "rank": 137, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971842434, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://clients5.google.com/", 
+                            "raw_error": "An error occurred during a connection to clients5.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://clients5.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 16633406631547701000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.icloud.com", 
+                "rank": 148, 
+                "response": {
+                    "command_time": 1508971802187, 
+                    "id": 16336381895583918000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.icloud.com", 
+                            "include_certificates": true, 
+                            "rank": 148, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971802292, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.icloud.com/", 
+                            "raw_error": "An error occurred during a connection to www.icloud.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.icloud.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 415307827037175800
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "safebrowsing.google.com", 
+                "rank": 53, 
+                "response": {
+                    "command_time": 1508971854674, 
+                    "id": 1670442295062032400, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "safebrowsing.google.com", 
+                            "include_certificates": true, 
+                            "rank": 53, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971855187, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://safebrowsing.google.com/", 
+                            "raw_error": "An error occurred during a connection to safebrowsing.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://safebrowsing.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 11098277997443996000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "notifications.google.com", 
+                "rank": 98, 
+                "response": {
+                    "command_time": 1508971837633, 
+                    "id": 6425292904107471000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "notifications.google.com", 
+                            "include_certificates": true, 
+                            "rank": 98, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971838148, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://notifications.google.com/", 
+                            "raw_error": "An error occurred during a connection to notifications.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://notifications.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14114382807885590000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "bluekai.com", 
+                "rank": 106, 
+                "response": {
+                    "command_time": 1508971840419, 
+                    "id": 2679800413319164000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "bluekai.com", 
+                            "include_certificates": true, 
+                            "rank": 106, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971840625, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://bluekai.com/", 
+                            "raw_error": "An error occurred during a connection to bluekai.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://bluekai.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 6955618572336286000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "staticxx.facebook.com", 
+                "rank": 91, 
+                "response": {
+                    "command_time": 1508971857485, 
+                    "id": 13976778083675376000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "staticxx.facebook.com", 
+                            "include_certificates": true, 
+                            "rank": 91, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971857691, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://staticxx.facebook.com/", 
+                            "raw_error": "An error occurred during a connection to staticxx.facebook.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://staticxx.facebook.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1306190533763448800
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "microsoft.com", 
+                "rank": 5, 
+                "response": {
+                    "command_time": 1508971822736, 
+                    "id": 1168750894765152300, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "microsoft.com", 
+                            "include_certificates": true, 
+                            "rank": 5, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971824676, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://microsoft.com/", 
+                            "raw_error": "An error occurred during a connection to microsoft.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://microsoft.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 8636691316096469000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "fonts.googleapis.com", 
+                "rank": 28, 
+                "response": {
+                    "command_time": 1508971812638, 
+                    "id": 2945908904407089000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "fonts.googleapis.com", 
+                            "include_certificates": true, 
+                            "rank": 28, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971813252, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://fonts.googleapis.com/", 
+                            "raw_error": "An error occurred during a connection to fonts.googleapis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://fonts.googleapis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 10135950833637350000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "clients4.google.com", 
+                "rank": 13, 
+                "response": {
+                    "command_time": 1508971810328, 
+                    "id": 8766329619826149000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "clients4.google.com", 
+                            "include_certificates": true, 
+                            "rank": 13, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971810843, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://clients4.google.com/", 
+                            "raw_error": "An error occurred during a connection to clients4.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://clients4.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 3441919042224412700
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "googlesyndication.com", 
+                "rank": 19, 
+                "response": {
+                    "command_time": 1508971796278, 
+                    "id": 583207172974817300, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "googlesyndication.com", 
+                            "include_certificates": true, 
+                            "rank": 19, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971796896, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://googlesyndication.com/", 
+                            "raw_error": "An error occurred during a connection to googlesyndication.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://googlesyndication.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 6926562078726947000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "i.ytimg.com", 
+                "rank": 46, 
+                "response": {
+                    "command_time": 1508971785628, 
+                    "id": 4790308137849399000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "i.ytimg.com", 
+                            "include_certificates": true, 
+                            "rank": 46, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971786247, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://i.ytimg.com/", 
+                            "raw_error": "An error occurred during a connection to i.ytimg.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://i.ytimg.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1997255619147030500
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "apple.com", 
+                "rank": 22, 
+                "response": {
+                    "command_time": 1508971844223, 
+                    "id": 7817707565572182000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "apple.com", 
+                            "include_certificates": true, 
+                            "rank": 22, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971844431, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://apple.com/", 
+                            "raw_error": "An error occurred during a connection to apple.com.\n\nPeer could not decode an SSL handshake message.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_DECODE_ERROR_ALERT\">SSL_ERROR_DECODE_ERROR_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_DECODE_ERROR_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394081, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://apple.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 2238638056716255200
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.apple.com", 
+                "rank": 81, 
+                "response": {
+                    "command_time": 1508971797116, 
+                    "id": 3139094783863843000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.apple.com", 
+                            "include_certificates": true, 
+                            "rank": 81, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971797218, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.apple.com/", 
+                            "raw_error": "An error occurred during a connection to www.apple.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.apple.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1253743962122696700
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "itunes.apple.com", 
+                "rank": 80, 
+                "response": {
+                    "command_time": 1508971841599, 
+                    "id": 12382659369432945000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "itunes.apple.com", 
+                            "include_certificates": true, 
+                            "rank": 80, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971841701, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://itunes.apple.com/", 
+                            "raw_error": "An error occurred during a connection to itunes.apple.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://itunes.apple.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 6663636298497890000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "googleads4.g.doubleclick.net", 
+                "rank": 142, 
+                "response": {
+                    "command_time": 1508971859919, 
+                    "id": 17681879879865500000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "googleads4.g.doubleclick.net", 
+                            "include_certificates": true, 
+                            "rank": 142, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971860432, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://googleads4.g.doubleclick.net/", 
+                            "raw_error": "An error occurred during a connection to googleads4.g.doubleclick.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://googleads4.g.doubleclick.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 7866101293316338000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "ichnaea.netflix.com", 
+                "rank": 34, 
+                "response": {
+                    "command_time": 1508971837207, 
+                    "id": 12166849253228388000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "ichnaea.netflix.com", 
+                            "include_certificates": true, 
+                            "rank": 34, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971837412, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://ichnaea.netflix.com/", 
+                            "raw_error": "An error occurred during a connection to ichnaea.netflix.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://ichnaea.netflix.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1918553457207918600
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "play.google.com", 
+                "rank": 55, 
+                "response": {
+                    "command_time": 1508971828066, 
+                    "id": 15918277140860221000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "play.google.com", 
+                            "include_certificates": true, 
+                            "rank": 55, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971828582, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://play.google.com/", 
+                            "raw_error": "An error occurred during a connection to play.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://play.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 3951419525774846000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "api-global.netflix.com", 
+                "rank": 4, 
+                "response": {
+                    "command_time": 1508971792892, 
+                    "id": 1478109431863455700, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "api-global.netflix.com", 
+                            "include_certificates": true, 
+                            "rank": 4, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971793099, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://api-global.netflix.com/", 
+                            "raw_error": "An error occurred during a connection to api-global.netflix.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://api-global.netflix.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1409234728220878800
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "tools.google.com", 
+                "rank": 94, 
+                "response": {
+                    "command_time": 1508971818553, 
+                    "id": 9676695340141085000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "tools.google.com", 
+                            "include_certificates": true, 
+                            "rank": 94, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971819163, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://tools.google.com/", 
+                            "raw_error": "An error occurred during a connection to tools.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://tools.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 3057015586572218400
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "platform.twitter.com", 
+                "rank": 127, 
+                "response": {
+                    "command_time": 1508971799639, 
+                    "id": 6371623324681943000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "platform.twitter.com", 
+                            "include_certificates": true, 
+                            "rank": 127, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971799742, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://platform.twitter.com/", 
+                            "raw_error": "An error occurred during a connection to platform.twitter.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://platform.twitter.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 15498903998501767000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "scontent.xx.fbcdn.net", 
+                "rank": 84, 
+                "response": {
+                    "command_time": 1508971841168, 
+                    "id": 13547138301834818000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "scontent.xx.fbcdn.net", 
+                            "include_certificates": true, 
+                            "rank": 84, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971841377, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://scontent.xx.fbcdn.net/", 
+                            "raw_error": "An error occurred during a connection to scontent.xx.fbcdn.net.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://scontent.xx.fbcdn.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 16930012732845450000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "tags.bluekai.com", 
+                "rank": 134, 
+                "response": {
+                    "command_time": 1508971840844, 
+                    "id": 13477802937220694000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "tags.bluekai.com", 
+                            "include_certificates": true, 
+                            "rank": 134, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971840948, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://tags.bluekai.com/", 
+                            "raw_error": "An error occurred during a connection to tags.bluekai.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://tags.bluekai.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 5964190498763719000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "google-analytics.com", 
+                "rank": 12, 
+                "response": {
+                    "command_time": 1508971800728, 
+                    "id": 8721462228290730000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "google-analytics.com", 
+                            "include_certificates": true, 
+                            "rank": 12, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971801242, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://google-analytics.com/", 
+                            "raw_error": "An error occurred during a connection to google-analytics.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://google-analytics.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13567916283096838000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "instagram.com", 
+                "rank": 76, 
+                "response": {
+                    "command_time": 1508971827537, 
+                    "id": 5439838870607933000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "instagram.com", 
+                            "include_certificates": true, 
+                            "rank": 76, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971827844, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://instagram.com/", 
+                            "raw_error": "An error occurred during a connection to instagram.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://instagram.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 17399332686012783000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "safebrowsing-cache.google.com", 
+                "rank": 70, 
+                "response": {
+                    "command_time": 1508971843386, 
+                    "id": 10590115984918700000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "safebrowsing-cache.google.com", 
+                            "include_certificates": true, 
+                            "rank": 70, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971844001, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://safebrowsing-cache.google.com/", 
+                            "raw_error": "An error occurred during a connection to safebrowsing-cache.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://safebrowsing-cache.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 13036822455076960000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "twitter.com", 
+                "rank": 41, 
+                "response": {
+                    "command_time": 1508971819715, 
+                    "id": 17488168956916191000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "twitter.com", 
+                            "include_certificates": true, 
+                            "rank": 41, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971819818, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://twitter.com/", 
+                            "raw_error": "An error occurred during a connection to twitter.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://twitter.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 2515520812249673700
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "login.live.com", 
+                "rank": 100, 
+                "response": {
+                    "command_time": 1508971788309, 
+                    "id": 13044153059544025000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "login.live.com", 
+                            "include_certificates": true, 
+                            "rank": 100, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971790242, 
+                    "result": {
+                        "info": {
+                            "error_class": null, 
+                            "original_uri": "https://login.live.com/", 
+                            "raw_error": "An error occurred during a connection to login.live.com.\n\nTCP connection reset by peer\n\nError code: <a id=\"errorCode\" title=\"PR_CONNECT_RESET_ERROR\">PR_CONNECT_RESET_ERROR</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "PR_CONNECT_RESET_ERROR", 
+                            "ssl_status_status": false, 
+                            "status": 2152398868, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://login.live.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 10980130458861707000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "clientservices.googleapis.com", 
+                "rank": 35, 
+                "response": {
+                    "command_time": 1508971797437, 
+                    "id": 13474718624325493000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "clientservices.googleapis.com", 
+                            "include_certificates": true, 
+                            "rank": 35, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971797943, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://clientservices.googleapis.com/", 
+                            "raw_error": "An error occurred during a connection to clientservices.googleapis.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://clientservices.googleapis.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 2730653224538853400
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "static.xx.fbcdn.net", 
+                "rank": 145, 
+                "response": {
+                    "command_time": 1508971818228, 
+                    "id": 5630457153096348000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "static.xx.fbcdn.net", 
+                            "include_certificates": true, 
+                            "rank": 145, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971818334, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://static.xx.fbcdn.net/", 
+                            "raw_error": "An error occurred during a connection to static.xx.fbcdn.net.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://static.xx.fbcdn.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14144311246819738000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "graph.facebook.com", 
+                "rank": 24, 
+                "response": {
+                    "command_time": 1508971826571, 
+                    "id": 17902602066458319000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "graph.facebook.com", 
+                            "include_certificates": true, 
+                            "rank": 24, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971826675, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://graph.facebook.com/", 
+                            "raw_error": "An error occurred during a connection to graph.facebook.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://graph.facebook.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14802171698327290000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "s0.2mdn.net", 
+                "rank": 86, 
+                "response": {
+                    "command_time": 1508971794221, 
+                    "id": 525988227932028900, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "s0.2mdn.net", 
+                            "include_certificates": true, 
+                            "rank": 86, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971794833, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://s0.2mdn.net/", 
+                            "raw_error": "An error occurred during a connection to s0.2mdn.net.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://s0.2mdn.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 6091915674828644000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "guzzoni.apple.com", 
+                "rank": 123, 
+                "response": {
+                    "command_time": 1508971852877, 
+                    "id": 5846298002179060000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "guzzoni.apple.com", 
+                            "include_certificates": true, 
+                            "rank": 123, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971852984, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://guzzoni.apple.com/", 
+                            "raw_error": "An error occurred during a connection to guzzoni.apple.com.\n\nPeer could not decode an SSL handshake message.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_DECODE_ERROR_ALERT\">SSL_ERROR_DECODE_ERROR_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_DECODE_ERROR_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394081, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://guzzoni.apple.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 5538730522104257000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "x.bidswitch.net", 
+                "rank": 139, 
+                "response": {
+                    "command_time": 1508971856242, 
+                    "id": 3053518358490087400, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "x.bidswitch.net", 
+                            "include_certificates": true, 
+                            "rank": 139, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971857268, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://x.bidswitch.net/", 
+                            "raw_error": "An error occurred during a connection to x.bidswitch.net.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://x.bidswitch.net/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 11775347001680923000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "rlcdn.com", 
+                "rank": 147, 
+                "response": {
+                    "command_time": 1508971815516, 
+                    "id": 6371449880753678000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "rlcdn.com", 
+                            "include_certificates": true, 
+                            "rank": 147, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971815624, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://rlcdn.com/", 
+                            "raw_error": "An error occurred during a connection to rlcdn.com.\n\nCannot communicate securely with peer: no common encryption algorithm(s).\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_NO_CYPHER_OVERLAP\">SSL_ERROR_NO_CYPHER_OVERLAP</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_NO_CYPHER_OVERLAP", 
+                            "ssl_status_status": false, 
+                            "status": 2153394174, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://rlcdn.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 14513170381456224000
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.googletagservices.com", 
+                "rank": 89, 
+                "response": {
+                    "command_time": 1508971784918, 
+                    "id": 12524379304367407000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.googletagservices.com", 
+                            "include_certificates": true, 
+                            "rank": 89, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971785427, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.googletagservices.com/", 
+                            "raw_error": "An error occurred during a connection to www.googletagservices.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.googletagservices.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 1269888508391321600
+                }, 
+                "success": false
+            }, 
+            {
+                "host": "www.google.com", 
+                "rank": 3, 
+                "response": {
+                    "command_time": 1508971853937, 
+                    "id": 15508715368782051000, 
+                    "original_cmd": {
+                        "args": {
+                            "host": "www.google.com", 
+                            "include_certificates": true, 
+                            "rank": 3, 
+                            "timeout": 10
+                        }, 
+                        "id": null, 
+                        "mode": "scan"
+                    }, 
+                    "response_time": 1508971854452, 
+                    "result": {
+                        "info": {
+                            "error_class": 1, 
+                            "original_uri": "https://www.google.com/", 
+                            "raw_error": "An error occurred during a connection to www.google.com.\n\nPeer reports incompatible or unsupported protocol version.\n\nError code: <a id=\"errorCode\" title=\"SSL_ERROR_PROTOCOL_VERSION_ALERT\">SSL_ERROR_PROTOCOL_VERSION_ALERT</a>\n", 
+                            "security_info_status": true, 
+                            "security_state": 4, 
+                            "short_error_message": "SSL_ERROR_PROTOCOL_VERSION_ALERT", 
+                            "ssl_status_status": false, 
+                            "status": 2153394078, 
+                            "transport_security_info_status": true, 
+                            "uri": "https://www.google.com/"
+                        }, 
+                        "origin": "error_handler"
+                    }, 
+                    "success": false, 
+                    "worker_id": 717470012116269000
+                }, 
+                "success": false
+            }
+        ], 
+        "meta": {
+            "args": {
+                "base": "release", 
+                "cache": false, 
+                "debug": false, 
+                "filter": 1, 
+                "limit": 100, 
+                "max_timeout": 20, 
+                "mode": "regression", 
+                "onecrl": "production", 
+                "onecrlpin": "3bf3462", 
+                "parallel": 4, 
+                "prefs": null, 
+                "prefs_base": null, 
+                "prefs_test": [
+                    "security.tls.version.min;4", 
+                    "security.use_sqldb;false"
+                ], 
+                "requestsperworker": 50, 
+                "scans": 3, 
+                "source": "top", 
+                "test": "nightly", 
+                "timeout": 10, 
+                "workdir": "/Users/mwobensmith/.tlscanary"
+            }, 
+            "argv": [
+                "/Users/mwobensmith/PycharmProjects/tlscanary/bin/tlscanary", 
+                "regression", 
+                "-l", 
+                "100", 
+                "-p1", 
+                "security.tls.version.min;4", 
+                "-p1", 
+                "security.use_sqldb;false"
+            ], 
+            "base_metadata": {
+                "appConstants": {
+                    "ACCESSIBILITY": true, 
+                    "ANDROID_PACKAGE_NAME": "org.mozilla.firefox", 
+                    "ASAN": false, 
+                    "CAN_DRAW_IN_TITLEBAR": true, 
+                    "DEBUG": false, 
+                    "DEBUG_JS_MODULES": "", 
+                    "DLL_PREFIX": "lib", 
+                    "DLL_SUFFIX": ".dylib", 
+                    "E10S_TESTING_ONLY": false, 
+                    "HAVE_SHELL_SERVICE": true, 
+                    "HAVE_USR_LIB64_DIR": false, 
+                    "INSTALL_COMPACT_THEMES": true, 
+                    "INSTALL_LOCALE": "en-US", 
+                    "MENUBAR_CAN_AUTOHIDE": false, 
+                    "MOZILLA_OFFICIAL": true, 
+                    "MOZ_ADDON_SIGNING": true, 
+                    "MOZ_ALLOW_LEGACY_EXTENSIONS": true, 
+                    "MOZ_ANDROID_ACTIVITY_STREAM": false, 
+                    "MOZ_ANDROID_HISTORY": false, 
+                    "MOZ_ANDROID_MOZILLA_ONLINE": false, 
+                    "MOZ_APP_NAME": "firefox", 
+                    "MOZ_APP_VERSION": "56.0.1", 
+                    "MOZ_APP_VERSION_DISPLAY": "56.0.1", 
+                    "MOZ_B2G": false, 
+                    "MOZ_B2G_OS_NAME": "", 
+                    "MOZ_B2G_RIL": false, 
+                    "MOZ_B2G_VERSION": "1.0.0", 
+                    "MOZ_BING_API_CLIENTID": "no-bing-api-clientid", 
+                    "MOZ_BING_API_KEY": "no-bing-api-key", 
+                    "MOZ_BUILD_APP": "browser", 
+                    "MOZ_CONTENT_SANDBOX": true, 
+                    "MOZ_CRASHREPORTER": true, 
+                    "MOZ_DATA_REPORTING": true, 
+                    "MOZ_DEV_EDITION": false, 
+                    "MOZ_GECKO_PROFILER": true, 
+                    "MOZ_GOOGLE_API_KEY": "AIzaSyD_Drzahe4dBzGCZ9ArvowCvrPx_yFrlCM", 
+                    "MOZ_GRAPHENE": false, 
+                    "MOZ_MACBUNDLE_NAME": "Firefox.app", 
+                    "MOZ_MAINTENANCE_SERVICE": false, 
+                    "MOZ_MOZILLA_API_KEY": "7e40f68c-7938-4c5d-9f95-e61647c213eb", 
+                    "MOZ_OFFICIAL_BRANDING": true, 
+                    "MOZ_PHOTON_ANIMATIONS": false, 
+                    "MOZ_PHOTON_PREFERENCES": false, 
+                    "MOZ_PHOTON_THEME": false, 
+                    "MOZ_PLACES": true, 
+                    "MOZ_REQUIRE_SIGNING": true, 
+                    "MOZ_SANDBOX": true, 
+                    "MOZ_SERVICES_HEALTHREPORT": true, 
+                    "MOZ_STYLO": true, 
+                    "MOZ_SWITCHBOARD": false, 
+                    "MOZ_SYSTEM_NSS": false, 
+                    "MOZ_TELEMETRY_ON_BY_DEFAULT": false, 
+                    "MOZ_TELEMETRY_REPORTING": true, 
+                    "MOZ_TOOLKIT_SEARCH": true, 
+                    "MOZ_UPDATER": true, 
+                    "MOZ_UPDATE_CHANNEL": "release", 
+                    "MOZ_WEBRTC": true, 
+                    "MOZ_WIDGET_GTK": false, 
+                    "MOZ_WIDGET_TOOLKIT": "cocoa", 
+                    "NIGHTLY_BUILD": false, 
+                    "RELEASE_OR_BETA": true, 
+                    "SOURCE_REVISION_URL": "https://hg.mozilla.org/releases/mozilla-release/rev/3e4ce49f3214e87a52a2b70ca7fbdffe20bef362", 
+                    "XP_UNIX": true, 
+                    "platform": "macosx"
+                }, 
+                "app_version": "56.0.1", 
+                "application_ini": {
+                    "buildid": "20171002220106", 
+                    "id": "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}", 
+                    "name": "Firefox", 
+                    "remotingname": "firefox", 
+                    "sourcerepository": "https://hg.mozilla.org/releases/mozilla-release", 
+                    "sourcestamp": "3e4ce49f3214e87a52a2b70ca7fbdffe20bef362", 
+                    "vendor": "Mozilla", 
+                    "version": "56.0.1"
+                }, 
+                "branch": "release", 
+                "nspr_version": "NSPR 4.16", 
+                "nssInfo": {
+                    "NSPR_MinVersion": "4.16", 
+                    "NSPR_Version": "4.16", 
+                    "NSSSMIME_MinVersion": "3.32.1", 
+                    "NSSSMIME_Version": "3.32.1", 
+                    "NSSSSL_MinVersion": "3.32.1", 
+                    "NSSSSL_Version": "3.32.1", 
+                    "NSSUTIL_MinVersion": "3.32.1", 
+                    "NSSUTIL_Version": "3.32.1", 
+                    "NSS_MinVersion": "3.32.1", 
+                    "NSS_Version": "3.32.1"
+                }, 
+                "nss_version": "NSS 3.32.1", 
+                "package_origin": "https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US", 
+                "platform": "osx"
+            }, 
+            "format_revision": 2, 
+            "log_lines": 99, 
+            "mode": "regression", 
+            "profiles": [
+                {
+                    "log_part": "test_profile.zip", 
+                    "name": "test_profile"
+                }, 
+                {
+                    "log_part": "base_profile.zip", 
+                    "name": "base_profile"
+                }
+            ], 
+            "run_completed": true, 
+            "run_finish_time": "2017-10-25T22:51:04.902646", 
+            "run_start_time": "2017-10-25T22:49:03.930301", 
+            "sources_size": 100, 
+            "test_metadata": {
+                "appConstants": {
+                    "ACCESSIBILITY": true, 
+                    "ANDROID_PACKAGE_NAME": "org.mozilla.firefox", 
+                    "ASAN": false, 
+                    "CAN_DRAW_IN_TITLEBAR": true, 
+                    "DEBUG": false, 
+                    "DEBUG_JS_MODULES": "", 
+                    "DLL_PREFIX": "lib", 
+                    "DLL_SUFFIX": ".dylib", 
+                    "HAVE_SHELL_SERVICE": true, 
+                    "HAVE_USR_LIB64_DIR": false, 
+                    "INSTALL_COMPACT_THEMES": true, 
+                    "INSTALL_LOCALE": "en-US", 
+                    "MENUBAR_CAN_AUTOHIDE": false, 
+                    "MOZILLA_OFFICIAL": true, 
+                    "MOZ_ADDON_SIGNING": true, 
+                    "MOZ_ALLOW_LEGACY_EXTENSIONS": true, 
+                    "MOZ_ANDROID_ACTIVITY_STREAM": false, 
+                    "MOZ_ANDROID_HISTORY": false, 
+                    "MOZ_ANDROID_MOZILLA_ONLINE": false, 
+                    "MOZ_APP_NAME": "firefox", 
+                    "MOZ_APP_VERSION": "58.0a1", 
+                    "MOZ_APP_VERSION_DISPLAY": "58.0a1", 
+                    "MOZ_BING_API_CLIENTID": "no-bing-api-clientid", 
+                    "MOZ_BING_API_KEY": "no-bing-api-key", 
+                    "MOZ_BUILD_APP": "browser", 
+                    "MOZ_CONTENT_SANDBOX": true, 
+                    "MOZ_CRASHREPORTER": true, 
+                    "MOZ_DATA_REPORTING": true, 
+                    "MOZ_DEV_EDITION": false, 
+                    "MOZ_GECKO_PROFILER": true, 
+                    "MOZ_GOOGLE_API_KEY": "AIzaSyD_Drzahe4dBzGCZ9ArvowCvrPx_yFrlCM", 
+                    "MOZ_GRAPHENE": false, 
+                    "MOZ_MACBUNDLE_NAME": "FirefoxNightly.app", 
+                    "MOZ_MAINTENANCE_SERVICE": false, 
+                    "MOZ_MOZILLA_API_KEY": "7e40f68c-7938-4c5d-9f95-e61647c213eb", 
+                    "MOZ_OFFICIAL_BRANDING": false, 
+                    "MOZ_PLACES": true, 
+                    "MOZ_REQUIRE_SIGNING": false, 
+                    "MOZ_SANDBOX": true, 
+                    "MOZ_SERVICES_HEALTHREPORT": true, 
+                    "MOZ_STYLO": true, 
+                    "MOZ_SWITCHBOARD": false, 
+                    "MOZ_SYSTEM_NSS": false, 
+                    "MOZ_TELEMETRY_ON_BY_DEFAULT": true, 
+                    "MOZ_TELEMETRY_REPORTING": true, 
+                    "MOZ_TOOLKIT_SEARCH": true, 
+                    "MOZ_UPDATER": true, 
+                    "MOZ_UPDATE_CHANNEL": "nightly", 
+                    "MOZ_WEBRTC": true, 
+                    "MOZ_WIDGET_GTK": false, 
+                    "MOZ_WIDGET_TOOLKIT": "cocoa", 
+                    "NIGHTLY_BUILD": true, 
+                    "RELEASE_OR_BETA": false, 
+                    "SOURCE_REVISION_URL": "https://hg.mozilla.org/mozilla-central/rev/e56ae7213756d93da1c1c72805c8f8b8ddb9dcdd", 
+                    "XP_UNIX": true, 
+                    "platform": "macosx"
+                }, 
+                "app_version": "58.0a1", 
+                "application_ini": {
+                    "buildid": "20171025100449", 
+                    "codename": "Nightly", 
+                    "id": "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}", 
+                    "name": "Firefox", 
+                    "remotingname": "firefox", 
+                    "sourcerepository": "https://hg.mozilla.org/mozilla-central", 
+                    "sourcestamp": "e56ae7213756d93da1c1c72805c8f8b8ddb9dcdd", 
+                    "vendor": "Mozilla", 
+                    "version": "58.0a1"
+                }, 
+                "branch": "nightly", 
+                "nspr_version": "NSPR 4.17", 
+                "nssInfo": {
+                    "NSPR_MinVersion": "4.17", 
+                    "NSPR_Version": "4.17", 
+                    "NSSSMIME_MinVersion": "3.34 Beta", 
+                    "NSSSMIME_Version": "3.34 Beta", 
+                    "NSSSSL_MinVersion": "3.34 Beta", 
+                    "NSSSSL_Version": "3.34 Beta", 
+                    "NSSUTIL_MinVersion": "3.34 Beta", 
+                    "NSSUTIL_Version": "3.34 Beta", 
+                    "NSS_MinVersion": "3.34 Beta", 
+                    "NSS_Version": "3.34 Beta"
+                }, 
+                "nss_version": "NSS 3.34 Beta", 
+                "package_origin": "https://download.mozilla.org/?product=firefox-nightly-latest&os=osx&lang=en-US", 
+                "platform": "osx"
+            }, 
+            "tlscanary_version": "3.1.2"
+        }
+    }
+]
