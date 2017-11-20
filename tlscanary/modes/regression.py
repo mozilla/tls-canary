@@ -73,7 +73,7 @@ class RegressionMode(BaseMode):
 
     def run(self):
         global logger
-
+        logger.info("Build test")
         logger.info("Testing Firefox %s %s against Firefox %s %s" %
                     (self.test_metadata["app_version"], self.test_metadata["branch"],
                      self.base_metadata["app_version"], self.base_metadata["branch"]))
