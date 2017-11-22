@@ -43,13 +43,13 @@ class RegressionMode(BaseMode):
         # Query host(s) with a known revoked cert and examine the results
         # These hosts must be revoked via OCSP and/or OneCRL
         db = sdb.SourcesDB(self.args)
-        self.revoked_source = db.read('revoked')
+        self.revoked_source = db.read("revoked")
         logger.debug("%d host(s) in revoked test set" % len(self.revoked_source))
         next_chunk = self.revoked_source.iter_chunks(chunk_size=1/50, min_chunk_size=1000)
         host_set_chunk = next_chunk(as_set=True)
 
         # Note: turn off OCSP for this test, to factor out that mechanism
-        self.custom_ocsp_pref = ['security.OCSP.enabled;0']
+        self.custom_ocsp_pref = ["security.OCSP.enabled;0"]
 
         # First, use the test build and profile as-is
         # This should return errors, which means OneCRL is working
