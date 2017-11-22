@@ -4,7 +4,6 @@
 
 import datetime
 import logging
-from math import ceil
 import pkg_resources as pkgr
 import sys
 
@@ -33,7 +32,46 @@ class RegressionMode(BaseMode):
         self.base_metadata = None
         self.test_profile = None
         self.base_profile = None
+        self.altered_profile = None
         self.sources = None
+        self.revoked_source = None
+        self.custom_ocsp_pref = None
+
+    def one_crl_sanity_check(self):
+        global logger
+
+        # Query host(s) with a known revoked cert and examine the results
+        # These hosts must be revoked via OCSP and/or OneCRL
+        db = sdb.SourcesDB(self.args)
+        self.revoked_source = db.read("revoked")
+        logger.debug("%d host(s) in revoked test set" % len(self.revoked_source))
+        next_chunk = self.revoked_source.iter_chunks(chunk_size=1/50, min_chunk_size=1000)
+        host_set_chunk = next_chunk(as_set=True)
+
+        # Note: turn off OCSP for this test, to factor out that mechanism
+        self.custom_ocsp_pref = ["security.OCSP.enabled;0"]
+
+        # First, use the test build and profile as-is
+        # This should return errors, which means OneCRL is working
+        test_result = self.run_test(self.test_app, url_list=host_set_chunk, profile=self.test_profile,
+                                    prefs=self.custom_ocsp_pref, num_workers=1, n_per_worker=1)
+
+        # Second, use the test build with a profile that is missing OneCRL entries
+        # This should NOT return errors, which means we've turned off protection
+        self.altered_profile = self.make_profile("altered_profile", "none")
+
+        base_result = self.run_test(self.test_app, url_list=host_set_chunk, profile=self.altered_profile,
+                                    prefs=self.custom_ocsp_pref, num_workers=1, n_per_worker=1)
+
+        logger.debug("Length of first OneCRL check, with revocation: %d" % len(test_result))
+        logger.debug("Length of second OneCRL check, without revocation: %d" % len(base_result))
+
+        # If our list of revoked sites are all blocked, and we can verify
+        # that they can be unblocked, this confirms that OneCRL is working
+        if len(test_result) == len(self.revoked_source) and len(base_result) == 0:
+            return True
+        else:
+            return False
 
     def setup(self):
         global logger
@@ -70,6 +108,11 @@ class RegressionMode(BaseMode):
         logger.info("Reading `%s` host database" % self.args.source)
         self.sources = db.read(self.args.source)
         logger.info("%d hosts in test set" % len(self.sources))
+
+        # Sanity check for OneCRL - if it fails, abort run
+        if not self.one_crl_sanity_check():
+            logger.critical("OneCRL sanity check failed, aborting run")
+            sys.exit(5)
 
     def run(self):
         global logger
@@ -129,6 +172,7 @@ class RegressionMode(BaseMode):
         meta["run_finish_time"] = datetime.datetime.utcnow().isoformat()
         self.save_profile(self.test_profile, "test_profile", log)
         self.save_profile(self.base_profile, "base_profile", log)
+        self.save_profile(self.altered_profile, "altered_profile", log)
         log.stop(meta=meta)
 
     def run_regression_passes(self, host_set, report_completed=None, report_overhead=None):
@@ -141,7 +185,6 @@ class RegressionMode(BaseMode):
         # - Take any remaining errors and repeat the above steps
 
         current_host_set = host_set
-        current_scan = 0
         num_workers = self.args.parallel
         requests_per_worker = self.args.requestsperworker
         timeout = self.args.timeout
