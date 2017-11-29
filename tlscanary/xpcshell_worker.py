@@ -190,7 +190,7 @@ class WorkerReader(Thread):
         global logger
         logger.debug('Reader thread started for worker %s' % self.worker.id)
 
-        # This thread will automatically end when worker's stdout is closed
+        # This thread will automatically terminate when worker's stdout is closed
         for line in iter(self.worker.worker_process.stdout.readline, b''):
             line = line.strip()
             if line.startswith("JavaScript error:"):
@@ -317,10 +317,9 @@ class WorkerConnection(object):
                 raise socket.timeout("Worker timeout while sending request")
 
             try:
-                logger.error("Sending request `%s` on port %d" % (request, self.port))
+                logger.debug("Sending request `%s` on port %d" % (request, self.port))
                 self.s.settimeout(timeout)
                 r = self.s.send(request + "\n")
-                logger.critical(r)
                 break
 
             except socket.error as err:
@@ -342,7 +341,8 @@ class WorkerConnection(object):
         try:
             while not received.endswith("\n"):
                 self.s.settimeout(timeout)
-                r = self.s.recv(4096)
+                r = self.s.recv(8192)
+                logger.debug("RECEIVED: %s" % r)
                 if len(r) == 0:
                     logger.warning("Empty read likely caused by peer closing connection")
                     logger.critical("Received %s" % repr(received))

@@ -408,7 +408,7 @@ function handle_request(request, connection) {
         let cmd = new Command(request, connection);
         cmd.handle();
     } catch (error) {
-        print("ERROR: Unable to handle command:", error);
+        print("ERROR: Unable to handle command:", error.toString());
         connection.close()
     }
 }
@@ -448,8 +448,8 @@ let SocketListener = {
             let connection = new Connection(socket, transport, input_stream, output_stream);
             let reader = new StreamReader(connection);
             input_stream.asyncWait(reader, 0, 0, main_thread);
-        } catch (e) {
-            print("ERROR: Command listener failed handling streams:", e.toString());
+        } catch (error) {
+            print("ERROR: Command listener failed handling streams:", error.toString());
             transport.close(Cr.NS_BINDING_ABORTED);
         }
     },
@@ -465,19 +465,19 @@ function Connection(socket, transport, input, output) {
     this.transport = transport;
     this.input = input;
     this.output = output;
+    this.utf_input_stream = new ConverterInputStream(this.input, "UTF-8", 0, 0x0);
+    this.utf_output_stream = new ConverterOutputStream(this.output, "UTF-8", 8192, 0x0);
 }
 
 Connection.prototype = {
     reply: function (response) {
         print("DEBUG: Sending reply:", response);
-        let cos = new ConverterOutputStream(this.output, "UTF-8", 8192, 0x0);
         try {
             // Protocol convention is to send one reply per line.
-            cos.writeString(response + "\n");
-            cos.flush();
-            this.output.flush();
-        } catch (e) {
-            print("ERROR: Unable to send reply:", e.toString());
+            this.utf_output_stream.writeString(response + "\n");
+            this.utf_output_stream.flush();
+        } catch (error) {
+            print("ERROR: Unable to send reply:", error.toString());
             if (!this.isAlive()) {
                 print("DEBUG: Connection has died");
                 this.close();
@@ -487,11 +487,13 @@ Connection.prototype = {
     close: function () {
         print("DEBUG: Closing connection");
         try {
-            this.output.flush();
-            this.input.close();
+            this.utf_output_stream.flush();
+            this.utf_output_stream.close();
+            this.utf_input_stream.close();
             this.output.close();
-        } catch (e) {
-            print("ERROR: Unable to flush and close connection:", e.toString())
+            this.input.close();
+        } catch (error) {
+            print("ERROR: Unable to flush and close connection:", error.toString());
         }
         this.transport.close(Cr.NS_OK);
     },
@@ -514,11 +516,11 @@ StreamReader.prototype = {
         let data_available = null;
         try {
             data_available = input_stream.available() > 0;
-        } catch (e) {
-            if (e.result === Cr.NS_BASE_STREAM_CLOSED) {
-                print("WARNING: Base stream was closed:", e.toString());
+        } catch (error) {
+            if (error.result === Cr.NS_BASE_STREAM_CLOSED) {
+                print("WARNING: Base stream was closed:", error.toString());
             } else {
-                print("ERROR: Unable to check stream availability:", e.toString());
+                print("ERROR: Unable to check stream availability:", error.toString());
             }
             if (this.buffer.length > 0)
                 print("WARNING: Dropping non-empty buffer:", this.buffer);
@@ -539,13 +541,13 @@ StreamReader.prototype = {
         }
 
         // Interpret available data as UTF-8 strings
-        let cis = new ConverterInputStream(input_stream, "UTF-8", 0, 0x0);
+        // let cis = new ConverterInputStream(input_stream, "UTF-8", 0, 0x0);
         let str = {};
         try {
             // .onInputStreamReady() is called again when not everything was read.
-            cis.readString(4096, str);
-        } catch (e) {
-            print("ERROR: Unable to read input stream: ", e.toString());
+            this.connection.utf_input_stream.readString(8192, str);
+        } catch (error) {
+            print("ERROR: Unable to read input stream: ", error.toString());
             if (this.buffer.length > 0)
                 print("WARNING: Dropping non-empty buffer:", this.buffer);
             this.connection.close();
@@ -611,15 +613,15 @@ if (isNaN(command_port) || command_port < 0 || command_port > 65535) {
 var command_server;
 try {
     command_server = new ServerSocket(command_port, true, 20);
-} catch (e) {
-    if (e.result === Cr.NS_ERROR_SOCKET_ADDRESS_IN_USE) {
+} catch (error) {
+    if (error.result === Cr.NS_ERROR_SOCKET_ADDRESS_IN_USE) {
         print("ERROR: Port in use");
         quit(11);
-    } else if (e.result === Cr.NS_ERROR_CONNECTION_REFUSED) {
+    } else if (error.result === Cr.NS_ERROR_CONNECTION_REFUSED) {
         print("ERROR: Port refused");
         quit(12);
     } else {
-        print("ERROR:", e.toString());
+        print("ERROR:", error.toString());
         quit(13);
     }
 }
