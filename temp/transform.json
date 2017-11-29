@@ -3,19 +3,22 @@
 		"prop": "rank",
 		"name": "rank",
 		"type": "int",
-		"default": true
+		"default": true,
+		"width":"10%"
 	},
 	{
 		"prop": "host",
 		"name": "host",
 		"type": "str",
-		"default": true
+		"default": true,
+		"width":"40%"
 	},
 	{
 		"prop": "response.result.info.short_error_message",
 		"name": "error",
 		"type": "str",
-		"default": true
+		"default": true,
+		"width":"40%"
 	},
 	{
 		"prop": "response.result.info.raw_error",
@@ -33,7 +36,7 @@
 		"prop": "response.worker_id",
 		"name": "worker_id",
 		"type": "int",
-		"default": true
+		"default": false
 	},
 	{
 		"prop": "response.result.info.certificate_chain_length",
@@ -123,7 +126,8 @@
 		"prop": "response.result.info.ssl_status.serverCert.issuerOrganization",
 		"name": "issuer_organization",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"30%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.issuerOrganizationalUnit",
