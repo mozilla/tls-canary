@@ -1,6 +1,3 @@
-var gridHTML = "";
-var graphHTML = "";
-var metadataHTML = "";
 
 function updateUI(arg)
 {
@@ -9,8 +6,8 @@ function updateUI(arg)
 
 function makeHeaderText(meta)
 {
-  var desc = "Fx " + meta.test_metadata.application_ini.version + " " + meta.test_metadata.branch 
-          + " vs Fx " + meta.base_metadata.application_ini.version + " " + meta.base_metadata.branch;
+  var desc = "Fx " + meta.test_metadata.app_version + " " + meta.test_metadata.branch 
+          + " vs Fx " + meta.base_metadata.app_version + " " + meta.base_metadata.branch;
   var time = meta.run_start_time.split(".")[0].replace("T","-").replace(":","-").replace(":","-");
   window.document.getElementById("header").innerHTML = "<h3>" + desc + "<br>" + time + "</h3>";
 }
@@ -20,11 +17,75 @@ function makeGraphTab(meta)
   window.document.getElementById("graph").innerHTML = "graph coming soon";
 }
 
+function convertMilliseconds(n) {
+  var hours = Math.floor (n/3600000);
+  var minutes = Math.floor(n / 60000) % hours;
+  var seconds = ((n % 60000) / 1000).toFixed(0);
+  //return hours + " : " + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  return Math.floor (n/60000) + " minutes";
+}
+
 function makeMetaTab(meta)
 {
   var element = window.document.getElementById("metadata");
-  element.innerHTML = "metadata coming soon";
-  //element.style.left = "200px";
+  var html = "";
+
+  var argv_args = "";
+  for (var i=0;i<meta.argv.length;i++)
+  {
+    argv_args += meta.argv[i] + "<br>";
+  }
+
+  var args = "";
+  for (var i in meta.args)
+  {
+    args += i + " : " + meta.args[i] + "<br>";
+  }
+
+  var metaArray = [];
+  metaArray.push (["<b>Source name, number of sites</b>", meta.args.source + ", " + meta.sources_size]);
+  metaArray.push (["<b>Total test time</b>", convertMilliseconds(new Date (meta.run_finish_time) - new Date (meta.run_start_time))]);
+  metaArray.push (["<b>Platform</b>", meta.test_metadata.appConstants.platform]);
+  metaArray.push (["<b>TLS Canary version</b>", meta.tlscanary_version]);
+  metaArray.push (["<b>argv parameters</b>", meta.argv.toString()]);
+  metaArray.push (["<b>Run log</b>", "<a href=\"log.json\">&#128279; link</a>"]);
+  metaArray.push (["<b>OneCRL environment</b>", meta.args.onecrl]);
+  metaArray.push (["<b>Test build</b>", meta.test_metadata.app_version + " " + meta.test_metadata.branch])
+  metaArray.push (["<b>Test build origin</b>", meta.test_metadata.package_origin]);
+  metaArray.push (["<b>Test build ID</b>", meta.test_metadata.application_ini.buildid]);
+  metaArray.push (["<b>Test build NSS</b>", meta.test_metadata.nss_version]);
+  metaArray.push (["<b>Test build NSPR</b>", meta.test_metadata.nspr_version]);
+  metaArray.push (["<b>Test profile</b>", "<a href=\"test_profile.zip\">&#128193; link</a>"]);
+  metaArray.push (["<b>Base build</b>", meta.base_metadata.app_version + " " + meta.base_metadata.branch])
+  metaArray.push (["<b>Base build origin</b>", meta.base_metadata.package_origin]);
+  metaArray.push (["<b>Base build ID</b>", meta.base_metadata.application_ini.buildid]);
+  metaArray.push (["<b>Base build NSS</b>", meta.base_metadata.nss_version]);
+  metaArray.push (["<b>Base build NSPR</b>", meta.base_metadata.nspr_version]);
+  metaArray.push (["<b>Base profile</b>", "<a href=\"base_profile.zip\">&#128193; link</a>"]);
+
+
+  html += "<table id=\"grid-metadata\" class=\"table table-condensed table-hover table-striped\">";
+  html += "<thead>";
+  html += "<tr>";
+  html += "<th data-column-id=\"t0\" width=\"30%\"></th>";
+  html += "<th data-column-id=\"t1\" width=\"70%\"></th>";
+  html += "</tr>";
+  html += "</thead>";
+
+  for (var i=0;i<metaArray.length;i++)
+  {
+    html += "<tbody>";
+    html += "<tr>";
+    html += "<td>" + metaArray[i][0] + "</td>";
+    html += "<td>" + metaArray[i][1] + "</td>";
+    html += "</tr>";
+    html += "</tbody>";
+
+  }
+  html += "</table>";
+
+  element.innerHTML = html;
+
 }
 
 function navigate(tab)
@@ -91,7 +152,6 @@ function make_table(hosts, columns)
   var contentDiv = document.getElementById("results");
   contentDiv.style.visibility = "hidden";
   contentDiv.innerHTML = html;
-  apply_bootgrid();
 }
 
 function apply_bootgrid()
@@ -118,6 +178,12 @@ function apply_bootgrid()
               "<button type=\"button\" class=\"btn btn-xs btn-default command-tls_obs\" data-row-id=\"" 
              + row.host + "\"><span class=\"fa fa-trash-o\"> &#128270; </span></button>";
         return html;
+      },
+      "date": function(column,row)
+      {
+        var temp = String(row[column.id]).substr(0,13);
+        var d = new Date(Number(temp));
+        return d.toString();
       }
     }
   }).on("loaded.rs.jquery.bootgrid", function ()
@@ -182,6 +248,10 @@ function buildUI(data)
     makeHeaderText(data.meta);
     makeMetaTab(data.meta);
     makeGraphTab();
+    apply_bootgrid();
+
+
+
     navigate("results");
 }
 

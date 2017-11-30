@@ -24,7 +24,8 @@
 		"prop": "response.result.info.raw_error",
 		"name": "raw_error",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"50%"
 	},
 	{
 		"prop": "success",
@@ -42,7 +43,8 @@
 		"prop": "response.result.info.certificate_chain_length",
 		"name": "certificate_chain_length",
 		"type": "int",
-		"default": false
+		"default": false,
+		"width":"10%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.certificateTransparencyStatus",
@@ -60,25 +62,29 @@
 		"prop": "response.result.info.ssl_status.isExtendedValidation",
 		"name": "is_ev",
 		"type": "bool",
-		"default": false
+		"default": false,
+		"width":"10%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.keyLength",
 		"name": "key_length",
 		"type": "int",
-		"default": false
+		"default": false,
+		"width":"10%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.protocolVersion",
 		"name": "protocol_version",
 		"type": "int",
-		"default": false
+		"default": false,
+		"width":"10%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.secretKeyLength",
 		"name": "secret_key_length",
 		"type": "int",
-		"default": false
+		"default": false,
+		"width":"10%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.commonName",
@@ -157,25 +163,29 @@
 		"prop": "response.result.info.ssl_status.serverCert.serialNumber",
 		"name": "serial_number",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"30%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.sha1Fingerprint",
 		"name": "sha1_fingerprint",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"30%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.sha256Fingerprint",
 		"name": "sha256_fingerprint",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"30%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.subjectName",
 		"name": "subject_name",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"40%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.tokenName",
@@ -187,24 +197,28 @@
 		"prop": "response.result.info.ssl_status.serverCert.validity.notAfter",
 		"name": "not_after",
 		"type": "int",
-		"default": false
+		"default": false,
+		"width":"20%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.validity.notAfterGMT",
 		"name": "not_after_gmt",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"30%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.validity.notBefore",
 		"name": "not_before",
 		"type": "int",
-		"default": false
+		"default": false,
+		"width":"20%"
 	},
 	{
 		"prop": "response.result.info.ssl_status.serverCert.validity.notBeforeGMT",
 		"name": "not_before_gmt",
 		"type": "str",
-		"default": false
+		"default": false,
+		"width":"30%"
 	}
 ]
