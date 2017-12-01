@@ -75,7 +75,7 @@ class BaseMode(object):
         group.add_argument("--onecrlpin",
                            help="OneCRL-Tools git branch, tag, or commit to use (default: stable)",
                            action="store",
-                           default="stable")
+                           default=os.environ.get("ONECRLPIN", "stable"))
         group.add_argument("-p", "--prefs",
                            help="Prefs to apply to all builds",
                            type=str,
@@ -247,7 +247,7 @@ class BaseMode(object):
             shutil.copyfile(revocations_file, profile_file)
         elif one_crl_env == "none":
             # delete revocations file completely
-            logger.debug("Deleting existing revocations.txt file" )
+            logger.debug("Deleting existing revocations.txt file")
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
             os.remove(profile_file)
         else:

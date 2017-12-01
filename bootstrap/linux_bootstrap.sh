@@ -17,3 +17,5 @@ sudo apt-get -y install \
 # The virtualenv package is not consistently named across distros
 sudo apt-get -y install virtualenv \
 	|| sudo apt-get -y install python-virtualenv
+
+sudo apt-get remove python-six  # Native six module causes version conflict
