@@ -410,11 +410,10 @@ Command.prototype.handle = function _handle() {
 function handle_request(request, connection) {
     print("DEBUG: Handling request:", request);
     try {
-        let cmd = new Command(request, connection);
+        const cmd = new Command(request, connection);
         cmd.handle();
     } catch (error) {
         print("ERROR: Unable to handle command:", error.toString());
-        connection.close()
     }
 }
 
@@ -439,19 +438,19 @@ const ConverterOutputStream = CC("@mozilla.org/intl/converter-output-stream;1",
                                  "init");
 
 
-let SocketListener = {
+const SocketListener = {
     onSocketAccepted(socket, transport) {
         print("DEBUG: Connection from port", transport.host, transport.port);
         try {
             transport.setTimeout(Cr.TIMEOUT_CONNECT, 60);
             transport.setTimeout(Cr.TIMEOUT_READ_WRITE, 60);
-            // let input_stream = transport.openInputStream(Cr.OPEN_UNBUFFERED | Cr.OPEN_BLOCKING, 0, 0)
-            let input_stream = transport.openInputStream(0, 0, 0)
+            // const input_stream = transport.openInputStream(Cr.OPEN_UNBUFFERED | Cr.OPEN_BLOCKING, 0, 0)
+            const input_stream = transport.openInputStream(0, 0, 0)
                 .QueryInterface(Ci.nsIAsyncInputStream);
-            // let output_stream = transport.openOutputStream(Cr.OPEN_UNBUFFERED | Cr.OPEN_BLOCKING, 0, 0);
-            let output_stream = transport.openOutputStream(0, 0, 0);
-            let connection = new Connection(socket, transport, input_stream, output_stream);
-            let reader = new StreamReader(connection);
+            // const output_stream = transport.openOutputStream(Cr.OPEN_UNBUFFERED | Cr.OPEN_BLOCKING, 0, 0);
+            const output_stream = transport.openOutputStream(0, 0, 0);
+            const connection = new Connection(socket, transport, input_stream, output_stream);
+            const reader = new StreamReader(connection);
             input_stream.asyncWait(reader, 0, 0, main_thread);
         } catch (error) {
             print("ERROR: Command listener failed handling streams:", error.toString());

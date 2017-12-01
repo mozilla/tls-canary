@@ -154,7 +154,7 @@ def test_xpcshell_worker_load():
 
     worker.quit()
 
-    print " Gathered %d results in 5 seconds " % len(results),
+    print "  Gathered %d results in 5 seconds" % len(results),
 
 
 @with_setup(set_fox_trap, kill_stray_foxes)

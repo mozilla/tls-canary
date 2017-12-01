@@ -228,7 +228,7 @@ class WorkerConnection(object):
         self.host = host
         self.port = port
         self.timeout = timeout
-        self.s = None  # None here signifies closed connection and socket
+        self.s = None  # `None` here signifies closed connection and socket
 
     def fileno(self):
         """Method required for select.select()"""
@@ -311,19 +311,21 @@ class WorkerConnection(object):
 
         reconnected = False
         timeout_time = time.time() + timeout if timeout is not None else None
+
         while True:
 
             if timeout_time is not None and time.time() >= timeout_time:
                 raise socket.timeout("Worker timeout while sending request")
 
             try:
+                # Let send() throw an error when the connection isn't open
                 logger.debug("Sending request `%s` on port %d" % (request, self.port))
                 self.s.settimeout(timeout)
-                r = self.s.send(request + "\n")
+                r = self.s.sendall(request + "\n")
                 break
 
             except socket.error as err:
-                logger.error("Fooo: %s", err)
+                logger.warning("Socket error during worker send: %s", err)
                 if err.errno == 32:  # Broken pipe
                     if retry:
                         self.reconnect()
@@ -341,18 +343,20 @@ class WorkerConnection(object):
         try:
             while not received.endswith("\n"):
                 self.s.settimeout(timeout)
+                # Assuming that recv will not return more than one message ending with newline
                 r = self.s.recv(8192)
                 logger.debug("RECEIVED: %s" % r)
                 if len(r) == 0:
                     logger.warning("Empty read likely caused by peer closing connection")
-                    logger.critical("Received %s" % repr(received))
+                    self.close()
                     return None
                 received += r.decode("utf-8")
 
         except socket.error as err:
             if err.errno == 54:
                 # Connection reset by peer
-                logger.warning("Connection reset by peer while receiving")
+                logger.warning("Connection reset by peer while receiving. Closing connection.")
+                self.close()
                 return None
             else:
                 raise err
@@ -371,12 +375,11 @@ class WorkerConnection(object):
             self.reconnect()
         else:
             self.connect(reuse=True, timeout=timeout)
-        reply = None
 
-        while reply is None:
+        while True:
             self.send(request, timeout=timeout)
             reply = self.receive(timeout=timeout)
-            if reply is None and not retry:
+            if reply is not None or not retry:
                 break
         return reply
 
@@ -456,7 +459,7 @@ class Command(object):
 
 class Response(object):
 
-    def __init__(self, message_string):
+    def __init__(self, message_string=None, closed=False):
         global logger
 
         self.id = None
@@ -465,6 +468,11 @@ class Response(object):
         self.success = None
         self.result = None
         self.elapsed_ms = None
+        self.connection_closed = closed is True
+
+        if message_string is None or len(message_string) == 0:
+            return
+
         message = json.loads(message_string)  # May throw ValueError
         if "id" in message:
             self.id = message["id"]
@@ -490,7 +498,10 @@ class Response(object):
             return False
 
     def is_success(self):
-        return self.success
+        return self.success is True
+
+    def has_content(self):
+        return self.success is not None
 
     def as_dict(self):
         return {
@@ -501,6 +512,7 @@ class Response(object):
             "result": self.result,
             "command_time": self.command_time,
             "response_time": self.response_time,
+            "connection_closed": self.connection_closed
         }
 
     def __str__(self):
