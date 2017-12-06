@@ -1,8 +1,4 @@
 
-function updateUI(arg)
-{
-  window.document.getElementById("results_tab").innerHTML = "Results: " + arg;
-}
 
 function makeHeaderText(meta)
 {
@@ -10,11 +6,113 @@ function makeHeaderText(meta)
           + " vs Fx " + meta.base_metadata.app_version + " " + meta.base_metadata.branch;
   var time = meta.run_start_time.split(".")[0].replace("T","-").replace(":","-").replace(":","-");
   window.document.getElementById("header").innerHTML = "<h3>" + desc + "<br>" + time + "</h3>";
+  window.document.title = "TLS Canary Report: " + desc;
 }
 
-function makeGraphTab(meta)
+function makeGraphTab(uriList, fieldName)
 {
-  window.document.getElementById("graph").innerHTML = "graph coming soon";
+  var fieldNum = drawGraph(uriList, fieldName);
+  var html = "";
+
+  /*
+  html += "<select>";
+
+  var columns = getVisibleColumns();
+  
+  for (var i=0;i<columns.length;i++)
+  {
+    html += "<option value=\"" + columns[i] + "\"";
+    if ( columns[i] == fieldName )
+    {
+      html += " selected"
+    }
+    html += ">" + columns[i] + "</option>";
+  }
+  html += "</select>";
+  */
+  html += "<h3>Field: " + fieldName + ", <br>" + fieldNum + " unique value(s)</h3>";
+
+  var div = window.document.getElementById("graph_text");
+  div.innerHTML = html;
+  div.style.position = "absolute";
+  div.style.top = "0";
+    var $parent = $("#graph_canvas");
+  div.style.left = $parent.width() * 1 + "px";
+
+
+}
+
+function drawGraph (uriList, fieldName)
+{
+  resizeGraphCanvas();
+  var c = window.document.getElementById("graph_canvas");
+
+  var ctx = c.getContext("2d");
+  var data = getPieGraphData(uriList, fieldName);
+
+  var myChart = new Chart(ctx).Pie(data, {animation:false});
+  return data.length;
+}
+function resizeGraphCanvas()
+{
+  var $canvas = $("#graph_canvas");
+  var $parent = $("#graph");
+  $canvas.width($parent.width() * .4);
+  $canvas.height($canvas.width());
+}
+function getPieGraphData (uriList, fieldName) {
+  var chartFields = [];
+  var strTable = "";
+  for (var i=0;i<uriList.length;i++)
+  {
+    var labelString = uriList[i][fieldName].toString();
+    if (strTable.indexOf(labelString) == -1 )
+    {
+      strTable += labelString;
+      chartFields.push (
+        {
+          label:labelString,
+          value:1
+        });
+    } else {
+      for (var j=0;j<chartFields.length;j++)
+      {
+        if (chartFields[j].label == labelString)
+        {
+          chartFields[j].value++;
+        }
+      }
+    }
+  }
+  var colorArray = returnColorArray(chartFields.length);
+
+  for (var i=0; i<chartFields.length; i++) {
+    chartFields[i].color = colorArray[i];
+  }
+  return chartFields;
+};
+
+// Credit here goes to http://krazydad.com/tutorials/makecolors.php
+function byte2Hex(n) {
+  var nybHexString = "0123456789ABCDEF";
+  return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
+}
+
+function RGB2Color(r,g,b) {
+  return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+}
+
+function returnColorArray (n) {
+  var a = [];
+  var frequency = 0.3;
+  for (var i = 0; i < n; ++i) {
+    var red   = Math.sin(frequency*i + 0) * 127 + 128;
+    var green = Math.sin(frequency*i + 2) * 127 + 128;
+    var blue  = Math.sin(frequency*i + 4) * 127 + 128;
+
+    a.push (RGB2Color(red,green,blue));
+  }
+  return a;
 }
 
 function convertMilliseconds(n) {
@@ -90,13 +188,65 @@ function makeMetaTab(meta)
 
 function navigate(tab)
 {
-  var contentDiv = window.document.getElementById("content");
+  var $nav = $("#nav");
+  var listItems = $nav.children();
+
   var tabs = ["results", "graph", "metadata"];
+
   for (var i=0;i<tabs.length;i++)
   {
-        window.document.getElementById(tabs[i]).style.visibility = "hidden";
+        window.document.getElementById(tabs[i]).style.visibility = "hidden";    
+        listItems[i].id = tabs[i] + "_tab";
   }
   window.document.getElementById(tab).style.visibility = "visible";
+  window.document.getElementById(tab + "_tab").id = "selected";
+
+}
+
+function getVisibleColumns()
+{
+  var gridData = $('#grid').bootgrid("getCurrentRows");
+
+  var columnData = $("#grid").bootgrid("getColumnSettings");
+  var columns = [];
+  for (var i=0;i<columnData.length;i++)
+  {
+      if (columnData[i].visible)
+      {
+        if (columnData[i].id != "Actions")
+        {
+          columns.push (columnData[i].id);
+        }
+      }
+  }
+  return columns;
+}
+function getSortedRows()
+{
+  var gridData = $('#grid').bootgrid().data('.rs.jquery.bootgrid').rows;
+
+  var currentRows = [];
+  var searchStr = $('#grid').bootgrid("getSearchPhrase");
+  var currentColumns = getVisibleColumns();
+
+  for (var i=0;i<gridData.length;i++)
+  {
+    var row = gridData[i];
+    for (var j=0;j<currentColumns.length;j++)
+    {
+      var field = row[currentColumns[j]].toString();
+     
+     
+      if ( field.indexOf(searchStr) != -1 )
+
+      {
+        currentRows.push (row);
+        break;
+      }
+      
+    }
+  }
+  return currentRows;
 }
 
 function make_table(hosts, columns)
@@ -119,7 +269,7 @@ function make_table(hosts, columns)
     }
     if (columns[i].name == "Actions")
     {
-      html += "data-formatter=\"commands\" ";
+      html += "data-visible-in-selection=\"false\" data-formatter=\"commands\" ";
     }
     if (!columns[i].default)
     {
@@ -135,6 +285,9 @@ function make_table(hosts, columns)
     } else {
       html += "data-width=\"20%\" ";
     }
+
+
+    // 
     html += ">" + columns[i].name + "</th>"
   }
   html += "</tr></thead><tbody>";
@@ -176,7 +329,9 @@ function apply_bootgrid()
         html += "<button type=\"button\" class=\"btn btn-xs btn-default command-link\" data-row-id=\"" 
              + row.host + "\"><span>&#128279; </span></button> " +
               "<button type=\"button\" class=\"btn btn-xs btn-default command-tls_obs\" data-row-id=\"" 
-             + row.host + "\"><span class=\"fa fa-trash-o\"> &#128270; </span></button>";
+             + row.host + "\"><span class=\"fa fa-trash-o\"> &#128270; </span></button> " +
+              "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" 
+             + row.rank + "\"><span class=\"fa fa-trash-o\"> &times; </span></button>";
         return html;
       },
       "date": function(column,row)
@@ -195,6 +350,13 @@ function apply_bootgrid()
     }).end().find(".command-tls_obs").on("click", function(e)
     {
         window.open("https://observatory.mozilla.org/analyze.html?host=" + $(this).data("row-id") + "#tls", "_blank")
+    }).end().find(".command-delete").on("click", function(e)
+    {
+      var items = [];
+      items.push ($(this).data("row-id"));
+      
+      $("#grid").bootgrid("remove", items);
+
     });
     var contentDiv = document.getElementById("results");
     contentDiv.style.visibility = "visible";
@@ -226,8 +388,7 @@ function transform_log(transform_data,json_data)
     }
     hosts.push (host);
   }
-  new_data = hosts;
-  make_table (hosts, transform_data);
+  return hosts;
 }
 
 
@@ -236,23 +397,21 @@ function load_log(transform_data)
   var xhr = new XMLHttpRequest();
   xhr.onload = function(arg) {
     json_data =  JSON.parse(xhr.responseText)[0];
-    transform_log(transform_data,json_data);
-    buildUI(json_data);
+    var hosts = transform_log(transform_data,json_data);
+    buildUI(json_data, hosts, transform_data);
   }       
   xhr.open('GET', "log.json", true);
   xhr.send();  
 }
     
-function buildUI(data)
+function buildUI(json_data, hosts, transform_data)
 {
-    makeHeaderText(data.meta);
-    makeMetaTab(data.meta);
-    makeGraphTab();
-    apply_bootgrid();
-
-
-
-    navigate("results");
+  makeHeaderText(json_data.meta);
+  makeMetaTab(json_data.meta);
+  make_table (hosts, transform_data);
+  apply_bootgrid();
+  makeGraphTab(hosts, "error");
+  navigate("results");
 }
 
 function load_transform()

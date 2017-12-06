@@ -13,23 +13,26 @@
   }
 
   .centered {
-    max-width: 90%;
+    max-width: 100%;
     height: 600;
     margin-left: auto;
     margin-right: auto;
     border:none;
     position: relative;
     left: 0px;
-    top: 0px;
   }
   .draw_border {
-    border:1px solid grey;
+    #border:1px solid grey;
   }
 
   .absolute {
     position: absolute;
     top: 30px;
     right: 0;
+  }
+  .bottom {
+    border-bottom:1px solid #006080;
+
   }
 
   :root {
@@ -74,42 +77,51 @@
   }
 
   #tabs li {
-    border:0px solid grey;
-    background: #dddddd;
+    background: #00ace6;
     border-radius: 15px 15px 0 0;
-    color: #a80;
     display: inline;
     margin: 1px 1px 2px 0;
     padding: .75em 1em;
     padding-bottom: 4px;
     padding-top: 8px;
-
   }
 
-  #tabs li:hover {
-    background: #9ff;
-    color: #540;
+  #tabs #nav li:hover {
+    background: #0086b3;
+  }
+  #tabs #nav #selected li:hover {
+    background: #00ace6;
   }
 
   #tabs a {
-    color: black;
+    color: white;
     padding: 0 1em;
     text-decoration: none;
   }
 
   #tabs a:hover {
     padding: 0 1em;
-    background: #9ff;
+  }
+  #tabs #nav a:hover {
+    color: white;
   }
 
-  #tabs #active {
-    background: #9ff;
-    color: #540;
-    padding-bottom: 2px;
-    font-weight: bold;
+  #tabs #selected {
+    border:none;
+    background: #006080;
+    font-weight: normal;
+  }
+  #tabs #selected a:hover{
+    border:none;
+    #background: #006080;
+    font-weight: normal;
+  }
+  #tabs #selected a
+  {
+    color: white;
   }
 
   #tabs #active a {
-    background: #9ff;
+    background: #66ccff;
     font-weight: bold;
   }
