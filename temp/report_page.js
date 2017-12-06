@@ -14,8 +14,8 @@ function makeGraphTab(uriList, fieldName)
   var fieldNum = drawGraph(uriList, fieldName);
   var html = "";
 
-  /*
-  html += "<select>";
+  
+  html += "<select onchange=onFieldChange >";
 
   var columns = getVisibleColumns();
   
@@ -29,7 +29,7 @@ function makeGraphTab(uriList, fieldName)
     html += ">" + columns[i] + "</option>";
   }
   html += "</select>";
-  */
+  
   html += "<h3>Field: " + fieldName + ", <br>" + fieldNum + " unique value(s)</h3>";
 
   var div = window.document.getElementById("graph_text");
@@ -38,8 +38,11 @@ function makeGraphTab(uriList, fieldName)
   div.style.top = "0";
     var $parent = $("#graph_canvas");
   div.style.left = $parent.width() * 1 + "px";
+}
 
-
+function onFieldChange(e)
+{
+  alert (e)
 }
 
 function drawGraph (uriList, fieldName)
@@ -200,7 +203,6 @@ function navigate(tab)
   }
   window.document.getElementById(tab).style.visibility = "visible";
   window.document.getElementById(tab + "_tab").id = "selected";
-
 }
 
 function getVisibleColumns()
@@ -224,7 +226,6 @@ function getVisibleColumns()
 function getSortedRows()
 {
   var gridData = $('#grid').bootgrid().data('.rs.jquery.bootgrid').rows;
-
   var currentRows = [];
   var searchStr = $('#grid').bootgrid("getSearchPhrase");
   var currentColumns = getVisibleColumns();
@@ -235,15 +236,11 @@ function getSortedRows()
     for (var j=0;j<currentColumns.length;j++)
     {
       var field = row[currentColumns[j]].toString();
-     
-     
-      if ( field.indexOf(searchStr) != -1 )
-
+      if ( field.search(searchStr) != -1 )
       {
         currentRows.push (row);
         break;
       }
-      
     }
   }
   return currentRows;
@@ -269,7 +266,7 @@ function make_table(hosts, columns)
     }
     if (columns[i].name == "Actions")
     {
-      html += "data-visible-in-selection=\"false\" data-formatter=\"commands\" ";
+      html += "data-visible-in-selection=\"false\" data-formatter=\"commands\" data-searchable=\"false\" ";
     }
     if (!columns[i].default)
     {
@@ -285,9 +282,6 @@ function make_table(hosts, columns)
     } else {
       html += "data-width=\"20%\" ";
     }
-
-
-    // 
     html += ">" + columns[i].name + "</th>"
   }
   html += "</tr></thead><tbody>";
