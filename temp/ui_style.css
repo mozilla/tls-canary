@@ -2,7 +2,8 @@
     font-family: sans-serif;
     font-size: 14px;
     margin: 0;
-    padding: 24px;
+    padding-left: 30px;
+    padding-right: 30px;
     background-color: #fafafa;
   }
   
@@ -21,18 +22,49 @@
     position: relative;
     left: 0px;
   }
-  .draw_border {
-    #border:1px solid grey;
+
+  .chart {
+    position: absolute;
+    top: 40px;
+    left: 0px;   
   }
 
-  .absolute {
+  .meta {
     position: absolute;
-    top: 30px;
-    right: 0;
+    top: 20px;
+    left: 0px;   
   }
+
   .bottom {
     border-bottom:1px solid #006080;
+  }
 
+  .full {
+    width: 100%;
+  }
+
+  .labels {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  .labels_small {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .header {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  h3 {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 20px;
   }
 
   :root {
@@ -56,20 +88,10 @@
   h3:hover .anchor {
     opacity: 1;
   }
-  #graph
-  {
-    visibility:hidden;
-  }
-  #run_info
-  {
-    visibility:hidden;
-  }
-
-
 
   #tabs ul {
     font-size: 20px;
-    font-weight: none;
+    font-weight: bold;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -83,12 +105,13 @@
     margin: 1px 1px 2px 0;
     padding: .75em 1em;
     padding-bottom: 4px;
-    padding-top: 8px;
+    padding-top: 4px;
   }
 
   #tabs #nav li:hover {
     background: #0086b3;
   }
+
   #tabs #nav #selected li:hover {
     background: #00ace6;
   }
@@ -102,6 +125,7 @@
   #tabs a:hover {
     padding: 0 1em;
   }
+
   #tabs #nav a:hover {
     color: white;
   }
@@ -109,19 +133,14 @@
   #tabs #selected {
     border:none;
     background: #006080;
-    font-weight: normal;
   }
+
   #tabs #selected a:hover{
     border:none;
     #background: #006080;
-    font-weight: normal;
   }
+
   #tabs #selected a
   {
     color: white;
-  }
-
-  #tabs #active a {
-    background: #66ccff;
-    font-weight: bold;
   }

@@ -1,17 +1,13 @@
 <!DOCTYPE html>
 <html>
-
 <head lang="en">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TLS Canary report page</title>
-
-  <!-- Styles -->
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.css" rel="stylesheet">
   <link href="ui_style.css" rel="stylesheet">
 </head>
-
 <body>
   <div>
   <div class="vertical-section-container centered ">    
@@ -22,31 +18,30 @@
     <p>
     <p>
   </div>
-  <div id="tabs" class="vertical-section-container centered bottom">
-    <ul id="nav">
+  <div id="tabs" class="vertical-section-container centered bottom labels">
+    <ul id="nav" >
       <li id="results_tab"><a href="javascript:navigate('results')">Results</a></li>
-      <li id="graph_tab"><a href="javascript:navigate('graph')">Graph</a></li>
+      <li id="chart_tab"><a href="javascript:navigate('chart')">Chart</a></li>
       <li id="metadata_tab"><a href="javascript:navigate('metadata')">Metadata</a></li>
     </ul>
   </div>
-  <div id="container" class="vertical-section-container centered">
-    <div id="results" class="vertical-section-container centered draw_border"></div>
-    <div id="graph" class="vertical-section-container centered absolute draw_border">
+  <div id="container" class="vertical-section-container centered draw_border">
+    <div id="results" class="vertical-section-container centered "></div>
+    <div id="chart" class="vertical-section-container centered chart ">
       <table>
-        <th width="45%">
-          <div id="graph_parent" >
-            <canvas id="graph_canvas" width="100" height="100"></canvas>
+        <th >
+          <div id="chart_parent" >
+            <canvas id="chart_canvas" width="100" height="100"></canvas>
           </div>
         </th>
-        <th width="45%">
-          <div id="graph_text" class="vertical-section-container centered"></div>
+        <th >
+          <div id="chart_text" class="vertical-section-container centered"></div>
         </th>
       </table>
     </div>
-    <div id="metadata" class="vertical-section-container centered absolute draw_border"></div>
+    <div id="metadata" class="vertical-section-container centered meta full"></div>
   </div>
 </div>
-  <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-bootgrid/1.3.1/jquery.bootgrid.min.js"></script>

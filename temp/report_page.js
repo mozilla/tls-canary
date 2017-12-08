@@ -1,24 +1,31 @@
-
-
 function makeHeaderText(meta)
 {
   var desc = "Fx " + meta.test_metadata.app_version + " " + meta.test_metadata.branch 
           + " vs Fx " + meta.base_metadata.app_version + " " + meta.base_metadata.branch;
   var time = meta.run_start_time.split(".")[0].replace("T","-").replace(":","-").replace(":","-");
-  window.document.getElementById("header").innerHTML = "<h3>" + desc + "<br>" + time + "</h3>";
+  window.document.getElementById("header").innerHTML = "<h3 class=\"header\">" + desc + "<br>" + time + "</h3>";
   window.document.title = "TLS Canary Report: " + desc;
 }
 
-function makeGraphTab(uriList, fieldName)
+function makeChartTab(uriList, fieldName)
 {
-  var fieldNum = drawGraph(uriList, fieldName);
+  makeFieldControl(fieldName);
+  resizeChartCanvas();
+  var data = getPieChartData(uriList, fieldName);
+  drawChart(data, fieldName);
+  updateChartCaption(data, fieldName);
+
+  var div = window.document.getElementById("chart_text");
+  div.style.position = "absolute";
+  div.style.top = "0";
+  div.style.left = $("#chart_canvas").width() * 1.2 + "px";
+}
+
+function makeFieldControl(fieldName)
+{
   var html = "";
-
-  
-  html += "<select onchange=onFieldChange >";
-
+  html += "<h3>Field:&nbsp;&nbsp;<select id=\"fieldNames\" name=\"fieldNames\" >";
   var columns = getVisibleColumns();
-  
   for (var i=0;i<columns.length;i++)
   {
     html += "<option value=\"" + columns[i] + "\"";
@@ -29,41 +36,53 @@ function makeGraphTab(uriList, fieldName)
     html += ">" + columns[i] + "</option>";
   }
   html += "</select>";
-  
-  html += "<h3>Field: " + fieldName + ", <br>" + fieldNum + " unique value(s)</h3>";
-
-  var div = window.document.getElementById("graph_text");
+  html += "<span id=\"chart_caption\"></span>";
+  var div = window.document.getElementById("chart_text");
   div.innerHTML = html;
-  div.style.position = "absolute";
-  div.style.top = "0";
-    var $parent = $("#graph_canvas");
-  div.style.left = $parent.width() * 1 + "px";
+  window.document.getElementById("fieldNames").onchange = onFieldChange;
 }
 
 function onFieldChange(e)
 {
-  alert (e)
+  var fieldName = e.target.value;
+  var uriList = getSortedRows();
+  var data = getPieChartData(uriList, fieldName);
+  updateChart(data, fieldName);
+  updateChartCaption(data, fieldName);
 }
 
-function drawGraph (uriList, fieldName)
+function updateChart(uriList, fieldName)
 {
-  resizeGraphCanvas();
-  var c = window.document.getElementById("graph_canvas");
+  window.document.myChart.destroy();
+  drawChart (uriList, fieldName);
+}
 
+function updateChartCaption(uriList, fieldName)
+{
+  var div = window.document.getElementById("chart_text");
+  div.style.left = $("#chart_canvas").width() * 1.2 + "px";
+  window.document.getElementById("chart_caption").innerHTML = "<h3>" + uriList.length + "&nbsp;unique&nbsp;value(s)</h3>";
+}
+
+function drawChart (data, fieldName)
+{
+  var c = window.document.getElementById("chart_canvas");
   var ctx = c.getContext("2d");
-  var data = getPieGraphData(uriList, fieldName);
-
-  var myChart = new Chart(ctx).Pie(data, {animation:false});
-  return data.length;
+  window.document.myChart = new Chart(ctx).Pie(data, {animation:false});
 }
-function resizeGraphCanvas()
+
+function resizeChartCanvas()
 {
-  var $canvas = $("#graph_canvas");
-  var $parent = $("#graph");
-  $canvas.width($parent.width() * .4);
+  var $canvas = $("#chart_canvas");
+  var $parent = $("#container");
+  var w = $parent.width();
+  var h = $parent.height();
+  var d = w < h ? w * .4 : h * .4;
+  $canvas.width(d);
   $canvas.height($canvas.width());
 }
-function getPieGraphData (uriList, fieldName) {
+
+function getPieChartData (uriList, fieldName) {
   var chartFields = [];
   var strTable = "";
   for (var i=0;i<uriList.length;i++)
@@ -88,7 +107,6 @@ function getPieGraphData (uriList, fieldName) {
     }
   }
   var colorArray = returnColorArray(chartFields.length);
-
   for (var i=0; i<chartFields.length; i++) {
     chartFields[i].color = colorArray[i];
   }
@@ -112,7 +130,6 @@ function returnColorArray (n) {
     var red   = Math.sin(frequency*i + 0) * 127 + 128;
     var green = Math.sin(frequency*i + 2) * 127 + 128;
     var blue  = Math.sin(frequency*i + 4) * 127 + 128;
-
     a.push (RGB2Color(red,green,blue));
   }
   return a;
@@ -122,7 +139,6 @@ function convertMilliseconds(n) {
   var hours = Math.floor (n/3600000);
   var minutes = Math.floor(n / 60000) % hours;
   var seconds = ((n % 60000) / 1000).toFixed(0);
-  //return hours + " : " + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
   return Math.floor (n/60000) + " minutes";
 }
 
@@ -130,19 +146,16 @@ function makeMetaTab(meta)
 {
   var element = window.document.getElementById("metadata");
   var html = "";
-
   var argv_args = "";
   for (var i=0;i<meta.argv.length;i++)
   {
     argv_args += meta.argv[i] + "<br>";
   }
-
   var args = "";
   for (var i in meta.args)
   {
     args += i + " : " + meta.args[i] + "<br>";
   }
-
   var metaArray = [];
   metaArray.push (["<b>Source name, number of sites</b>", meta.args.source + ", " + meta.sources_size]);
   metaArray.push (["<b>Total test time</b>", convertMilliseconds(new Date (meta.run_finish_time) - new Date (meta.run_start_time))]);
@@ -164,8 +177,7 @@ function makeMetaTab(meta)
   metaArray.push (["<b>Base build NSPR</b>", meta.base_metadata.nspr_version]);
   metaArray.push (["<b>Base profile</b>", "<a href=\"base_profile.zip\">&#128193; link</a>"]);
 
-
-  html += "<table id=\"grid-metadata\" class=\"table table-condensed table-hover table-striped\">";
+  html += "<table id=\"grid-metadata\" width=\"100%\" class=\"table table-condensed table-hover table-striped\">";
   html += "<thead>";
   html += "<tr>";
   html += "<th data-column-id=\"t0\" width=\"30%\"></th>";
@@ -181,21 +193,16 @@ function makeMetaTab(meta)
     html += "<td>" + metaArray[i][1] + "</td>";
     html += "</tr>";
     html += "</tbody>";
-
   }
   html += "</table>";
-
   element.innerHTML = html;
-
 }
 
 function navigate(tab)
 {
   var $nav = $("#nav");
   var listItems = $nav.children();
-
-  var tabs = ["results", "graph", "metadata"];
-
+  var tabs = ["results", "chart", "metadata"];
   for (var i=0;i<tabs.length;i++)
   {
         window.document.getElementById(tabs[i]).style.visibility = "hidden";    
@@ -203,12 +210,22 @@ function navigate(tab)
   }
   window.document.getElementById(tab).style.visibility = "visible";
   window.document.getElementById(tab + "_tab").id = "selected";
+  if (tab == "chart")
+  {
+    refreshChartTab();
+  }
+}
+
+function refreshChartTab()
+{
+  var selectedItem = window.document.getElementById("fieldNames").value;
+  makeFieldControl(selectedItem);
+  updateChartCaption (window.document.myChart.segments, selectedItem) 
 }
 
 function getVisibleColumns()
 {
   var gridData = $('#grid').bootgrid("getCurrentRows");
-
   var columnData = $("#grid").bootgrid("getColumnSettings");
   var columns = [];
   for (var i=0;i<columnData.length;i++)
@@ -223,13 +240,13 @@ function getVisibleColumns()
   }
   return columns;
 }
+
 function getSortedRows()
 {
   var gridData = $('#grid').bootgrid().data('.rs.jquery.bootgrid').rows;
   var currentRows = [];
   var searchStr = $('#grid').bootgrid("getSearchPhrase");
   var currentColumns = getVisibleColumns();
-
   for (var i=0;i<gridData.length;i++)
   {
     var row = gridData[i];
@@ -285,7 +302,6 @@ function make_table(hosts, columns)
     html += ">" + columns[i].name + "</th>"
   }
   html += "</tr></thead><tbody>";
-
   for (var i=0;i<hosts.length;i++)
   {
     html += "<tr id=\'" + hosts[i]["rank"] + "\'>";
@@ -305,6 +321,10 @@ function apply_bootgrid()
 {
   var grid = $("#grid").bootgrid(
   {
+    css:
+    {
+      paginationButton:'labels_small'
+    },
     rowCount:[15,10,5,-1],
     selection: false,
     multiSelect: true,
@@ -385,7 +405,6 @@ function transform_log(transform_data,json_data)
   return hosts;
 }
 
-
 function load_log(transform_data)
 {
   var xhr = new XMLHttpRequest();
@@ -404,7 +423,7 @@ function buildUI(json_data, hosts, transform_data)
   makeMetaTab(json_data.meta);
   make_table (hosts, transform_data);
   apply_bootgrid();
-  makeGraphTab(hosts, "error");
+  makeChartTab(hosts, "error");
   navigate("results");
 }
 
