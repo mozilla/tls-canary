@@ -31,7 +31,7 @@ class LogMode(BaseMode):
 
         group.add_argument("-a", "--action",
                            help="Action to perform (default: list)",
-                           choices=["delete", "htmlreport", "json", "list"],
+                           choices=["delete", "htmlreport", "htmlreport_old", "json", "list"],
                            action="store",
                            default="list")
 
@@ -124,6 +124,12 @@ class LogMode(BaseMode):
                 logger.critical("You must specify -o/--output for writing the HTML report")
                 sys.exit(5)
             report.generate("html", log_list, self.args.output)
+
+        elif self.args.action == "htmlreport_old":
+            if self.args.output is None:
+                logger.critical("You must specify -o/--output for writing the HTML report")
+                sys.exit(5)
+            report.generate("html_old", log_list, self.args.output)
 
         else:
             logger.critical("Report action `%s` not implemented" % self.args.action)

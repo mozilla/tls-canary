@@ -2,14 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import cert
 import dateutil.parser
 from distutils import dir_util
 import json
 import logging
 import os
 import shutil
-
-import cert
 
 
 logger = logging.getLogger(__name__)
@@ -36,11 +35,123 @@ def generate(mode, logs, output_dir):
                 continue
             html_report(log, output_dir)
 
+    # Deprecated and soon to be removed
+    elif mode == "html_old":
+        for log_name in sorted(logs.keys()):
+            log = logs[log_name]
+            meta = log.get_meta()
+            if meta["mode"] != "regression":
+                logger.warning("Skipping report generation for non-regression log `%s`" % log_name)
+                continue
+            if not log.has_finished():
+                logger.warning("Skipping report generation for incomplete log `%s`" % log_name)
+                continue
+            if not log.is_compatible():
+                logger.warning("Skipping report generation for incompatible log `%s`" % log_name)
+                continue
+            html_report_old(log, output_dir)
+
     else:
         logger.critical("Report generator mode `%s` not implemented" % mode)
 
 
 def html_report(log, report_dir):
+    global logger
+
+    # Create report directory if necessary.
+    if not os.path.exists(report_dir):
+        logger.debug('Creating report directory %s' % report_dir)
+        os.makedirs(report_dir)
+
+    # Fetch log metadata
+    meta = log.get_meta()
+    run_start_time = dateutil.parser.parse(meta["run_start_time"])
+    timestamp = run_start_time.strftime("%Y-%m-%d-%H-%M-%S")
+
+    # Read the complete runs log to see if this log was already reported
+    runs_log_file = os.path.join(report_dir, "runs", "runs.txt")
+    runs_log = {}
+    try:
+        with open(runs_log_file) as f:
+            for line in f.readlines():
+                logger.debug("Line read from runs.txt: `%s`" % line.strip())
+                run = json.loads(line)
+                runs_log[run["run"]] = run
+    except IOError:
+        # Raised when the file does not yet exist
+        pass
+
+    if timestamp in runs_log:
+        logger.warning("Skipping log `%s` which was already reported before" % log.handle)
+        return
+
+    run_dir = os.path.join(report_dir, "runs", timestamp)
+    logger.info("Writing HTML report to `%s`" % run_dir)
+
+    uri_data = []
+    for line in log:
+        if meta["args"]["filter"] == 1:
+            # Filter out stray timeout errors
+            connection_speed = line["response"]["response_time"]-line["response"]["command_time"]
+            timeout = line["response"]["original_cmd"]["args"]["timeout"] * 1000
+            error_message = line["response"]["result"]["info"]["short_error_message"]
+            if error_message == "NS_BINDING_ABORTED" and connection_speed > timeout:
+                continue
+        uri_data.append(line)
+
+    log_data = [{"meta": log.get_meta(), "data": uri_data}]
+
+    # Install static template files in report directory
+    template_dir = os.path.join(module_dir, "template")
+    dir_util.copy_tree(os.path.join(template_dir, "js"),
+                       os.path.join(report_dir, "js"))
+    dir_util.copy_tree(os.path.join(template_dir, "css"),
+                       os.path.join(report_dir, "css"))
+    dir_util.copy_tree(os.path.join(template_dir, "img"),
+                       os.path.join(report_dir, "img"))
+    shutil.copyfile(os.path.join(template_dir, "index.htm"),
+                    os.path.join(report_dir, "index.htm"))
+
+    # Create per-run directory for report output
+    if not os.path.isdir(run_dir):
+        os.makedirs(run_dir)
+
+    # Copy profiles
+    if "profiles" in meta:
+        for profile in meta["profiles"]:
+            log_zip = log.part(profile["log_part"])
+            run_dir_zip = os.path.join(run_dir, profile["log_part"])
+            logger.debug("Copying `%s` profile archive from `%s` to `%s`" % (profile["name"], log_zip, run_dir_zip))
+            shutil.copyfile(log_zip, run_dir_zip)
+
+    cert_dir = os.path.join(run_dir, "certs")
+    __extract_certificates(log, cert_dir)
+
+    shutil.copyfile(os.path.join(template_dir, "report_template.htm"),
+                    os.path.join(run_dir, "index.htm"))
+
+    # Write the final log file
+    with open(os.path.join(run_dir, "log.json"), "w") as log_file:
+        log_file.write(json.dumps(log_data, indent=4, sort_keys=True))
+
+    # Append to runs.log
+    new_run_log = {
+            "run": timestamp,
+            "branch": meta["test_metadata"]["branch"].capitalize(),
+            "errors": len(log),
+            "description": "Fx%s %s vs Fx%s %s" % (meta["test_metadata"]["app_version"],
+                                                   meta["test_metadata"]["branch"],
+                                                   meta["base_metadata"]["app_version"],
+                                                   meta["base_metadata"]["branch"])
+        }
+    runs_log[timestamp] = new_run_log
+
+    logger.debug("Writing back runs log to `%s`" % runs_log_file)
+    with open(runs_log_file, "w") as f:
+        f.writelines(["%s\n" % json.dumps(runs_log[timestamp]) for timestamp in sorted(runs_log.keys())])
+
+
+def html_report_old(log, report_dir):
     global logger
 
     # Create report directory if necessary.
@@ -152,7 +263,7 @@ def html_report(log, report_dir):
     cert_dir = os.path.join(run_dir, "certs")
     __extract_certificates(log, cert_dir)
 
-    shutil.copyfile(os.path.join(template_dir, "report_template.htm"),
+    shutil.copyfile(os.path.join(template_dir, "report_template_old.htm"),
                     os.path.join(run_dir, "index.htm"))
 
     # Write the final log file
