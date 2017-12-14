@@ -202,7 +202,7 @@ def test_xpcshell_worker_disconnect():
     reconnect_required = conn.send(xw.Command("info"))
     assert_false(reconnect_required, "open connections are not reconnected for send")
 
-    conn.shutdown()
+    conn.close()
     res = conn.receive()
     assert_true(res is None, "receive on closed connection yields None")
 

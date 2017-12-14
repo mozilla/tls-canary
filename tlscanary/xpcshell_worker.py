@@ -156,7 +156,7 @@ class XPCShellWorker(object):
             logger.warning("Asking stopped worker %s", self.id)
             return None
         reply = connection.ask(cmd, always_reconnect=always_reconnect, retry=retry)
-        connection.disconnect()
+        connection.close()
         return reply
 
     def chat(self, cmds, always_reconnect=False, timeout=5):
@@ -166,7 +166,7 @@ class XPCShellWorker(object):
             logger.warning("Chatting stopped worker %s", self.id)
             return [None] * len(cmds)
         replies = connection.chat(cmds, always_reconnect=always_reconnect)
-        connection.disconnect()
+        connection.close()
         return replies
 
 
@@ -224,6 +224,13 @@ class WorkerConnection(object):
     It generally tries to re-send requests when a connection fails.
     """
     def __init__(self, port, host="localhost", timeout=120):
+        """
+        Connection to a socket-based XPCShell Worker
+
+        :param port: int TCP port the worker is listening on
+        :param host: str hostname the worker is running on (default `localhost`)
+        :param timeout: int default timeout for requests in seconds (default 120)
+        """
         self.id = str(uuid1())
         self.host = host
         self.port = port
@@ -231,10 +238,20 @@ class WorkerConnection(object):
         self.s = None  # `None` here signifies closed connection and socket
 
     def fileno(self):
-        """Method required for select.select()"""
+        """Method required for select.select() to work on the object"""
         return self.s.fileno()
 
     def connect(self, reuse=False, retry_delay=2, timeout=-1):
+        """
+        Open TCP connection to worker. If there is no socket object, yet, a new one
+        is created and the connection opened. If reuse is requested and there is already
+        a socket object instance, the socket will be closed and re-opened.
+
+        :param reuse: bool flag for re-using an existing connection (default False)
+        :param retry_delay: delay before trying reconnect in seconds (default 2)
+        :param timeout: int connection timeout in seconds (default -1, connection default)
+        :return: None
+        """
         timeout = timeout if timeout is None or timeout >= 0 else self.timeout
 
         if self.s is not None:
@@ -272,39 +289,57 @@ class WorkerConnection(object):
                     raise err
 
     def close(self):
-        """Close the socket itself"""
+        """
+        Close the socket connection to the worker.
+        Closing a connection means that all outstanding replies to worker commands for
+        that connection are lost.
+
+        :return: None
+        """
         if self.s is None:
-            logger.warning("Worker socket is already closed")
+            logger.warning("Worker socket on port %d is already closed" % self.port)
         else:
             self.s.close()
             self.s = None
 
-    def shutdown(self):
-        """Shutdown existing connection on the socket"""
-        if self.s is None:
-            logger.warning("Can't shutdown closed worker socket")
-            return
-        try:
-            self.s.shutdown(socket.SHUT_RDWR)
-        except socket.error as err:
-            if err.errno == 57:  # Socket is not connected
-                logger.warning("Unable to shutdown unconnected worker socket")
-            else:
-                raise err
-
-    def disconnect(self):
-        self.shutdown()
-        self.close()
-
     def reconnect(self, timeout=-1):
+        """
+        Close an existing connection (if any) and open it again.
+
+        :param timeout: int (default -1, connection default)
+        :return: None
+        """
         if self.s is not None:
-            self.disconnect()
+            self.close()
         self.connect(timeout=timeout)
 
     def send(self, request, retry=True, timeout=-1):
+        """
+        Send a raw string to the worker. The given request is converted to a string,
+        then stripped of trailing newlines, and then sent to the worked, followed by
+        a newline. It can handle multi-line requests, but the idea is to make one call
+        to send() per command line.
+
+        The worker answers commands asynchronously over the socket connection the
+        command was received on. The caller to send() is responsible for associating
+        commands and their respective replies.
+
+        The connection is automatically opened if necessary. If retry is true,
+        the socket will be reconnected when it was closed by the peer.
+
+        The return value is a bool signifying whether the socket had to be reconnected.
+        In this case, all outstanding replies that were sent over the socket are lost.
+        The caller of send() is responsible to keep track of which commands have to be
+        re-sent after the connection was lost.
+
+        :param request: object to stringify for the request
+        :param retry: bool
+        :param timeout: int timeout (default -1, connection default)
+        :return: bool
+        """
         timeout = timeout if timeout is None or timeout >= 0 else self.timeout
 
-        request = str(request).strip()
+        request = str(request).strip().encode("utf-8")
 
         if timeout is None:
             timeout = self.timeout
@@ -315,7 +350,11 @@ class WorkerConnection(object):
         while True:
 
             if timeout_time is not None and time.time() >= timeout_time:
-                raise socket.timeout("Worker timeout while sending request")
+                raise socket.timeout("Worker timeout while sending request on port %d" % self.port)
+
+            if self.s is None:
+                self.connect(reuse=True)
+                reconnected = True
 
             try:
                 # Let send() throw an error when the connection isn't open
@@ -325,7 +364,7 @@ class WorkerConnection(object):
                 break
 
             except socket.error as err:
-                logger.warning("Socket error during worker send: %s", err)
+                logger.warning("Socket error during worker send on port %d: %s" % (self.port, err))
                 if err.errno == 32:  # Broken pipe
                     if retry:
                         self.reconnect()
@@ -336,6 +375,16 @@ class WorkerConnection(object):
         return reconnected
 
     def receive(self, raw=False, timeout=-1):
+        """
+        Blocking read from the worker socket. The reply is wrapped in a Response()
+        object unless raw is true.
+
+        It returns None if the connection is not open or closed by the worker during read.
+
+        :param raw: bool (default false)
+        :param timeout: int timeout (default -1, connection default)
+        :return: Response object or str or None
+        """
         timeout = timeout if timeout is None or timeout >= 0 else self.timeout
 
         received = u""
@@ -347,7 +396,7 @@ class WorkerConnection(object):
                 r = self.s.recv(8192)
                 logger.debug("RECEIVED: %s" % r)
                 if len(r) == 0:
-                    logger.warning("Empty read likely caused by peer closing connection")
+                    logger.warning("Empty read likely caused by peer closing connection on port %d" % self.port)
                     self.close()
                     return None
                 received += r.decode("utf-8")
@@ -355,14 +404,19 @@ class WorkerConnection(object):
         except socket.error as err:
             if err.errno == 54:
                 # Connection reset by peer
-                logger.warning("Connection reset by peer while receiving. Closing connection.")
+                logger.warning("Connection reset by peer while receiving on port %d. Closing connection." % self.port)
                 self.close()
                 return None
             else:
                 raise err
 
+        except AttributeError:
+            # Socket connection is not open
+            logger.warning("Attempting to receive from closed worker socket on port %d" % self.port)
+            return None
+
         received = received.strip()
-        logger.debug("Received worker reply `%s` on port %d" % (received, self.port))
+        logger.debug("Received worker reply `%s` from port %d" % (received, self.port))
 
         if raw:
             return received
