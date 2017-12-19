@@ -2,13 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import cert
 import dateutil.parser
 from distutils import dir_util
 import json
 import logging
 import os
 import shutil
+
+import cert
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,23 @@ def generate(mode, logs, output_dir):
 
     logger.debug("Generating `%s` report for %d logs in `%s`" % (mode, len(logs), output_dir))
 
-    if mode == "html":
+    if mode == "web":
+        for log_name in sorted(logs.keys()):
+            log = logs[log_name]
+            meta = log.get_meta()
+            if meta["mode"] != "regression":
+                logger.warning("Skipping report generation for non-regression log `%s`" % log_name)
+                continue
+            if not log.has_finished():
+                logger.warning("Skipping report generation for incomplete log `%s`" % log_name)
+                continue
+            if not log.is_compatible():
+                logger.warning("Skipping report generation for incompatible log `%s`" % log_name)
+                continue
+            web_report(log, output_dir)
+
+    # Deprecated and soon to be removed
+    elif mode == "html":
         for log_name in sorted(logs.keys()):
             log = logs[log_name]
             meta = log.get_meta()
@@ -35,27 +52,11 @@ def generate(mode, logs, output_dir):
                 continue
             html_report(log, output_dir)
 
-    # Deprecated and soon to be removed
-    elif mode == "html_old":
-        for log_name in sorted(logs.keys()):
-            log = logs[log_name]
-            meta = log.get_meta()
-            if meta["mode"] != "regression":
-                logger.warning("Skipping report generation for non-regression log `%s`" % log_name)
-                continue
-            if not log.has_finished():
-                logger.warning("Skipping report generation for incomplete log `%s`" % log_name)
-                continue
-            if not log.is_compatible():
-                logger.warning("Skipping report generation for incompatible log `%s`" % log_name)
-                continue
-            html_report_old(log, output_dir)
-
     else:
         logger.critical("Report generator mode `%s` not implemented" % mode)
 
 
-def html_report(log, report_dir):
+def web_report(log, report_dir):
     global logger
 
     # Create report directory if necessary.
@@ -151,7 +152,7 @@ def html_report(log, report_dir):
         f.writelines(["%s\n" % json.dumps(runs_log[timestamp]) for timestamp in sorted(runs_log.keys())])
 
 
-def html_report_old(log, report_dir):
+def html_report(log, report_dir):
     global logger
 
     # Create report directory if necessary.

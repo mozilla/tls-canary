@@ -8,7 +8,7 @@
   }
   
   .vertical-section-container {
-    height:600;
+    height: 600;
     display: flex;
     flex-direction: column;
   }
@@ -18,7 +18,7 @@
     height: 600;
     margin-left: auto;
     margin-right: auto;
-    border:none;
+    border: none;
     position: relative;
     left: 0px;
   }
@@ -36,7 +36,7 @@
   }
 
   .bottom {
-    border-bottom:1px solid #006080;
+    border-bottom: 1px solid #006080;
   }
 
   .full {
@@ -132,16 +132,15 @@
   }
 
   #tabs #selected {
-    border:none;
+    border: none;
     background: #006080;
   }
 
-  #tabs #selected a:hover{
-    border:none;
+  #tabs #selected a:hover {
+    border: none;
     #background: #006080;
   }
 
-  #tabs #selected a
-  {
+  #tabs #selected a {
     color: white;
   }

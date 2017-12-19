@@ -1,35 +1,38 @@
-function makeHeaderText(meta)
-{
-  var desc = "Fx " + meta.test_metadata.app_version + " " + meta.test_metadata.branch 
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+"use strict";
+
+function makeHeaderText(meta) {
+  const desc = "Fx " + meta.test_metadata.app_version + " " + meta.test_metadata.branch 
           + " vs Fx " + meta.base_metadata.app_version + " " + meta.base_metadata.branch;
-  var time = meta.run_start_time.split(".")[0].replace("T","-").replace(":","-").replace(":","-");
+  const time = meta.run_start_time.split(".")[0].replace("T","-").replace(":","-").replace(":","-");
   window.document.getElementById("header").innerHTML = "<h3 class=\"header\">" + desc + "<br>" + time + "</h3>";
   window.document.title = "TLS Canary Report: " + desc;
 }
 
-function makeChartTab(uriList, fieldName)
-{
+function makeChartTab(uriList, fieldName) {
   makeFieldControl(fieldName);
   resizeChartCanvas();
-  var data = getPieChartData(uriList, fieldName);
+  const data = getPieChartData(uriList, fieldName);
   drawChart(data, fieldName);
   updateChartCaption(data, fieldName);
 
-  var div = window.document.getElementById("chart_text");
+  const div = window.document.getElementById("chart_text");
   div.style.position = "absolute";
   div.style.top = "0";
   div.style.left = $("#chart_canvas").width() * 1.2 + "px";
 }
 
-function makeFieldControl(fieldName)
-{
+function makeFieldControl(fieldName) {
   var html = "";
   html += "<h3>Field:&nbsp;&nbsp;<select id=\"fieldNames\" name=\"fieldNames\" >";
   var columns = getVisibleColumns();
-  for (var i=0;i<columns.length;i++)
+  for (var i = 0;i < columns.length;i++)
   {
     html += "<option value=\"" + columns[i] + "\"";
-    if ( columns[i] == fieldName )
+    if ( columns[i] === fieldName )
     {
       html += " selected"
     }
@@ -37,13 +40,12 @@ function makeFieldControl(fieldName)
   }
   html += "</select>";
   html += "<span id=\"chart_caption\"></span>";
-  var div = window.document.getElementById("chart_text");
+  const div = window.document.getElementById("chart_text");
   div.innerHTML = html;
   window.document.getElementById("fieldNames").onchange = onFieldChange;
 }
 
-function onFieldChange(e)
-{
+function onFieldChange(e) {
   var fieldName = e.target.value;
   var uriList = getSortedRows();
   var data = getPieChartData(uriList, fieldName);
@@ -51,30 +53,26 @@ function onFieldChange(e)
   updateChartCaption(data, fieldName);
 }
 
-function updateChart(uriList, fieldName)
-{
+function updateChart(uriList, fieldName) {
   window.document.myChart.destroy();
-  drawChart (uriList, fieldName);
+  drawChart(uriList, fieldName);
 }
 
-function updateChartCaption(uriList, fieldName)
-{
-  var div = window.document.getElementById("chart_text");
+function updateChartCaption(uriList, fieldName) {
+  const div = window.document.getElementById("chart_text");
   div.style.left = $("#chart_canvas").width() * 1.2 + "px";
   window.document.getElementById("chart_caption").innerHTML = "<h3>" + uriList.length + "&nbsp;unique&nbsp;value(s)</h3>";
 }
 
-function drawChart (data, fieldName)
-{
-  var c = window.document.getElementById("chart_canvas");
-  var ctx = c.getContext("2d");
-  window.document.myChart = new Chart(ctx).Pie(data, {animation:false});
+function drawChart (data, fieldName) {
+  const c = window.document.getElementById("chart_canvas");
+  const ctx = c.getContext("2d");
+  window.document.myChart = new Chart(ctx).Pie(data, {animation: false});
 }
 
-function resizeChartCanvas()
-{
-  var $canvas = $("#chart_canvas");
-  var $parent = $("#container");
+function resizeChartCanvas() {
+  const $canvas = $("#chart_canvas");
+  const $parent = $("#container");
   var w = $parent.width();
   var h = $parent.height();
   var d = w < h ? w * .4 : h * .4;
@@ -85,7 +83,7 @@ function resizeChartCanvas()
 function getPieChartData (uriList, fieldName) {
   var chartFields = [];
   var strTable = "";
-  for (var i=0;i<uriList.length;i++)
+  for (var i = 0;i < uriList.length;i++)
   {
     var labelString = uriList[i][fieldName].toString();
     if (strTable.indexOf(labelString) == -1 )
@@ -93,13 +91,14 @@ function getPieChartData (uriList, fieldName) {
       strTable += labelString;
       chartFields.push (
         {
-          label:labelString,
-          value:1
-        });
+          label: labelString,
+          value: 1
+        }
+      );
     } else {
-      for (var j=0;j<chartFields.length;j++)
+      for (var j = 0;j < chartFields.length;j++)
       {
-        if (chartFields[j].label == labelString)
+        if (chartFields[j].label === labelString)
         {
           chartFields[j].value++;
         }
@@ -107,15 +106,15 @@ function getPieChartData (uriList, fieldName) {
     }
   }
   var colorArray = returnColorArray(chartFields.length);
-  for (var i=0; i<chartFields.length; i++) {
+  for (var i = 0;i < chartFields.length; i++) {
     chartFields[i].color = colorArray[i];
   }
   return chartFields;
-};
+}
 
 // Credit here goes to http://krazydad.com/tutorials/makecolors.php
 function byte2Hex(n) {
-  var nybHexString = "0123456789ABCDEF";
+  const nybHexString = "0123456789ABCDEF";
   return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
 }
 
@@ -123,60 +122,50 @@ function RGB2Color(r,g,b) {
   return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
 }
 
-function returnColorArray (n) {
-  var a = [];
-  var frequency = 0.3;
+function returnColorArray(n) {
+  var colorArray = [];
+  const frequency = 0.3;
   for (var i = 0; i < n; ++i) {
-    var red   = Math.sin(frequency*i + 0) * 127 + 128;
-    var green = Math.sin(frequency*i + 2) * 127 + 128;
-    var blue  = Math.sin(frequency*i + 4) * 127 + 128;
-    a.push (RGB2Color(red,green,blue));
+    var freqIndex = frequency * i;
+    var red = Math.sin(freqIndex + 0) * 127 + 128;
+    var green = Math.sin(freqIndex + 2) * 127 + 128;
+    var blue = Math.sin(freqIndex + 4) * 127 + 128;
+    colorArray.push (RGB2Color(red,green,blue));
   }
-  return a;
+  return colorArray;
 }
 
 function convertMilliseconds(n) {
-  var hours = Math.floor (n/3600000);
+  var hours = Math.floor(n / 3600000);
   var minutes = Math.floor(n / 60000) % hours;
   var seconds = ((n % 60000) / 1000).toFixed(0);
-  return Math.floor (n/60000) + " minutes";
+  return Math.floor(n / 60000) + " minutes";
 }
 
-function makeMetaTab(meta)
-{
-  var element = window.document.getElementById("metadata");
-  var html = "";
-  var argv_args = "";
-  for (var i=0;i<meta.argv.length;i++)
-  {
-    argv_args += meta.argv[i] + "<br>";
-  }
-  var args = "";
-  for (var i in meta.args)
-  {
-    args += i + " : " + meta.args[i] + "<br>";
-  }
-  var metaArray = [];
-  metaArray.push (["<b>Source name, number of sites</b>", meta.args.source + ", " + meta.sources_size]);
-  metaArray.push (["<b>Total test time</b>", convertMilliseconds(new Date (meta.run_finish_time) - new Date (meta.run_start_time))]);
-  metaArray.push (["<b>Platform</b>", meta.test_metadata.appConstants.platform]);
-  metaArray.push (["<b>TLS Canary version</b>", meta.tlscanary_version]);
-  metaArray.push (["<b>argv parameters</b>", meta.argv.toString()]);
-  metaArray.push (["<b>Run log</b>", "<a href=\"log.json\">&#128279; link</a>"]);
-  metaArray.push (["<b>OneCRL environment</b>", meta.args.onecrl]);
-  metaArray.push (["<b>Test build</b>", meta.test_metadata.app_version + " " + meta.test_metadata.branch])
-  metaArray.push (["<b>Test build origin</b>", meta.test_metadata.package_origin]);
-  metaArray.push (["<b>Test build ID</b>", meta.test_metadata.application_ini.buildid]);
-  metaArray.push (["<b>Test build NSS</b>", meta.test_metadata.nss_version]);
-  metaArray.push (["<b>Test build NSPR</b>", meta.test_metadata.nspr_version]);
-  metaArray.push (["<b>Test profile</b>", "<a href=\"test_profile.zip\">&#128193; link</a>"]);
-  metaArray.push (["<b>Base build</b>", meta.base_metadata.app_version + " " + meta.base_metadata.branch])
-  metaArray.push (["<b>Base build origin</b>", meta.base_metadata.package_origin]);
-  metaArray.push (["<b>Base build ID</b>", meta.base_metadata.application_ini.buildid]);
-  metaArray.push (["<b>Base build NSS</b>", meta.base_metadata.nss_version]);
-  metaArray.push (["<b>Base build NSPR</b>", meta.base_metadata.nspr_version]);
-  metaArray.push (["<b>Base profile</b>", "<a href=\"base_profile.zip\">&#128193; link</a>"]);
+function makeMetaTab(meta) {
+  const metaArray = [
+    ["<b>Source name, number of sites</b>", meta.args.source + ", " + meta.sources_size],
+    ["<b>Total test time</b>", convertMilliseconds(new Date (meta.run_finish_time) - new Date (meta.run_start_time))],
+    ["<b>Platform</b>", meta.test_metadata.appConstants.platform],
+    ["<b>TLS Canary version</b>", meta.tlscanary_version],
+    ["<b>argv parameters</b>", meta.argv.toString()],
+    ["<b>Run log</b>", "<a href=\"log.json\">&#128279; link</a>"],
+    ["<b>OneCRL environment</b>", meta.args.onecrl],
+    ["<b>Test build</b>", meta.test_metadata.app_version + " " + meta.test_metadata.branch],
+    ["<b>Test build origin</b>", meta.test_metadata.package_origin],
+    ["<b>Test build ID</b>", meta.test_metadata.application_ini.buildid],
+    ["<b>Test build NSS</b>", meta.test_metadata.nss_version],
+    ["<b>Test build NSPR</b>", meta.test_metadata.nspr_version],
+    ["<b>Test profile</b>", "<a href=\"test_profile.zip\">&#128193; link</a>"],
+    ["<b>Base build</b>", meta.base_metadata.app_version + " " + meta.base_metadata.branch],
+    ["<b>Base build origin</b>", meta.base_metadata.package_origin],
+    ["<b>Base build ID</b>", meta.base_metadata.application_ini.buildid],
+    ["<b>Base build NSS</b>", meta.base_metadata.nss_version],
+    ["<b>Base build NSPR</b>", meta.base_metadata.nspr_version],
+    ["<b>Base profile</b>", "<a href=\"base_profile.zip\">&#128193; link</a>"]
+  ];
 
+  var html = "";
   html += "<table id=\"grid-metadata\" width=\"100%\" class=\"table table-condensed table-hover table-striped\">";
   html += "<thead>";
   html += "<tr>";
@@ -185,7 +174,7 @@ function makeMetaTab(meta)
   html += "</tr>";
   html += "</thead>";
 
-  for (var i=0;i<metaArray.length;i++)
+  for (var i = 0;i < metaArray.length;i++)
   {
     html += "<tbody>";
     html += "<tr>";
@@ -195,44 +184,43 @@ function makeMetaTab(meta)
     html += "</tbody>";
   }
   html += "</table>";
+
+  const element = window.document.getElementById("metadata");
   element.innerHTML = html;
 }
 
-function navigate(tab)
-{
-  var $nav = $("#nav");
-  var listItems = $nav.children();
-  var tabs = ["results", "chart", "metadata"];
-  for (var i=0;i<tabs.length;i++)
+function navigate(tab) {
+  const $nav = $("#nav");
+  const listItems = $nav.children();
+  const tabs = ["results", "chart", "metadata"];
+  for (var i = 0;i < tabs.length;i++)
   {
-        window.document.getElementById(tabs[i]).style.visibility = "hidden";    
-        listItems[i].id = tabs[i] + "_tab";
+      window.document.getElementById(tabs[i]).style.visibility = "hidden";    
+      listItems[i].id = tabs[i] + "_tab";
   }
   window.document.getElementById(tab).style.visibility = "visible";
   window.document.getElementById(tab + "_tab").id = "selected";
-  if (tab == "chart")
+  if (tab === "chart")
   {
     refreshChartTab();
   }
 }
 
-function refreshChartTab()
-{
+function refreshChartTab() {
   var selectedItem = window.document.getElementById("fieldNames").value;
   makeFieldControl(selectedItem);
   updateChartCaption (window.document.myChart.segments, selectedItem) 
 }
 
-function getVisibleColumns()
-{
+function getVisibleColumns() {
   var gridData = $('#grid').bootgrid("getCurrentRows");
   var columnData = $("#grid").bootgrid("getColumnSettings");
   var columns = [];
-  for (var i=0;i<columnData.length;i++)
+  for (var i = 0;i < columnData.length;i++)
   {
       if (columnData[i].visible)
       {
-        if (columnData[i].id != "Actions")
+        if (columnData[i].id !== "Actions")
         {
           columns.push (columnData[i].id);
         }
@@ -241,21 +229,20 @@ function getVisibleColumns()
   return columns;
 }
 
-function getSortedRows()
-{
+function getSortedRows() {
   var gridData = $('#grid').bootgrid().data('.rs.jquery.bootgrid').rows;
   var currentRows = [];
   var searchStr = $('#grid').bootgrid("getSearchPhrase");
   var currentColumns = getVisibleColumns();
-  for (var i=0;i<gridData.length;i++)
+  for (var i = 0;i < gridData.length;i++)
   {
     var row = gridData[i];
-    for (var j=0;j<currentColumns.length;j++)
+    for (var j = 0;j < currentColumns.length;j++)
     {
       var field = row[currentColumns[j]].toString();
-      if ( field.search(searchStr) != -1 )
+      if (field.search(searchStr) != -1)
       {
-        currentRows.push (row);
+        currentRows.push(row);
         break;
       }
     }
@@ -263,25 +250,26 @@ function getSortedRows()
   return currentRows;
 }
 
-function make_table(hosts, columns)
-{
+function makeTable(hosts, columns) {
   // First, add new column for our grid actions
-  columns.push ({
-    name:"Actions",
-    default:true,
-    type:null,
-    width:"20%"
-  })
+  columns.push(
+    {
+      name: "Actions",
+      default: true,
+      type: null,
+      width: "20%"
+    }
+  );
   var html = "<table id=\"grid\" class=\"table table-condensed table-hover table-striped\"><thead><tr>";
-  for (var i=0;i<columns.length;i++)
+  for (var i = 0;i < columns.length;i++)
   {
     html += "<th data-column-id=\"" + columns[i].name + "\" ";
-    if (columns[i].name == "rank")
+    if (columns[i].name === "rank")
     {
       html += "data-order=\"asc\" ";
       html += "data-identifier=\"true\" ";
     }
-    if (columns[i].name == "Actions")
+    if (columns[i].name === "Actions")
     {
       html += "data-visible-in-selection=\"false\" data-formatter=\"commands\" data-searchable=\"false\" ";
     }
@@ -289,11 +277,11 @@ function make_table(hosts, columns)
     {
       html += "data-visible=\"false\" ";
     }
-    if (columns[i].type == "int")
+    if (columns[i].type === "int")
     {
       html += "data-type=\"numeric\" ";
     }
-    if (columns[i].width != undefined)
+    if (typeof(columns[i].width) !== 'undefined')
     {
       html += "data-width=\"" + columns[i].width + "\" ";
     } else {
@@ -302,40 +290,38 @@ function make_table(hosts, columns)
     html += ">" + columns[i].name + "</th>"
   }
   html += "</tr></thead><tbody>";
-  for (var i=0;i<hosts.length;i++)
+  for (var i = 0;i < hosts.length;i++)
   {
     html += "<tr id=\'" + hosts[i]["rank"] + "\'>";
-    for (var j=0;j<columns.length;j++)
+    for (var j = 0;j < columns.length;j++)
     {
       html += "<td>" + hosts[i][columns[j].name] + "</td>"
     }
     html += "</tr>";
   }
   html += "</tbody></table>";
-  var contentDiv = document.getElementById("results");
+  const contentDiv = document.getElementById("results");
   contentDiv.style.visibility = "hidden";
   contentDiv.innerHTML = html;
 }
 
-function apply_bootgrid()
-{
-  var grid = $("#grid").bootgrid(
+function applyBootgrid() {
+  const grid = $("#grid").bootgrid(
   {
     css:
     {
-      paginationButton:'labels_small'
+      paginationButton: 'labels_small'
     },
-    rowCount:[15,10,5,-1],
+    rowCount: [15,10,5,-1],
     selection: false,
     multiSelect: true,
     rowSelect: true,
     keepSelection: true,
     formatters: 
     {
-      "commands": function(column, row)
-      {  
+      "commands": function(column, row) {  
         var html = "";
-        if (row.not_before != undefined && row.not_before != "")
+        if (typeof(row.not_before) !== 'undefined' && row.not_before != "")
         {
           html += "<a href=\"./certs/" + row.host 
                + ".der\"><button type=\"button\" class=\"btn btn-xs btn-default\">&#128274;</button></a> ";
@@ -348,8 +334,7 @@ function apply_bootgrid()
              + row.rank + "\"><span class=\"fa fa-trash-o\"> &times; </span></button>";
         return html;
       },
-      "date": function(column,row)
-      {
+      "date": function(column, row) {
         var temp = String(row[column.id]).substr(0,13);
         var d = new Date(Number(temp));
         return d.toString();
@@ -359,8 +344,7 @@ function apply_bootgrid()
   {
     grid.find(".command-link").on("click", function(e)
     {
-        window.open("https://" + $(this).data("row-id"), "_blank")
-        ;
+        window.open("https://" + $(this).data("row-id"), "_blank");
     }).end().find(".command-tls_obs").on("click", function(e)
     {
         window.open("https://observatory.mozilla.org/analyze.html?host=" + $(this).data("row-id") + "#tls", "_blank")
@@ -368,80 +352,79 @@ function apply_bootgrid()
     {
       var items = [];
       items.push ($(this).data("row-id"));
-      
       $("#grid").bootgrid("remove", items);
-
     });
-    var contentDiv = document.getElementById("results");
+    const contentDiv = document.getElementById("results");
     contentDiv.style.visibility = "visible";
   });
 }
 
-function find_prop (obj, prop, defval)
-{
-  if (defval == undefined) defval = null;
+function findProp (obj, prop, defVal) {
+  if (typeof(defVal) === 'undefined') defVal = null;
   prop = prop.split('.');
   for (var i = 0; i < prop.length; i++) {
-      if(typeof obj[prop[i]] == 'undefined')
-          return defval;
+      if(typeof obj[prop[i]] === 'undefined')
+          return defVal;
       obj = obj[prop[i]];
   }
   return obj;
 }
 
-function transform_log(transform_data,json_data)
-{
-  var hosts = [];
-  for (var i=0;i<json_data.data.length;i++)
+function transformLog(transformData, jsonData) {
+  const hosts = [];
+  for (var i = 0;i < jsonData.data.length;i++)
   {
     var host = {};
-    for (var j=0;j<transform_data.length;j++)
+    for (var j = 0;j < transformData.length;j++)
     {
-      var prop = find_prop(json_data.data[i], transform_data[j].prop, "");
-      host[transform_data[j].name] = prop;
+      var prop = findProp(jsonData.data[i], transformData[j].prop, "");
+      host[transformData[j].name] = prop;
     }
-    hosts.push (host);
+    hosts.push(host);
   }
   return hosts;
 }
 
-function load_log(transform_data)
-{
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function(arg) {
-    json_data =  JSON.parse(xhr.responseText)[0];
-    var hosts = transform_log(transform_data,json_data);
-    buildUI(json_data, hosts, transform_data);
+function loadLog(transformData) {
+  const logXHR = new XMLHttpRequest();
+  logXHR.onload = function(arg) {
+    const jsonData = JSON.parse(this.responseText)[0];
+    const hosts = transformLog(transformData,jsonData);
+    buildUI(jsonData, hosts, transformData);
   }       
-  xhr.open('GET', "log.json", true);
-  xhr.send();  
+  logXHR.onerror = function(arg) {
+    alert("Failed to load log file.")
+  }  
+  logXHR.open('GET', "log.json", true);
+  logXHR.send();  
 }
     
-function buildUI(json_data, hosts, transform_data)
-{
-  makeHeaderText(json_data.meta);
-  makeMetaTab(json_data.meta);
-  make_table (hosts, transform_data);
-  apply_bootgrid();
+function buildUI(jsonData, hosts, transformData) {
+  makeHeaderText(jsonData.meta);
+  makeMetaTab(jsonData.meta);
+  makeTable(hosts, transformData);
+  applyBootgrid();
   makeChartTab(hosts, "error");
   navigate("results");
 }
 
-function load_transform()
-{
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function(arg) {
-    var transform_data =  JSON.parse(xhr.responseText);
-    columns = transform_data;
-    load_log(transform_data);
+function loadTransform() {
+  const transformXHR = new XMLHttpRequest();
+  transformXHR.onload = function(arg) {
+    const transformData =  JSON.parse(this.responseText);
+    loadLog(transformData);
+  }
+  transformXHR.onerror = function(arg) {
+    alert("Failed to load transform.json file.")
   }       
-  xhr.open('GET', "../../js/transform.json", true);
-  xhr.send(); 
+  transformXHR.open('GET', "../../js/transform.json", true);
+  transformXHR.send(); 
 }
 
-function init()
-{
-  load_transform();
+function init() {
+  loadTransform();
 }
 
 init();
+
+// License header
