@@ -8,7 +8,7 @@ function makeHeaderText(meta) {
   const desc = "Fx " + meta.test_metadata.app_version + " " + meta.test_metadata.branch 
           + " vs Fx " + meta.base_metadata.app_version + " " + meta.base_metadata.branch;
   const time = meta.run_start_time.split(".")[0].replace("T","-").replace(":","-").replace(":","-");
-  window.document.getElementById("header").innerHTML = "<h3 class=\"header\">" + desc + "<br>" + time + "</h3>";
+  window.document.getElementById("header").innerHTML = "<h3 class='header'>" + desc + "<br>" + time + "</h3>";
   window.document.title = "TLS Canary Report: " + desc;
 }
 
@@ -27,19 +27,18 @@ function makeChartTab(uriList, fieldName) {
 
 function makeFieldControl(fieldName) {
   var html = "";
-  html += "<h3>Field:&nbsp;&nbsp;<select id=\"fieldNames\" name=\"fieldNames\" >";
+  html += "<h3>Field:&nbsp;&nbsp;<select id='fieldNames' name='fieldNames' >";
   var columns = getVisibleColumns();
-  for (var i = 0;i < columns.length;i++)
-  {
-    html += "<option value=\"" + columns[i] + "\"";
-    if ( columns[i] === fieldName )
+  for (var i = 0;i < columns.length;i++) {
+    html += "<option value='" + columns[i] + "'";
+    if (columns[i] === fieldName)
     {
       html += " selected"
     }
     html += ">" + columns[i] + "</option>";
   }
   html += "</select>";
-  html += "<span id=\"chart_caption\"></span>";
+  html += "<span id='chart_caption'></span>";
   const div = window.document.getElementById("chart_text");
   div.innerHTML = html;
   window.document.getElementById("fieldNames").onchange = onFieldChange;
@@ -64,27 +63,26 @@ function updateChartCaption(uriList, fieldName) {
   window.document.getElementById("chart_caption").innerHTML = "<h3>" + uriList.length + "&nbsp;unique&nbsp;value(s)</h3>";
 }
 
-function drawChart (data, fieldName) {
+function drawChart(data, fieldName) {
   const c = window.document.getElementById("chart_canvas");
   const ctx = c.getContext("2d");
   window.document.myChart = new Chart(ctx).Pie(data, {animation: false});
 }
 
 function resizeChartCanvas() {
-  const $canvas = $("#chart_canvas");
-  const $parent = $("#container");
-  var w = $parent.width();
-  var h = $parent.height();
+  const canvas = $("#chart_canvas");
+  const parent = $("#container");
+  var w = parent.width();
+  var h = parent.height();
   var d = w < h ? w * .4 : h * .4;
-  $canvas.width(d);
-  $canvas.height($canvas.width());
+  canvas.width(d);
+  canvas.height(canvas.width());
 }
 
-function getPieChartData (uriList, fieldName) {
+function getPieChartData(uriList, fieldName) {
   var chartFields = [];
   var strTable = "";
-  for (var i = 0;i < uriList.length;i++)
-  {
+  for (var i = 0;i < uriList.length;i++) {
     var labelString = uriList[i][fieldName].toString();
     if (strTable.indexOf(labelString) == -1 )
     {
@@ -96,8 +94,7 @@ function getPieChartData (uriList, fieldName) {
         }
       );
     } else {
-      for (var j = 0;j < chartFields.length;j++)
-      {
+      for (var j = 0;j < chartFields.length;j++) {
         if (chartFields[j].label === labelString)
         {
           chartFields[j].value++;
@@ -119,11 +116,11 @@ function byte2Hex(n) {
 }
 
 function RGB2Color(r,g,b) {
-  return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+  return "#" + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
 }
 
 function returnColorArray(n) {
-  var colorArray = [];
+  const colorArray = [];
   const frequency = 0.3;
   for (var i = 0; i < n; ++i) {
     var freqIndex = frequency * i;
@@ -149,40 +146,40 @@ function makeMetaTab(meta) {
     ["<b>Platform</b>", meta.test_metadata.appConstants.platform],
     ["<b>TLS Canary version</b>", meta.tlscanary_version],
     ["<b>argv parameters</b>", meta.argv.toString()],
-    ["<b>Run log</b>", "<a href=\"log.json\">&#128279; link</a>"],
+    ["<b>Run log</b>", "<a href='log.json'>&#128279; link</a>"],
     ["<b>OneCRL environment</b>", meta.args.onecrl],
     ["<b>Test build</b>", meta.test_metadata.app_version + " " + meta.test_metadata.branch],
     ["<b>Test build origin</b>", meta.test_metadata.package_origin],
     ["<b>Test build ID</b>", meta.test_metadata.application_ini.buildid],
     ["<b>Test build NSS</b>", meta.test_metadata.nss_version],
     ["<b>Test build NSPR</b>", meta.test_metadata.nspr_version],
-    ["<b>Test profile</b>", "<a href=\"test_profile.zip\">&#128193; link</a>"],
+    ["<b>Test profile</b>", "<a href='test_profile.zip'>&#128193; link</a>"],
     ["<b>Base build</b>", meta.base_metadata.app_version + " " + meta.base_metadata.branch],
     ["<b>Base build origin</b>", meta.base_metadata.package_origin],
     ["<b>Base build ID</b>", meta.base_metadata.application_ini.buildid],
     ["<b>Base build NSS</b>", meta.base_metadata.nss_version],
     ["<b>Base build NSPR</b>", meta.base_metadata.nspr_version],
-    ["<b>Base profile</b>", "<a href=\"base_profile.zip\">&#128193; link</a>"]
+    ["<b>Base profile</b>", "<a href='base_profile.zip'>&#128193; link</a>"]
   ];
 
   var html = "";
-  html += "<table id=\"grid-metadata\" width=\"100%\" class=\"table table-condensed table-hover table-striped\">";
+  html += "<table id='grid-metadata' width='100%' class='table table-condensed table-hover table-striped'>";
   html += "<thead>";
   html += "<tr>";
-  html += "<th data-column-id=\"t0\" width=\"30%\"></th>";
-  html += "<th data-column-id=\"t1\" width=\"70%\"></th>";
+  html += "<th data-column-id='t0' width='30%'></th>";
+  html += "<th data-column-id='t1' width='70%'></th>";
   html += "</tr>";
   html += "</thead>";
+  html += "<tbody>";
 
-  for (var i = 0;i < metaArray.length;i++)
-  {
-    html += "<tbody>";
+  for (var i = 0;i < metaArray.length;i++) {
     html += "<tr>";
     html += "<td>" + metaArray[i][0] + "</td>";
     html += "<td>" + metaArray[i][1] + "</td>";
     html += "</tr>";
-    html += "</tbody>";
   }
+
+  html += "</tbody>";
   html += "</table>";
 
   const element = window.document.getElementById("metadata");
@@ -193,9 +190,8 @@ function navigate(tab) {
   const $nav = $("#nav");
   const listItems = $nav.children();
   const tabs = ["results", "chart", "metadata"];
-  for (var i = 0;i < tabs.length;i++)
-  {
-      window.document.getElementById(tabs[i]).style.visibility = "hidden";    
+  for (var i = 0;i < tabs.length;i++) {
+      window.document.getElementById(tabs[i]).style.visibility = "hidden";
       listItems[i].id = tabs[i] + "_tab";
   }
   window.document.getElementById(tab).style.visibility = "visible";
@@ -213,11 +209,10 @@ function refreshChartTab() {
 }
 
 function getVisibleColumns() {
-  var gridData = $('#grid').bootgrid("getCurrentRows");
+  var gridData = $("#grid").bootgrid("getCurrentRows");
   var columnData = $("#grid").bootgrid("getColumnSettings");
   var columns = [];
-  for (var i = 0;i < columnData.length;i++)
-  {
+  for (var i = 0;i < columnData.length;i++) {
       if (columnData[i].visible)
       {
         if (columnData[i].id !== "Actions")
@@ -230,12 +225,11 @@ function getVisibleColumns() {
 }
 
 function getSortedRows() {
-  var gridData = $('#grid').bootgrid().data('.rs.jquery.bootgrid').rows;
+  var gridData = $("#grid").bootgrid().data(".rs.jquery.bootgrid").rows;
   var currentRows = [];
-  var searchStr = $('#grid').bootgrid("getSearchPhrase");
+  var searchStr = $("#grid").bootgrid("getSearchPhrase");
   var currentColumns = getVisibleColumns();
-  for (var i = 0;i < gridData.length;i++)
-  {
+  for (var i = 0;i < gridData.length;i++) {
     var row = gridData[i];
     for (var j = 0;j < currentColumns.length;j++)
     {
@@ -260,38 +254,36 @@ function makeTable(hosts, columns) {
       width: "20%"
     }
   );
-  var html = "<table id=\"grid\" class=\"table table-condensed table-hover table-striped\"><thead><tr>";
-  for (var i = 0;i < columns.length;i++)
-  {
-    html += "<th data-column-id=\"" + columns[i].name + "\" ";
+  var html = "<table id='grid' class='table table-condensed table-hover table-striped'><thead><tr>";
+  for (var i = 0;i < columns.length;i++) {
+    html += "<th data-column-id='" + columns[i].name + "' ";
     if (columns[i].name === "rank")
     {
-      html += "data-order=\"asc\" ";
-      html += "data-identifier=\"true\" ";
+      html += "data-order='asc' ";
+      html += "data-identifier='true' ";
     }
     if (columns[i].name === "Actions")
     {
-      html += "data-visible-in-selection=\"false\" data-formatter=\"commands\" data-searchable=\"false\" ";
+      html += "data-visible-in-selection='false' data-formatter='commands' data-searchable='false' ";
     }
     if (!columns[i].default)
     {
-      html += "data-visible=\"false\" ";
+      html += "data-visible='false' ";
     }
     if (columns[i].type === "int")
     {
-      html += "data-type=\"numeric\" ";
+      html += "data-type='numeric' ";
     }
-    if (typeof(columns[i].width) !== 'undefined')
+    if (typeof(columns[i].width) !== "undefined")
     {
-      html += "data-width=\"" + columns[i].width + "\" ";
+      html += "data-width='" + columns[i].width + "' ";
     } else {
-      html += "data-width=\"20%\" ";
+      html += "data-width='20%' ";
     }
     html += ">" + columns[i].name + "</th>"
   }
   html += "</tr></thead><tbody>";
-  for (var i = 0;i < hosts.length;i++)
-  {
+  for (var i = 0;i < hosts.length;i++) {
     html += "<tr id=\'" + hosts[i]["rank"] + "\'>";
     for (var j = 0;j < columns.length;j++)
     {
@@ -310,7 +302,7 @@ function applyBootgrid() {
   {
     css:
     {
-      paginationButton: 'labels_small'
+      paginationButton: "labels_small"
     },
     rowCount: [15,10,5,-1],
     selection: false,
@@ -319,19 +311,19 @@ function applyBootgrid() {
     keepSelection: true,
     formatters: 
     {
-      "commands": function(column, row) {  
+      "commands": function(column, row) {
         var html = "";
-        if (typeof(row.not_before) !== 'undefined' && row.not_before != "")
+        if (typeof(row.not_before) !== "undefined" && row.not_before != "")
         {
-          html += "<a href=\"./certs/" + row.host 
-               + ".der\"><button type=\"button\" class=\"btn btn-xs btn-default\">&#128274;</button></a> ";
+          html += "<a href='./certs/" + row.host
+               + ".der'><button type='button' class='btn btn-xs btn-default'>&#128274;</button></a> ";
         }                    
-        html += "<button type=\"button\" class=\"btn btn-xs btn-default command-link\" data-row-id=\"" 
-             + row.host + "\"><span>&#128279; </span></button> " +
-              "<button type=\"button\" class=\"btn btn-xs btn-default command-tls_obs\" data-row-id=\"" 
-             + row.host + "\"><span class=\"fa fa-trash-o\"> &#128270; </span></button> " +
-              "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" 
-             + row.rank + "\"><span class=\"fa fa-trash-o\"> &times; </span></button>";
+        html += "<button type='button' class='btn btn-xs btn-default command-link' data-row-id='"
+             + row.host + "'><span>&#128279; </span></button> " +
+              "<button type='button' class='btn btn-xs btn-default command-tls_obs' data-row-id='"
+             + row.host + "'><span class='fa fa-trash-o'> &#128270; </span></button> " +
+              "<button type='button' class='btn btn-xs btn-default command-delete' data-row-id='"
+             + row.rank + "'><span class='fa fa-trash-o'> &times; </span></button>";
         return html;
       },
       "date": function(column, row) {
@@ -359,11 +351,11 @@ function applyBootgrid() {
   });
 }
 
-function findProp (obj, prop, defVal) {
-  if (typeof(defVal) === 'undefined') defVal = null;
-  prop = prop.split('.');
+function findProp(obj, prop, defVal) {
+  if (typeof(defVal) === "undefined") defVal = null;
+  prop = prop.split(".");
   for (var i = 0; i < prop.length; i++) {
-      if(typeof obj[prop[i]] === 'undefined')
+      if(typeof obj[prop[i]] === "undefined")
           return defVal;
       obj = obj[prop[i]];
   }
@@ -372,8 +364,7 @@ function findProp (obj, prop, defVal) {
 
 function transformLog(transformData, jsonData) {
   const hosts = [];
-  for (var i = 0;i < jsonData.data.length;i++)
-  {
+  for (var i = 0;i < jsonData.data.length;i++) {
     var host = {};
     for (var j = 0;j < transformData.length;j++)
     {
@@ -395,10 +386,10 @@ function loadLog(transformData) {
   logXHR.onerror = function(arg) {
     alert("Failed to load log file.")
   }  
-  logXHR.open('GET', "log.json", true);
-  logXHR.send();  
+  logXHR.open("GET", "log.json", true);
+  logXHR.send();
 }
-    
+
 function buildUI(jsonData, hosts, transformData) {
   makeHeaderText(jsonData.meta);
   makeMetaTab(jsonData.meta);
@@ -411,13 +402,13 @@ function buildUI(jsonData, hosts, transformData) {
 function loadTransform() {
   const transformXHR = new XMLHttpRequest();
   transformXHR.onload = function(arg) {
-    const transformData =  JSON.parse(this.responseText);
+    const transformData = JSON.parse(this.responseText);
     loadLog(transformData);
   }
   transformXHR.onerror = function(arg) {
     alert("Failed to load transform.json file.")
   }       
-  transformXHR.open('GET', "../../js/transform.json", true);
+  transformXHR.open("GET", "../../js/transform.json", true);
   transformXHR.send(); 
 }
 
@@ -426,5 +417,3 @@ function init() {
 }
 
 init();
-
-// License header
