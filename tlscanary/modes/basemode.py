@@ -69,13 +69,13 @@ class BaseMode(object):
         group.add_argument("-o", "--onecrl",
                            help="OneCRL set to test (default: production)",
                            type=str.lower,
-                           choices=["production", "stage", "custom"],
+                           choices=["production", "stage", "custom", "none"],
                            action="store",
                            default="production")
         group.add_argument("--onecrlpin",
-                           help="OneCRL-Tools git commit to use (default: 3bf3462)",
+                           help="OneCRL-Tools git branch, tag, or commit to use (default: stable)",
                            action="store",
-                           default="3bf3462")
+                           default=os.environ.get("ONECRLPIN", "stable"))
         group.add_argument("-p", "--prefs",
                            help="Prefs to apply to all builds",
                            type=str,
@@ -245,6 +245,11 @@ class BaseMode(object):
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
             logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
             shutil.copyfile(revocations_file, profile_file)
+        elif one_crl_env == "none":
+            # delete revocations file completely
+            logger.debug("Deleting existing revocations.txt file")
+            profile_file = os.path.join(new_profile_dir, "revocations.txt")
+            os.remove(profile_file)
         else:
             # leave the existing revocations file alone
             logger.info("Testing with custom OneCRL entries from default profile")

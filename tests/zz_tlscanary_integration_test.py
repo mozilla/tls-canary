@@ -72,7 +72,7 @@ def test_tlscanary_regression_and_log():
     run_dir = os.path.join(report_dir, "runs", runs_lines[0]["run"])
     assert_true(os.path.isdir(run_dir), "HTML run dir was created")
     zip_glob = glob.glob(os.path.join(run_dir, "*.zip"))
-    assert_equal(len(zip_glob), 2, "two profile archives were written to HTML run dir")
+    assert_equal(len(zip_glob), 3, "three profile archives were written to HTML run dir")
 
 
 def test_tlscanary_srcupdate_and_scan_and_log():
