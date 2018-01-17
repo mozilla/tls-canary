@@ -1,0 +1,30 @@
+[
+	{
+		"prop": "run",
+		"name": "run",
+		"type": "str",
+		"default": true,
+		"width": "30%"
+	},
+	{
+		"prop": "description",
+		"name": "description",
+		"type": "str",
+		"default": true,
+		"width": "40%"
+	},
+	{
+		"prop": "errors",
+		"name": "errors",
+		"type": "int",
+		"default": true,
+		"width": "10%"
+	},
+	{
+		"prop": "branch",
+		"name": "branch",
+		"type": "str",
+		"default": true,
+		"width": "20%"
+	}
+]
