@@ -150,8 +150,7 @@ function getSortedRows(fieldName) {
   }
   for (var i = 0;i < gridData.length;i++) {
     var row = gridData[i];
-    for (var j = 0;j < currentColumns.length;j++)
-    {
+    for (var j = 0;j < currentColumns.length;j++) {
       var field = row[currentColumns[j]].toString();
       if (field.search(searchStr) != -1 && field.search(fieldName) != -1)
       {
@@ -219,8 +218,7 @@ function makeTable(hosts, columns) {
   for (var i = 0;i < hosts.length;i++) {
     html += "<tr id=\'" + hosts[i]["run"] + "\'>";
     html += "<td>" + hosts[i]["run"] + "</td>"
-    for (var j = 1;j < columns.length;j++)
-    {
+    for (var j = 1;j < columns.length;j++) {
       html += "<td>" + hosts[i][columns[j].name] + "</td>"
     }
     html += "</tr>";
@@ -232,8 +230,7 @@ function makeTable(hosts, columns) {
 }
 
 function applyBootgrid() {
-  const grid = $("#grid").bootgrid(
-  {
+  const grid = $("#grid").bootgrid({
     css:
     {
       paginationButton: "labels_small"
@@ -243,8 +240,7 @@ function applyBootgrid() {
     multiSelect: true,
     rowSelect: true,
     keepSelection: true,
-    formatters: 
-    {
+    formatters: {
       "commands": function(column, row) {
         var html = "";                  
         html += "<button type='button' title='Link' class='btn btn-xs btn-default command-link' data-row-id='runs/"
@@ -263,13 +259,10 @@ function applyBootgrid() {
         return html;
       }
     }
-  }).on("loaded.rs.jquery.bootgrid", function ()
-  {
-    grid.find(".command-link").on("click", function(e)
-    {
+  }).on("loaded.rs.jquery.bootgrid", function () {
+    grid.find(".command-link").on("click", function(e) {
         window.open("" + $(this).data("row-id"), "_blank");
-    }).end().find(".command-delete").on("click", function(e)
-    {
+    }).end().find(".command-delete").on("click", function(e) {
       var items = [];
       items.push ($(this).data("row-id"));
       $("#grid").bootgrid("remove", items);
@@ -294,8 +287,7 @@ function transformLog(transformData, jsonData) {
   const hosts = [];
   for (var i = 0;i < jsonData.data.length;i++) {
     var host = {};
-    for (var j = 0;j < transformData.length;j++)
-    {
+    for (var j = 0;j < transformData.length;j++) {
       var prop = findProp(jsonData.data[i], transformData[j].prop, "");
       host[transformData[j].name] = prop;
     }
@@ -333,7 +325,7 @@ function loadTransform() {
     loadLog(transformData);
   }
   transformXHR.onerror = function(arg) {
-    alert("Failed to load transform.json file.")
+    alert("Failed to load transform.json file.");
   }       
   transformXHR.open("GET", "./js/index_transform.json", true);
   transformXHR.send(); 
