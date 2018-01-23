@@ -1,246 +1,176 @@
-table,
-th,
-td {
-  border: 0 solid black;
-  font-size: small;
-  white-space: nowrap;
-}
+ body {
+    font-family: sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding-left: 30px;
+    padding-right: 30px;
+    background-color: #fafafa;
+  }
+  
+  .vertical-section-container {
+    height: 600;
+    display: flex;
+    flex-direction: column;
+  }
 
-a {
-  cursor:pointer;
-}
+  .centered {
+    max-width: 100%;
+    height: 600;
+    margin-left: auto;
+    margin-right: auto;
+    border: none;
+    position: relative;
+    left: 0px;
+  }
 
-tr:nth-child(even) {
-  background: #eee;
-}
+  .chart {
+    position: absolute;
+    top: 40px;
+    left: 0px;   
+  }
 
-tr:nth-child(odd) {
-  background: white;
-}
+  .meta {
+    position: absolute;
+    top: 20px;
+    left: 0px;   
+  }
 
-body {
-  font: small arial, helvetica, sans-serif;
-}
+  .bottom {
+    border-bottom: 1px solid #006080;
+  }
 
-select {
-  background: #9f9;
-  overflow-y: scroll;
-}
+  .full {
+    width: 100%;
+  }
 
-#filters {
-  left: 10px;
-  position: absolute;
-  top: 60px;
-}
+  .labels {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 20px;
+  }
 
-#floater {
-  background: #9f9;
-  color: #540;
-  left: 10px;
-  position: absolute;
-  top: 20px;
-  z-index: 100;
-}
+  .labels_small {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 16px;
+    font-color: black;
+  }
 
-#floater a {
-  background: #9f9;
-  color: black;
-  margin: 4px 4px 4px 4px;
-  padding: 0 1em;
-  text-decoration: none;
-}
+  .pagination>li>span {
+    border: 1px #1f7a1f;
+  }
 
-#floater a:hover {
-  background: #0c3;
-  color: #540;
-  font-weight: bold;
-}
+  .pagination > li.active > a:focus,
+  .pagination > li.active > a:hover,
+  .pagination > li.active > span:focus,
+  .pagination > li.active > span:hover {
+    z-index: 3;
+    color: white;
+    background-color: #33cc00;
+    border-color: #33cc00;
+  }
 
-#floater li {
-  display: inline;
-}
+ .pagination>li.active>a {
+    background: #1f7a1f;
+  }
 
-#floater ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+  .pagination>li {
+    color: black;
+  }  
+   .pagination>li>a {
+    color: black;
+  }  
 
-#content #floater {
-  background: #9f9;
-  margin: 0;
-  padding: 0;
-}
+  .pagination>li.active {
+    color: white;
+  }  
 
-#filter_header ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+  .header {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 24px;
+    padding-left: 80px;
+  }
 
-#filter_header li {
-  display: inline;
-  margin: 0 2px 0 0;
-}
+  h3 {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 20px;
+  }
 
-#filter_header a {
-  background: #9f9;
-  color: #a80;
-  padding: 0 1em;
-  text-decoration: none;
-}
+  :root {
+    --primary-color: #00B4F0;
+    --light-primary-color: #7CD8F7;
+    --dark-primary-color: #0078A0;
+    --error-color: #E61E6E;
+  }
 
-#filter_header a:hover {
-  background: #0c3;
-  color: #540;
-}
+  h3 .anchor {
+    color: grey;
+    text-decoration: none;
+    opacity: 0;
+    font-size: 14px;
+    margin-left: -1.6em;
+    width: 1.6em;
+    display: inline-block;
+    outline: none;
+  }
 
-#controls a {
-  background: #9f9;
-  border: 1px solid white;
-  color: black;
-  font-weight: bold;
-  padding: 0 1em;
-  text-decoration: none;
-}
-#controls #expired a {
-  background: #333;
-  border: 10px solid white;
-  color: #333;
-  padding: 0 1em;
-  text-decoration: none;
-}
+  h3:hover .anchor {
+    opacity: 1;
+  }
 
-#controls a:hover {
-  background: #9f9;
-  color: #540;
-}
+  #tabs ul {
+    font-size: 20px;
+    font-weight: bold;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+  }
 
-#filter_header #selected_filter a {
-  background: #0c3;
-  color: black;
-  font-weight: bold;
-  padding-bottom: 2px;
-}
+  #tabs li {
+    background: #40bf40;
+    border-radius: 15px 15px 0 0;
+    display: inline;
+    margin: 1px 1px 2px 0;
+    padding: .75em 1em;
+    padding-bottom: 4px;
+    padding-top: 4px;
+  }
 
-#content #controls {
-  background: #0c3;
-  border-top: 2px solid white;
-  padding: 1em;
-}
+  #tabs #nav li:hover {
+    background: #33cc00;
+  }
 
-#content #controls p {
-  background: #0c3;
-  margin: 0;
-  padding: 1em;
-}
+  #tabs #nav #selected li:hover {
+    background: #33cc00;
+  }
 
-#content a:hover {
-  background: #9f9;
-  color: #540;
-}
+  #tabs a {
+    color: white;
+    padding: 0 1em;
+    text-decoration: none;
+  }
 
-#header {
-  left: 10px;
-  position: absolute;
-  top: 10px;
-  width: 95%;
-}
+  #tabs a:hover {
+    padding: 0 1em;
+  }
 
-#tabs ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+  #tabs #nav a:hover {
+    color: white;
+  }
 
-#tabs li {
-  background: #9f9;
-  border-radius: 10px 10px 0 0;
-  color: #a80;
-  display: inline;
-  margin: 0 2px 0 0;
-  padding: 0 1em;
-}
+  #tabs #selected {
+    border: none;
+    background: #1f7a1f;
+  }
 
-#tabs li:hover {
-  background: #0c3;
-  color: #540;
-}
+  #tabs #selected a:hover {
+    border: none;
+    #background: #33cc00;
+  }
 
-#tabs a {
-  color: black;
-  padding: 0 1em;
-  text-decoration: none;
-}
-
-#tabs a:hover {
-  background: #0c3;
-}
-
-#tabs #selected {
-  background: #0c3;
-  color: #540;
-  padding-bottom: 2px;
-}
-
-#tabs #selected a {
-  background: #0c3;
-  font-weight: bold;
-}
-
-#content {
-  background: #0c3;
-  border-top: 2px solid white;
-  height: 100%;
-  padding: 1em;
-  width: 100%;
-  z-index: 0;
-}
-
-#content #page_controller {
-  width: 98%;
-}
-
-#content textarea {
-  height: 400px;
-  overflow-x: scroll;
-  overflow-y: scroll;
-  width: 100%;
-}
-
-#content p {
-  background: none;
-  margin: 0;
-  padding: 1em;
-  width: 100%;
-}
-
-#content div {
-  background: white;
-  height: 100%;
-  margin: 0;
-  overflow-x: auto;
-  padding: 1em;
-  width: 97%;
-}
-
-#column_header a {
-  color: black;
-  font-weight: bold;
-  padding: 0 4px;
-  text-decoration: none;
-}
-
-#grid {
-  height: 100%;
-  width: 100%;
-}
-
-#page_controller a {
-  margin: 2px 2px 0 0;
-  padding: 0 2px;
-}
-
-h1 {
-  font-size: 1.5em;
-}
+  #tabs #selected a {
+    color: white;
+  }

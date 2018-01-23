@@ -35,23 +35,6 @@ def generate(mode, logs, output_dir):
                 logger.warning("Skipping report generation for incompatible log `%s`" % log_name)
                 continue
             web_report(log, output_dir)
-
-    # Deprecated and soon to be removed
-    elif mode == "html":
-        for log_name in sorted(logs.keys()):
-            log = logs[log_name]
-            meta = log.get_meta()
-            if meta["mode"] != "regression":
-                logger.warning("Skipping report generation for non-regression log `%s`" % log_name)
-                continue
-            if not log.has_finished():
-                logger.warning("Skipping report generation for incomplete log `%s`" % log_name)
-                continue
-            if not log.is_compatible():
-                logger.warning("Skipping report generation for incompatible log `%s`" % log_name)
-                continue
-            html_report(log, output_dir)
-
     else:
         logger.critical("Report generator mode `%s` not implemented" % mode)
 
@@ -70,22 +53,22 @@ def web_report(log, report_dir):
     timestamp = run_start_time.strftime("%Y-%m-%d-%H-%M-%S")
 
     # Read the complete runs log to see if this log was already reported
-    runs_log_file = os.path.join(report_dir, "runs", "runs.txt")
-    runs_log = {}
-    try:
-        with open(runs_log_file) as f:
-            for line in f.readlines():
-                logger.debug("Line read from runs.txt: `%s`" % line.strip())
-                run = json.loads(line)
-                runs_log[run["run"]] = run
-    except IOError:
-        # Raised when the file does not yet exist
-        pass
+    runs_log_file = os.path.join(report_dir, "runs", "runs.json")
 
-    if timestamp in runs_log:
+    if os.path.exists(runs_log_file):
+        with open(runs_log_file) as f:
+            runs_log = json.load(f)
+            for line in runs_log[0]["data"]:
+                logger.debug("Line read from runs.json: `%s`" % line)
+    else:
+        # File does not exist, create an empty log
+        runs_log = json.loads('[{"data":[]}]')
+
+    if timestamp in json.dumps(runs_log):
         logger.warning("Skipping log `%s` which was already reported before" % log.handle)
         return
 
+    # Write log file
     run_dir = os.path.join(report_dir, "runs", timestamp)
     logger.info("Writing HTML report to `%s`" % run_dir)
 
@@ -135,7 +118,7 @@ def web_report(log, report_dir):
     with open(os.path.join(run_dir, "log.json"), "w") as log_file:
         log_file.write(json.dumps(log_data, indent=4, sort_keys=True))
 
-    # Append to runs.log
+    # Append to runs log
     new_run_log = {
             "run": timestamp,
             "branch": meta["test_metadata"]["branch"].capitalize(),
@@ -145,144 +128,10 @@ def web_report(log, report_dir):
                                                    meta["base_metadata"]["app_version"],
                                                    meta["base_metadata"]["branch"])
         }
-    runs_log[timestamp] = new_run_log
-
+    runs_log[0]["data"].append(new_run_log)
     logger.debug("Writing back runs log to `%s`" % runs_log_file)
     with open(runs_log_file, "w") as f:
-        f.writelines(["%s\n" % json.dumps(runs_log[timestamp]) for timestamp in sorted(runs_log.keys())])
-
-
-def html_report(log, report_dir):
-    global logger
-
-    # Create report directory if necessary.
-    if not os.path.exists(report_dir):
-        logger.debug('Creating report directory %s' % report_dir)
-        os.makedirs(report_dir)
-
-    # Fetch log metadata
-    meta = log.get_meta()
-    run_start_time = dateutil.parser.parse(meta["run_start_time"])
-    run_finish_time = dateutil.parser.parse(meta["run_finish_time"])
-    timestamp = run_start_time.strftime("%Y-%m-%d-%H-%M-%S")
-
-    # Read the complete runs log to see if this log was already reported
-    runs_log_file = os.path.join(report_dir, "runs", "runs.txt")
-    runs_log = {}
-    try:
-        with open(runs_log_file) as f:
-            for line in f.readlines():
-                logger.debug("Line read from runs.txt: `%s`" % line.strip())
-                run = json.loads(line)
-                runs_log[run["run"]] = run
-    except IOError:
-        # Raised when the file does not yet exist
-        pass
-
-    if timestamp in runs_log:
-        logger.warning("Skipping log `%s` which was already reported before" % log.handle)
-        return
-
-    # Build the report's header from log metadata
-    header = {
-        "mode": meta["mode"],
-        "timestamp": timestamp,
-        "branch": meta["test_metadata"]["branch"].capitalize(),
-        "source": meta["args"]["source"],
-        "test build url": meta["test_metadata"]["download_url"] if "download_url" in meta["test_metadata"] else None,
-        "test build metadata": "%s, %s" % (meta["test_metadata"]["nss_version"],
-                                           meta["test_metadata"]["nspr_version"]),
-        "Total time": "%d minutes" % int(round((run_finish_time - run_start_time).total_seconds() / 60.0))
-    }
-    if "base_metadata" not in meta:
-        header.update({
-            "description": "Fx%s %s" % (meta["test_metadata"]["app_version"],
-                                        meta["test_metadata"]["branch"])
-        })
-    else:
-        header.update({
-            "description": "Fx%s %s vs Fx%s %s" % (meta["test_metadata"]["app_version"],
-                                                   meta["test_metadata"]["branch"],
-                                                   meta["base_metadata"]["app_version"],
-                                                   meta["base_metadata"]["branch"]),
-            "release build url": meta["base_metadata"]["download_url"] if "download_url"
-                                                                          in meta["base_metadata"] else None,
-            "release build metadata": "%s, %s" % (meta["base_metadata"]["nss_version"],
-                                                  meta["base_metadata"]["nspr_version"])
-        })
-    if "total_change" in meta:
-        header.update({"Total percent speed change": "%s" % int(meta["total_change"])})
-
-    run_dir = os.path.join(report_dir, "runs", timestamp)
-    logger.info("Writing HTML report to `%s`" % run_dir)
-
-    # Append data from header
-    log_lines = ["%s : %s" % (k, header[k]) for k in header]
-    log_lines.append("++++++++++")
-    log_lines.append("")
-
-    # add site list
-    meta = log.get_meta()
-    for log_line in log:
-        result = {
-            "host": log_line["host"],
-            "rank": log_line["rank"],
-            "response": log_line["response"]
-        }
-        log_data = collect_scan_info(result)
-        if meta["mode"] == "performance":  # FIXME: This will probably not be necessary any more
-            add_performance_info(log_data, result)
-        if meta["args"]["filter"] == 1:
-            # Filter out stray timeout errors
-            if log_data["error"]["message"] == "NS_BINDING_ABORTED" \
-                    and log_data["site_info"]["connectionSpeed"] \
-                    > result["response"]["original_cmd"]["args"]["timeout"] * 1000:
-                continue
-        log_lines.append("%d,%s %s" % (result["rank"], result["host"], json.dumps(log_data)))
-
-    # Install static template files in report directory
-    template_dir = os.path.join(module_dir, "template")
-    dir_util.copy_tree(os.path.join(template_dir, "js"),
-                       os.path.join(report_dir, "js"))
-    dir_util.copy_tree(os.path.join(template_dir, "css"),
-                       os.path.join(report_dir, "css"))
-    shutil.copyfile(os.path.join(template_dir, "index.htm"),
-                    os.path.join(report_dir, "index.htm"))
-
-    # Create per-run directory for report output
-    if not os.path.isdir(run_dir):
-        os.makedirs(run_dir)
-
-    # Copy profiles
-    if "profiles" in meta:
-        for profile in meta["profiles"]:
-            log_zip = log.part(profile["log_part"])
-            run_dir_zip = os.path.join(run_dir, profile["log_part"])
-            logger.debug("Copying `%s` profile archive from `%s` to `%s`" % (profile["name"], log_zip, run_dir_zip))
-            shutil.copyfile(log_zip, run_dir_zip)
-
-    cert_dir = os.path.join(run_dir, "certs")
-    __extract_certificates(log, cert_dir)
-
-    shutil.copyfile(os.path.join(template_dir, "report_template_old.htm"),
-                    os.path.join(run_dir, "index.htm"))
-
-    # Write the final log file
-    with open(os.path.join(run_dir, "log.txt"), "w") as log_file:
-        log_file.write('\n'.join(log_lines))
-
-    # Append to runs.log
-    new_run_log = {
-            "run": header["timestamp"],
-            "branch": header["branch"],
-            "errors": len(log),
-            "description": header["description"]
-        }
-    runs_log[timestamp] = new_run_log
-
-    logger.debug("Writing back runs log to `%s`" % runs_log_file)
-    with open(runs_log_file, "w") as f:
-        f.writelines(["%s\n" % json.dumps(runs_log[timestamp]) for timestamp in sorted(runs_log.keys())])
+        f.write(json.dumps(runs_log, indent=4, sort_keys=True))
 
 
 def __extract_certificates(log, cert_dir):
