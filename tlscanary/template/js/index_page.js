@@ -304,7 +304,7 @@ function loadLog(transformData) {
     buildUI(jsonData, hosts, transformData);
   }       
   logXHR.onerror = function(arg) {
-    alert("Failed to load runs file.")
+    alert("Failed to load runs file.");
   }  
   logXHR.open("GET", "./runs/runs.json", true);
   logXHR.send();
