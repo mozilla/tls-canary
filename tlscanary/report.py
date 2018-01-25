@@ -78,7 +78,10 @@ def web_report(log, report_dir):
             # Filter out stray timeout errors
             connection_speed = line["response"]["response_time"]-line["response"]["command_time"]
             timeout = line["response"]["original_cmd"]["args"]["timeout"] * 1000
-            error_message = line["response"]["result"]["info"]["short_error_message"]
+            try:
+                error_message = line["response"]["result"]["info"]["short_error_message"]
+            except KeyError:
+                error_message = "unknown"
             if error_message == "NS_BINDING_ABORTED" and connection_speed > timeout:
                 continue
         uri_data.append(line)
