@@ -112,7 +112,7 @@ class RegressionMode(BaseMode):
         # Sanity check for OneCRL - if it fails, abort run
         if not self.one_crl_sanity_check():
             logger.critical("OneCRL sanity check failed, aborting run")
-            sys.exit(5)
+            # sys.exit(5)
 
     def run(self):
         global logger

@@ -126,7 +126,6 @@ def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeo
             if res is None:
                 cmd = in_flight[conn.id][0]
                 logger.warning("Requeueing command %s" % cmd.id)
-                print "Requeueing command %s" % cmd.id
                 conn.send(cmd)
             else:
                 results.append(ScanResult(res))
@@ -174,7 +173,8 @@ def run_scans(app, target_list, profile=None, prefs=None, num_workers=4, targets
         if num_results != len(target_list):
             logger.warning("Got %d instead of %d results" % (num_results, len(target_list)))
 
-        progress_callback(num_results)
+        if progress_callback is not None:
+            progress_callback(num_results)
 
     except KeyboardInterrupt:
         logger.critical("Ctrl-C received. Winding down workers...")

@@ -60,6 +60,8 @@ class XPCShellWorker(object):
         if self.worker_process.poll() is not None:
             logger.critical("Unable to start worker %s process. Poll yields %d"
                             % (self.id, self.worker_process.poll()))
+            self.terminate()
+            return False
 
         # First line the worker prints to stdout reports success or fail.
         status = self.worker_process.stdout.readline().strip()
@@ -370,6 +372,9 @@ class WorkerConnection(object):
                         self.reconnect()
                         reconnected = True
                         break
+                    else:
+                        self.close()
+                        break
                 raise err
 
         return reconnected
@@ -394,7 +399,6 @@ class WorkerConnection(object):
                 self.s.settimeout(timeout)
                 # Assuming that recv will not return more than one message ending with newline
                 r = self.s.recv(8192)
-                logger.debug("RECEIVED: %s" % r)
                 if len(r) == 0:
                     logger.warning("Empty read likely caused by peer closing connection on port %d" % self.port)
                     self.close()

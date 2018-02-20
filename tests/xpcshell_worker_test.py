@@ -4,6 +4,8 @@
 
 from nose import SkipTest
 from nose.tools import *
+import random
+import select
 import socket
 import time
 
@@ -214,6 +216,44 @@ def test_xpcshell_worker_disconnect():
 
     with assert_raises(socket.timeout):  # "connect on closed port eventually runs into timeout"
         conn.connect(timeout=0.05, retry_delay=0.01)
+
+
+@with_setup(set_fox_trap, kill_stray_foxes)
+def test_xpcshell_worker_parallel():
+    """XPCShell worker handles parallel commands"""
+
+    # Skip test if there is no app for this platform
+    if tests.test_app is None:
+        raise SkipTest("parallel worker requests can not be tested on this platform")
+
+    # Spawn a worker
+    worker = new_worker(tests.test_app)
+    worker.spawn()
+    assert_true(worker.is_running() and worker.helpers_running(), "worker running for parallel test")
+
+    pending = []
+    results = []
+    for i in xrange(1000):
+        conn = worker.get_connection(timeout=1)
+        delay = random.random() * 0.9 + 0.1
+        conn.send(xw.Command("test", sleep=delay))
+        pending.append(conn)
+        print "sent %d commands" % len(pending)
+
+    while len(results) < len(pending):
+        readable, _, exceptions = select.select(pending, [], pending, 5)
+        assert_true(len(exceptions) == 0, "select() does not yield exceptions")
+        assert_false(len(readable) == 0, "select() does not timeout")
+        print "received %d results" % len(readable)
+        for conn in readable:
+            res = conn.receive(timeout=2)
+            assert_true(res is not None, "worker always responds")
+            results.append(res)
+
+    print "received %d results" % len(results)
+    assert_equal(len(results), len(pending), "worker answers all commands")
+
+    worker.terminate()
 
 
 @with_setup(set_fox_trap, kill_stray_foxes)

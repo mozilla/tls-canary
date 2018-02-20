@@ -475,7 +475,6 @@ function Connection(socket, transport, input, output) {
 
 Connection.prototype = {
     reply: function (response) {
-        print("DEBUG: Sending reply:", response);
         try {
             // Protocol convention is to send one reply per line.
             this.utf_output_stream.writeString(response + "\n");
@@ -521,6 +520,10 @@ StreamReader.prototype = {
         try {
             data_available = input_stream.available() > 0;
         } catch (error) {
+            if (typeof Components === 'undefined') {
+                // Code is running after main thread context is destroyed. Do nothing.
+                return;
+            }
             if (error.result === Cr.NS_BASE_STREAM_CLOSED) {
                 print("WARNING: Base stream was closed:", error.toString());
             } else {
@@ -614,7 +617,7 @@ if (isNaN(command_port) || command_port < 0 || command_port > 65535) {
 }
 
 // Start the command server, listening locally on command port
-var command_server;
+let command_server;
 try {
     command_server = new ServerSocket(command_port, true, 20);
 } catch (error) {
@@ -642,7 +645,6 @@ let wakeup_pings = false;
 let server_shutdown_done = false;
 
 while (script_running) {
-    print("DEBUG: Event loop");
     main_thread.processNextEvent(!wakeup_pings);
     if (wakeup_pings) {
         print("DEBUG: waiting for wakeup readline");
@@ -659,7 +661,7 @@ print("DEBUG: Shutting down server");
 command_server.close();
 
 // TODO: close existing connections
-print("DEBUG: Expect dangling connection callbacks to throw `print` type errors");
+print("DEBUG: Expect dangling connection callbacks to throw `print` or `Cr` errors");
 
 print("DEBUG: Handling remaining events");
 while (!server_shutdown_done)
