@@ -237,7 +237,7 @@ class RegressionMode(BaseMode):
         logger.debug("Extracting runtime information from %d hosts" % (len(last_error_set)))
         final_error_set = self.run_test(self.test_app, last_error_set, profile=self.test_profile,
                                         prefs=self.args.prefs_test, num_workers=1, n_per_worker=1,
-                                        get_info=True, get_certs=True,
+                                        get_info=True, get_certs=(not self.args.remove_certs),
                                         report_callback=report_overhead)
 
         if len(final_error_set) > 0:
