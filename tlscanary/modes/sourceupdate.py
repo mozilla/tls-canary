@@ -154,7 +154,7 @@ class SourceUpdateMode(BaseMode):
                         report_callback = progress.log_overhead
 
                     pass_errors = self.run_test(self.app, pass_errors, profile=self.profile, get_info=False,
-                                                get_certs=False, return_only_errors=True,
+                                                get_certs=(not self.args.remove_certs), return_only_errors=True,
                                                 report_callback=report_callback)
                     len_pass_errors = len(pass_errors)
 
