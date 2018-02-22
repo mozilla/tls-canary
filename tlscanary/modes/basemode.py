@@ -137,6 +137,9 @@ class BaseMode(object):
                            choices=[0, 1],
                            action="store",
                            default=1)
+        group.add_argument("-r", "--remove_certs",
+                           help="Filter certificate data from results",
+                           action="store_true")
 
     def __init__(self, args, module_dir, tmp_dir):
         self.args = args

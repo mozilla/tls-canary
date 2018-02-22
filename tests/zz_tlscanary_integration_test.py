@@ -53,7 +53,7 @@ def test_tlscanary_regression_and_log():
     argv = [
         "--workdir", work_dir,
         "log",
-        "-a", "htmlreport",
+        "-a", "webreport",
         "-i", "1",
         "-o", report_dir
     ]
@@ -61,15 +61,12 @@ def test_tlscanary_regression_and_log():
     assert_equal(ret, 0, "regression HTML report finished without error")
     assert_true(os.path.isdir(report_dir), "HTML report dir was created")
     assert_true(os.path.isfile(os.path.join(report_dir, "index.htm")), "HTML report index was written")
-    runs_file = os.path.join(report_dir, "runs", "runs.txt")
-    assert_true(os.path.isfile(runs_file), "HTML `runs.txt` file was written")
-    runs_lines = []
+    runs_file = os.path.join(report_dir, "runs", "runs.json")
+    assert_true(os.path.isfile(runs_file), "HTML `runs.json` file was written")
     with open(runs_file) as f:
-        for line in f.readlines():
-            if len(line) > 0:
-                runs_lines.append(json.loads(line))
+        runs_lines = json.load(f)
     assert_equal(len(runs_lines), 1, "one HTML run was written")
-    run_dir = os.path.join(report_dir, "runs", runs_lines[0]["run"])
+    run_dir = os.path.join(report_dir, "runs", runs_lines[0]["data"][0]["run"])
     assert_true(os.path.isdir(run_dir), "HTML run dir was created")
     zip_glob = glob.glob(os.path.join(run_dir, "*.zip"))
     assert_equal(len(zip_glob), 3, "three profile archives were written to HTML run dir")

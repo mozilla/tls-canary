@@ -97,7 +97,7 @@ class ScanMode(BaseMode):
 
                 info_uri_set = self.run_test(self.test_app, host_set_chunk, profile=self.test_profile,
                                              prefs=self.args.prefs, get_info=True,
-                                             get_certs=True, return_only_errors=False,
+                                             get_certs=not self.args.remove_certs, return_only_errors=False,
                                              report_callback=progress.log_completed)
                 # Log progress per chunk
                 logger.info("Progress: %s" % str(progress))
