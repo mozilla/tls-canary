@@ -156,7 +156,7 @@ def test_xpcshell_worker_load():
 
     worker.quit()
 
-    print "  Gathered %d results in 5 seconds" % len(results),
+    print " Gathered %d results in 5 seconds... " % len(results),
 
 
 @with_setup(set_fox_trap, kill_stray_foxes)
@@ -238,19 +238,19 @@ def test_xpcshell_worker_parallel():
         delay = random.random() * 0.9 + 0.1
         conn.send(xw.Command("test", sleep=delay))
         pending.append(conn)
-        print "sent %d commands" % len(pending)
+        # print "sent %d commands" % len(pending)
 
     while len(results) < len(pending):
         readable, _, exceptions = select.select(pending, [], pending, 5)
         assert_true(len(exceptions) == 0, "select() does not yield exceptions")
         assert_false(len(readable) == 0, "select() does not timeout")
-        print "received %d results" % len(readable)
+        # print "received %d results" % len(readable)
         for conn in readable:
             res = conn.receive(timeout=2)
             assert_true(res is not None, "worker always responds")
             results.append(res)
 
-    print "received %d results" % len(results)
+    # print "received %d results" % len(results)
     assert_equal(len(results), len(pending), "worker answers all commands")
 
     worker.terminate()

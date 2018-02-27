@@ -14,6 +14,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/AppConstants.jsm");
+Cu.importGlobalProperties(["XMLHttpRequest"]);
 
 const nsINSSErrorsService = Ci.nsINSSErrorsService;
 let nssErrorsService = Cc['@mozilla.org/nss_errors_service;1'].getService(nsINSSErrorsService);
@@ -250,7 +251,7 @@ function scan_host(args, response_cb) {
         QueryInterface: XPCOMUtils.generateQI([Ci.nsIChannelEventSink])
     };
 
-    let request = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
+    let request = new XMLHttpRequest();
     try {
         request.mozBackgroundRequest = true;
         request.open("HEAD", host, true);
@@ -525,7 +526,7 @@ StreamReader.prototype = {
                 return;
             }
             if (error.result === Cr.NS_BASE_STREAM_CLOSED) {
-                print("WARNING: Base stream was closed:", error.toString());
+                print("DEBUG: Base stream was closed:", error.toString());
             } else {
                 print("ERROR: Unable to check stream availability:", error.toString());
             }

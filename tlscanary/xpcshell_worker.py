@@ -286,6 +286,10 @@ class WorkerConnection(object):
                     logger.warning("OS is probably out of sockets. Retrying")
                     time.sleep(retry_delay)
                     continue
+                if err.errno == 60:
+                    logger.warning("Worker connection timeout. Retrying")
+                    time.sleep(retry_delay)
+                    continue
                 else:
                     self.close()
                     raise err

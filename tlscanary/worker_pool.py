@@ -122,7 +122,7 @@ def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeo
 
         # Do all the reads
         for conn in readable:
-            res = conn.receive(timeout=2)
+            res = conn.receive(timeout=1.5*timeout)
             if res is None:
                 cmd = in_flight[conn.id][0]
                 logger.warning("Requeueing command %s" % cmd.id)
@@ -153,14 +153,14 @@ def run_scans(app, target_list, profile=None, prefs=None, num_workers=4, targets
               get_certs=False, timeout=10, progress_callback=None):
     global logger, pool
 
-    pool = start_pool(worq_url, timeout=1, num_workers=num_workers)
+    pool = start_pool(worq_url, timeout=1.5*timeout, num_workers=num_workers)
 
     try:
         queue = get_queue(worq_url, target=__name__)
 
         # Enqueue tasks to be executed in parallel
         result = queue.scan_urls(app, target_list, profile=profile, prefs=prefs,
-                                 get_certs=get_certs, timeout=timeout, parallel=targets_per_worker)
+                                 get_certs=get_certs, timeout=timeout, parallel=int(targets_per_worker/4))
 
         # from IPython import embed
         # embed()
