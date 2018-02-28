@@ -83,9 +83,9 @@ class ScanResult(object):
 
 @ts.task
 def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeout=10, parallel=50):
-    global logger
+    logger = logging.getLogger(__name__ + " scan_url")
 
-    logger.debug("scan_urls task called with %d targets" % len(target_list))
+    # logger.debug("scan_urls task called with %d targets" % len(target_list))
 
     # Spawn a worker instance
     xpcw = xw.XPCShellWorker(app, profile=profile, prefs=prefs)
@@ -96,6 +96,7 @@ def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeo
     results = []
 
     while len(results) < len(target_list):
+        # logger.critical("results: %d, in_flight: %d, parallel: %d" % (len(results), len(in_flight), parallel))
 
         while len(in_flight) < parallel:
             # Enqueue next target
@@ -104,9 +105,10 @@ def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeo
             except StopIteration:
                 # Nothing left to do but wait for outstanding results
                 break
-            conn = xpcw.get_connection(timeout=1.5*timeout)
+            conn = xpcw.get_connection(timeout=2)
             conn.connect()
             cmd = xw.Command("scan", host=host, rank=rank, include_certificates=get_certs, timeout=timeout)
+            # logger.critical("sending command %s" % cmd)
             conn.send(cmd)
             in_flight[conn.id] = (cmd, conn)
 
@@ -122,7 +124,7 @@ def scan_urls(app, target_list, profile=None, prefs=None, get_certs=False, timeo
 
         # Do all the reads
         for conn in readable:
-            res = conn.receive(timeout=1.5*timeout)
+            res = conn.receive(timeout=2)
             if res is None:
                 cmd = in_flight[conn.id][0]
                 logger.warning("Requeueing command %s" % cmd.id)
@@ -153,6 +155,8 @@ def run_scans(app, target_list, profile=None, prefs=None, num_workers=4, targets
               get_certs=False, timeout=10, progress_callback=None):
     global logger, pool
 
+    # logger.critical("run_scans called with %d hosts" % len(target_list))
+
     pool = start_pool(worq_url, timeout=1.5*timeout, num_workers=num_workers)
 
     try:
@@ -160,7 +164,7 @@ def run_scans(app, target_list, profile=None, prefs=None, num_workers=4, targets
 
         # Enqueue tasks to be executed in parallel
         result = queue.scan_urls(app, target_list, profile=profile, prefs=prefs,
-                                 get_certs=get_certs, timeout=timeout, parallel=int(targets_per_worker/4))
+                                 get_certs=get_certs, timeout=timeout, parallel=targets_per_worker)
 
         # from IPython import embed
         # embed()

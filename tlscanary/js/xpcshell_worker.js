@@ -6,18 +6,17 @@
 
 const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr, Constructor: CC} = Components;
 
-const DEFAULT_TIMEOUT = 10000;
-const thread_manager = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager);
-const main_thread = thread_manager.mainThread;
-
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/AppConstants.jsm");
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
+const DEFAULT_TIMEOUT = 10000;
+const thread_manager = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager);
+const main_thread = thread_manager.mainThread;
 const nsINSSErrorsService = Ci.nsINSSErrorsService;
-let nssErrorsService = Cc['@mozilla.org/nss_errors_service;1'].getService(nsINSSErrorsService);
+const nssErrorsService = Cc['@mozilla.org/nss_errors_service;1'].getService(nsINSSErrorsService);
 
 
 function uuid4() {
@@ -34,8 +33,9 @@ function uuid4() {
 let worker_id = uuid4();
 
 
-function set_worker_id(id) {
-    worker_id = id;
+function set_worker_id(new_id) {
+    // global: worker_id
+    worker_id = new_id;
 }
 
 
@@ -78,7 +78,7 @@ function set_prefs(prefs) {
 
 function set_profile(profile_path) {
     let file = Cc["@mozilla.org/file/local;1"]
-        .createInstance(Ci.nsILocalFile);
+        .createInstance(Ci.nsIFile);
     file.initWithPath(profile_path);
     let dir_service = Cc["@mozilla.org/file/directory_service;1"]
         .getService(Ci.nsIProperties);
@@ -409,7 +409,7 @@ Command.prototype.handle = function _handle() {
  */
 
 function handle_request(request, connection) {
-    print("DEBUG: Handling request:", request);
+    // print("DEBUG: Handling request:", request);
     try {
         const cmd = new Command(request, connection);
         cmd.handle();
@@ -576,7 +576,7 @@ StreamReader.prototype = {
         if (this.buffer[this.buffer.length - 1] === '\n') {
             // The buffer we just read may have included several command lines
             this.buffer.slice(0, -1).split('\n').forEach((function (cmd_str) {
-                print("DEBUG: handling request line:", cmd_str);
+                // print("DEBUG: handling request line:", cmd_str);
                 handle_request(cmd_str, this.connection);
             }).bind(this));
             // Clear buffer for next incoming lines

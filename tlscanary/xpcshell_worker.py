@@ -91,13 +91,13 @@ class XPCShellWorker(object):
             return False
 
         if self.__profile is not None:
-            logger.critical("Changing profiles is currently disabled due to Nightly breakage")
-            # logger.debug("Changing worker profile to `%s`" % self.__profile)
-            # res = conn.ask(Command("useprofile", path=self.__profile))
-            # if res is None or not res.is_ack() or not res.is_success():
-            #     logger.error("Worker failed to switch profile to `%s`" % self.__profile)
-            #     self.terminate()
-            #     return False
+            # logger.critical("Changing profiles is currently disabled due to Nightly breakage")
+            logger.debug("Changing worker profile to `%s`" % self.__profile)
+            res = conn.ask(Command("useprofile", path=self.__profile))
+            if res is None or not res.is_ack() or not res.is_success():
+                logger.error("Worker failed to switch profile to `%s`" % self.__profile)
+                self.terminate()
+                return False
 
         if self.__prefs is not None:
             logger.debug("Setting worker prefs to `%s`" % self.__prefs)
