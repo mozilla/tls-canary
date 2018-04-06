@@ -123,22 +123,16 @@ function collect_request_info(xhr, report_certs) {
         sec_info.QueryInterface(Ci.nsITransportSecurityInfo);
         info.transport_security_info_status = true;
         info.security_state = sec_info.securityState;
-        info.raw_error = sec_info.errorMessage;
 
         try {
+            // We are looking for an error code
             info.raw_error = info.status.toString(16);
         } catch (e) {
             info.raw_error = "unknown"
         }
 
-
-
-        try {
-            //info.short_error_message = get_error_string(info.status.toString(16));
-            info.short_error_message = get_error_string(info.status.toString(16));
-        } catch (e) {
-            info.short_error_message = "exception";
-        }
+        // Look up error code in error string table
+        info.short_error_message = get_error_string(info.status.toString(16));
     }
 
     if (sec_info instanceof Ci.nsISSLStatusProvider) {
