@@ -5,7 +5,9 @@
 import json
 import logging
 import os
-import socket
+import resource
+from eventlet.green import socket
+from eventlet.greenpool import GreenPile, GreenPool
 import subprocess
 from threading import Thread
 import time
@@ -21,6 +23,14 @@ class XPCShellWorker(object):
 
     def __init__(self, app, worker_id=None, script=None, profile=None, prefs=None):
         global module_dir
+
+        from_limit = resource.getrlimit(resource.RLIMIT_NOFILE)
+        new_limit = min(3000, from_limit[1])
+        to_limit = (new_limit, from_limit[1])
+        if new_limit < 3000:
+            logger.warning("Insufficient rlimit %d" % new_limit)
+        logger.debug("New rlimits: %", to_limit)
+        resource.setrlimit(resource.RLIMIT_NOFILE, to_limit)
 
         self.id = str(worker_id) if worker_id is not None else str(uuid1())
         self.port = None
@@ -170,6 +180,20 @@ class XPCShellWorker(object):
         replies = connection.chat(cmds, always_reconnect=always_reconnect)
         connection.close()
         return replies
+
+
+class XPCShellParallelWorker(XPCShellWorker):
+
+    def __init__(self, app, worker_id=None, script=None, profile=None, prefs=None, parallel=50):
+        super(XPCShellParallelWorker, self).__init__(app, worker_id=worker_id, script=script,
+                                                     profile=profile, prefs=prefs)
+        self.__pool = GreenPool(size=parallel)
+
+    def set_pool_size(self, new_size):
+        self.__pool.resize(new_size)
+
+    def imap(self, commands):
+        return self.__pool.imap(self.ask, commands)
 
 
 class WorkerReader(Thread):

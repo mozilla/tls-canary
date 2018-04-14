@@ -5,6 +5,7 @@
 from nose import SkipTest
 from nose.tools import *
 import random
+import resource
 import select
 import socket
 import time
@@ -226,6 +227,16 @@ def test_xpcshell_worker_parallel():
     if tests.test_app is None:
         raise SkipTest("parallel worker requests can not be tested on this platform")
 
+    # Increase limit of max open files to support number of parallel requests
+    parallel_requests = 1000
+    from_limit = resource.getrlimit(resource.RLIMIT_NOFILE)
+    soft_limit, hard_limit = from_limit
+    new_soft_limit = max(min(parallel_requests + 300, hard_limit), soft_limit)
+    if new_soft_limit < parallel_requests + 300:
+        raise SkipTest("platform does not support required rlimit for number of open files")
+    to_limit = (new_soft_limit, hard_limit)
+    resource.setrlimit(resource.RLIMIT_NOFILE, to_limit)
+
     # Spawn a worker
     worker = new_worker(tests.test_app)
     worker.spawn()
@@ -233,7 +244,7 @@ def test_xpcshell_worker_parallel():
 
     pending = []
     results = []
-    for i in xrange(1000):
+    for i in xrange(parallel_requests):
         conn = worker.get_connection(timeout=1)
         delay = random.random() * 0.9 + 0.1
         conn.send(xw.Command("test", sleep=delay))
@@ -254,6 +265,9 @@ def test_xpcshell_worker_parallel():
     assert_equal(len(results), len(pending), "worker answers all commands")
 
     worker.terminate()
+
+    # Restore previous rlimit
+    resource.setrlimit(resource.RLIMIT_NOFILE, from_limit)
 
 
 @with_setup(set_fox_trap, kill_stray_foxes)

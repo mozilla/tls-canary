@@ -5,11 +5,12 @@
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'tlscanary'
-PACKAGE_VERSION = '3.2.0'
+PACKAGE_VERSION = '3.2.0a2'
 
 INSTALL_REQUIRES = [
     'coloredlogs',
     'cryptography',
+    'eventlet',
     'hashfs',
     'python-dateutil',
     'worq'

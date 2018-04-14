@@ -3,11 +3,13 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import logging
+import os
 import shutil
 import tempfile
 
 import tlscanary.firefox_downloader as fd
 import tlscanary.firefox_extractor as fe
+import tlscanary.firefox_app as fa
 
 # Silence logging
 logging.disable(logging.INFO)
@@ -31,6 +33,8 @@ tmp_dir = None
 def test_firefox_download_dummy():
     """Downloading firefox instance for tests"""
     global test_app, test_archive
+    # test_app = fa.FirefoxApp("/tmp/firefox-nightly_osx/")
+    # return
     # Get ourselves a Firefox app for the local platform.
     fdl = fd.FirefoxDownloader(tmp_dir)
     test_archive = fdl.download("nightly", use_cache=True)
