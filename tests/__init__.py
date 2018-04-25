@@ -33,8 +33,8 @@ tmp_dir = None
 def test_firefox_download_dummy():
     """Downloading firefox instance for tests"""
     global test_app, test_archive
-    # test_app = fa.FirefoxApp("/tmp/firefox-nightly_osx/")
-    # return
+    test_app = fa.FirefoxApp("/tmp/firefox-nightly_osx/")
+    return
     # Get ourselves a Firefox app for the local platform.
     fdl = fd.FirefoxDownloader(tmp_dir)
     test_archive = fdl.download("nightly", use_cache=True)

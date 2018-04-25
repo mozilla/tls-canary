@@ -6,7 +6,8 @@ import json
 import logging
 import os
 import resource
-from eventlet.green import socket
+# from eventlet.green import socket
+import socket
 from eventlet.greenpool import GreenPile, GreenPool
 import subprocess
 from threading import Thread
@@ -21,7 +22,8 @@ module_dir = os.path.split(__file__)[0]
 class XPCShellWorker(object):
     """XPCShell worker implementing an asynchronous, JSON-based message system"""
 
-    def __init__(self, app, worker_id=None, script=None, profile=None, prefs=None):
+    def __init__(self, app, worker_id=None, script=None, profile=None, prefs=None,
+                 host="localhost", port=None, parallel=25):
         global module_dir
 
         from_limit = resource.getrlimit(resource.RLIMIT_NOFILE)
@@ -29,11 +31,12 @@ class XPCShellWorker(object):
         to_limit = (new_limit, from_limit[1])
         if new_limit < 3000:
             logger.warning("Insufficient rlimit %d" % new_limit)
-        logger.debug("New rlimits: %", to_limit)
+        logger.debug("New rlimits: %s", to_limit)
         resource.setrlimit(resource.RLIMIT_NOFILE, to_limit)
 
         self.id = str(worker_id) if worker_id is not None else str(uuid1())
-        self.port = None
+        self.host = host
+        self.port = port
         self.__app = app
         if script is None:
             self.__script = os.path.join(module_dir, "js", "xpcshell_worker.js")
@@ -43,10 +46,15 @@ class XPCShellWorker(object):
         self.__prefs = prefs
         self.worker_process = None
         self.__reader_thread = None
+        self.__pool = GreenPool(size=parallel)
 
     def spawn(self, port=None):
         """Spawn the worker process and its dedicated handler threads"""
         global logger, module_dir
+
+        if self.host != "localhost":
+            logger.error("Unable to spawn remote XPCShell worker `%s`" % self.id)
+            return False
 
         if self.is_running():
             logger.warning("Re-spawning worker %s which was already running" % self.id)
@@ -138,9 +146,13 @@ class XPCShellWorker(object):
 
     def is_running(self):
         """Check whether the worker is still fully running"""
-        if self.worker_process is None:
-            return False
-        return self.worker_process.poll() is None
+        if self.host == "localhost":
+            if self.worker_process is None:
+                return False
+            if self.worker_process.poll() is not None:
+                return False
+        response = self.ask(Command("wakeup", wakeup_pings=False))
+        return type(response) is Response and response.result == "ACK"
 
     def helper_threads(self):
         """Return list of helper threads"""
@@ -157,43 +169,45 @@ class XPCShellWorker(object):
         return False
 
     def get_connection(self, timeout=None):
-        if not self.is_running() or self.port is None:
-            return None
-        return WorkerConnection(self.port, timeout=timeout)
+        return WorkerConn(self, timeout=timeout)
 
-    def ask(self, cmd, always_reconnect=False, retry=True, timeout=5):
-        """Send command or worker and return response"""
-        connection = self.get_connection(timeout=timeout)
-        if connection is None:
-            logger.warning("Asking stopped worker %s", self.id)
-            return None
-        reply = connection.ask(cmd, always_reconnect=always_reconnect, retry=retry)
-        connection.close()
-        return reply
+    def eventlet_ask(self, cmd, timeout=15):
+        """Eventlet function for sending worker command and returning response"""
+        if self.port is None:
+            return None  # Worker has not been spawned, yet
+        with self.get_connection(timeout=timeout) as c:
+            c.sendall(str(cmd).encode("utf-8").strip() + "\n")
+            return Response(c.recvall())
 
-    def chat(self, cmds, always_reconnect=False, timeout=5):
-        """Send list of commands to worker and return responses"""
-        connection = self.get_connection(timeout=timeout)
-        if connection is None:
-            logger.warning("Chatting stopped worker %s", self.id)
-            return [None] * len(cmds)
-        replies = connection.chat(cmds, always_reconnect=always_reconnect)
-        connection.close()
-        return replies
+    def ask(self, cmd, timeout=15):
+        """
+        Convenience function for sending single worker command and
+        waiting for and returning the response
+        """
+        if self.port is None:
+            return None  # Worker has not been spawned, yet
+        return self.__pool.spawn(self.eventlet_ask, cmd, timeout=timeout).wait()
 
 
-class XPCShellParallelWorker(XPCShellWorker):
+class XPCShellEventletWorker(XPCShellWorker):
 
-    def __init__(self, app, worker_id=None, script=None, profile=None, prefs=None, parallel=50):
-        super(XPCShellParallelWorker, self).__init__(app, worker_id=worker_id, script=script,
-                                                     profile=profile, prefs=prefs)
+    def __init__(self, app, worker_id=None, script=None, profile=None, prefs=None, parallel=25, host="localhost",
+                 port=None):
+        super(XPCShellEventletWorker, self).__init__(app, worker_id=worker_id, script=script, profile=profile,
+                                                     prefs=prefs, host=host, port=port, parallel=parallel)
         self.__pool = GreenPool(size=parallel)
 
     def set_pool_size(self, new_size):
         self.__pool.resize(new_size)
 
+    def evspawn(self, command):
+        return self.__pool.spawn(self.eventlet_ask, command)
+
     def imap(self, commands):
-        return self.__pool.imap(self.ask, commands)
+        return self.__pool.imap(self.eventlet_ask, commands)
+
+    def starmap(self, commands):
+        return self.__pool.starmap(self.eventlet_ask, commands)
 
 
 class WorkerReader(Thread):
@@ -239,6 +253,47 @@ class WorkerReader(Thread):
         self.worker.worker_process.stdout.close()
         logger.debug('Reader thread finished for worker %s' % self.worker.id)
         del self.worker  # Breaks cyclic reference
+
+
+class WorkerConn(object):
+
+    def __init__(self, worker, timeout=20):
+        self.__worker = worker
+        self.__timeout = timeout
+
+    def __enter__(self):
+        self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__s.settimeout(self.__timeout)
+        self.__s.connect((self.__worker.host, self.__worker.port))
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__s.close()
+
+    @property
+    def host(self):
+        return self.__worker.host
+
+    @property
+    def port(self):
+        return self.__worker.port
+
+    def sendall(self, string):
+        self.__s.sendall(string.rstrip("\n") + "\n")
+
+    def recvall(self):
+        received = ""
+        while not received.endswith("\n"):
+            # Assuming that recv will not return more than one message ending with newline
+            r = self.__s.recv(8192)
+            if len(r) == 0:
+                logger.error("Empty read likely caused by worker closing connection on port %d" % self.port)
+                raise socket.error((0, "Sum Ting Wong, Wee Tu Lo"))
+            received += r
+        return received
+
+    def ask(self, command):
+        return self.__worker.ask(command)
 
 
 class WorkerConnection(object):
@@ -540,7 +595,7 @@ class Command(object):
         return {"id": self.id, "mode": self.mode, "args": self.args}
 
     def __str__(self):
-        return json.dumps(self.as_dict())
+        return json.dumps(self.as_dict()).strip()
 
 
 class Response(object):

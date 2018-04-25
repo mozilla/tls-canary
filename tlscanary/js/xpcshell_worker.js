@@ -526,7 +526,9 @@ StreamReader.prototype = {
                 return;
             }
             if (error.result === Cr.NS_BASE_STREAM_CLOSED) {
-                print("DEBUG: Base stream was closed:", error.toString());
+                // This is thrown after every client disconnect (potentially noisy on stdio)
+                print("DEBUG: Client closed connection on port", this.connection.transport.host,
+                    this.connection.transport.port);
             } else {
                 print("ERROR: Unable to check stream availability:", error.toString());
             }
