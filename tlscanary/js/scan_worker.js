@@ -154,11 +154,16 @@ function collect_request_info(xhr, report_certs) {
         let cert_chain = [];
         if (server_cert.sha1Fingerprint) {
             cert_chain.push(server_cert.getRawDER({}));
-            let chain = server_cert.getChain().enumerate();
-            while (chain.hasMoreElements()) {
-                let child_cert = chain.getNext().QueryInterface(Ci.nsISupports)
-                    .QueryInterface(Ci.nsIX509Cert);
-                cert_chain.push(child_cert.getRawDER({}));
+            let chain = [];
+            if (info.ssl_status.succeededCertChain != null) {
+                chain = info.ssl_status.succeededCertChain;
+            } else if (info.ssl_status.failedCertChain != null) {
+                chain = info.ssl_status.failedCertChain;
+            }
+            let enumerator = chain.getEnumerator();
+            let cert_enumerator = XPCOMUtils.IterSimpleEnumerator(enumerator, Ci.nsIX509Cert);
+            for (let cert of cert_enumerator) {
+                cert_chain.push(cert);
             }
         }
         info.certificate_chain_length = cert_chain.length;
