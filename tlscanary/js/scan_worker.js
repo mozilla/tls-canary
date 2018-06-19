@@ -154,17 +154,15 @@ function collect_request_info(xhr, report_certs) {
         let cert_chain = [];
         if (server_cert.sha1Fingerprint) {
             cert_chain.push(server_cert.getRawDER({}));
-
-            let chain = []
+            let chain = [];
             if (info.ssl_status.succeededCertChain != null) {
-                chain = info.ssl_status.succeededCertChain
+                chain = info.ssl_status.succeededCertChain;
             } else if (info.ssl_status.failedCertChain != null) {
-                chain = info.ssl_status.failedCertChain
+                chain = info.ssl_status.failedCertChain;
             }
-
             let enumerator = chain.getEnumerator();
-            for (let cert of XPCOMUtils.IterSimpleEnumerator(enumerator,
-            Ci.nsIX509Cert)) {
+            let cert_enumerator = XPCOMUtils.IterSimpleEnumerator(enumerator, Ci.nsIX509Cert);
+            for (let cert of cert_enumerator) {
                 cert_chain.push(cert);
             }
         }
