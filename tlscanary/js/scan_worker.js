@@ -123,11 +123,22 @@ function collect_request_info(xhr, report_certs) {
         sec_info.QueryInterface(Ci.nsITransportSecurityInfo);
         info.transport_security_info_status = true;
         info.security_state = sec_info.securityState;
-        info.raw_error = sec_info.errorMessage;
-        try {
-            info.short_error_message = info.raw_error.split("Error code:")[1].split(">")[1].split("<")[0];
-        } catch (e) {
-            info.short_error_message = info.raw_error;
+        // errorMessage will be removed by bug 1415279.
+        if ("errorMessage" in sec_info) {
+            info.raw_error = sec_info.errorMessage;
+        } else {
+            info.raw_error = "";
+        }
+        // errorMessage will be replaced by errorCodeString which is precisely what
+        // we are trying to extract from raw_error resp. errorMessage.
+        if ("errorCodeString" in sec_info) {
+            info.short_error_message = sec_info.errorCodeString;
+        } else {
+            try {
+                info.short_error_message = info.raw_error.split("Error code:")[1].split(">")[1].split("<")[0];
+            } catch (e) {
+                info.short_error_message = info.raw_error;
+            }
         }
     }
 
