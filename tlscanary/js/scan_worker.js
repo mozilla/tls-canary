@@ -131,9 +131,9 @@ function collect_request_info(xhr, report_certs) {
         }
     }
 
-    if (sec_info instanceof Ci.nsISSLStatusProvider) {
+    if (sec_info instanceof Ci.nsITransportSecurityInfo) {
         info.ssl_status_status = false;
-        let ssl_status = sec_info.QueryInterface(Ci.nsISSLStatusProvider).SSLStatus;
+        let ssl_status = sec_info.QueryInterface(Ci.nsITransportSecurityInfo).SSLStatus;
         if (ssl_status != null) {
             info.ssl_status_status = true;
             info.ssl_status = ssl_status.QueryInterface(Ci.nsISSLStatus);
