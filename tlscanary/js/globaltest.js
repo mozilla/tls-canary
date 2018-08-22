@@ -9,7 +9,6 @@ const { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
 const DEFAULT_TIMEOUT = 10000;
 
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 
 
@@ -55,7 +54,7 @@ function scan_url(args, report_cb) {
         getInterface: function (iid) {
             return this.QueryInterface(iid);
         },
-        QueryInterface: XPCOMUtils.generateQI([Ci.nsIChannelEventSink])
+        QueryInterface: ChromeUtils.generateQI([Ci.nsIChannelEventSink])
     };
 
     let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest);
