@@ -28,7 +28,7 @@ https://mibbit.com/?server=irc.mozilla.org&channel=%23tlscanary). Come talk to u
 ## Requirements
 * Python 2.7
 * 7zip
-* Go compiler
+* Go 1.7 or later
 * OpenSSL-dev
 * libffi-dev
 
