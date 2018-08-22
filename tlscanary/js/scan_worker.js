@@ -227,7 +227,7 @@ function scan_host(args, response_cb) {
         getInterface: function (iid) {
             return this.QueryInterface(iid);
         },
-        QueryInterface: XPCOMUtils.generateQI([Ci.nsIChannelEventSink])
+        QueryInterface: ChromeUtils.generateQI([Ci.nsIChannelEventSink])
     };
 
     let request = new XMLHttpRequest();
