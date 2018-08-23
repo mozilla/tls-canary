@@ -78,7 +78,9 @@ class SourceUpdateMode(BaseMode):
         # A mild sanity check to see whether the downloaded data is valid.
         if len(self.sources) < 900000:
             logger.warning("Top sites is surprisingly small, just %d hosts" % len(self.sources))
-        if self.sources.rows[0] != {"hostname": "google.com", "rank": "1"}:
+
+        if "hostname" not in self.sources.rows[0] or "rank" not in self.sources.rows[0] \
+                or self.sources.rows[0]["rank"] != 1:
             logger.warning("Top sites data looks weird. First line: `%s`" % self.sources.rows[0])
 
     def run(self):
