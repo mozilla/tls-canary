@@ -150,7 +150,8 @@ def __extract_certificates(log, cert_dir):
             "response": log_line["response"]
         }
         cert_file = os.path.join(cert_dir, "%s.der" % result["host"])
-        if "certificate_chain" in result["response"]["result"]["info"]:
+        if "certificate_chain" in result["response"]["result"]["info"] \
+                and result["response"]["result"]["info"]["certificate_chain"] is not None:
             server_cert_string = "".join(map(chr, result["response"]["result"]["info"]["certificate_chain"][0]))
             logger.debug("Writing certificate data for `%s` to `%s`" % (result["host"], cert_file))
             with open(cert_file, "w") as f:
