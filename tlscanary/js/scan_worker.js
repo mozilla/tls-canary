@@ -18,6 +18,12 @@ Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/AppConstants.jsm");
 Cu.importGlobalProperties(["XMLHttpRequest"]);
 
+// generateQI was moved from XPCOMUtils to ChromeUtils in Fx 63
+let generateQI = ChromeUtils.generateQI ? ChromeUtils.generateQI : XPCOMUtils.generateQI;
+if (!generateQI) {
+    print("WARNING: no valid generateQI found");
+}
+
 const nsINSSErrorsService = Ci.nsINSSErrorsService;
 let nssErrorsService = Cc['@mozilla.org/nss_errors_service;1'].getService(nsINSSErrorsService);
 
@@ -96,8 +102,11 @@ function set_profile(profile_path) {
 
 
 function collect_request_info(xhr, report_certs) {
+    // This function copies and parses various properties of the connection state object
+    // and wraps them into an info object to be returned with the command response.
     // Much of this is documented in https://developer.mozilla.org/en-US/docs/Web/API/
-    // XMLHttpRequest/How_to_check_the_secruity_state_of_an_XMLHTTPRequest_over_SSL
+    // XMLHttpRequest/How_to_check_the_secruity_state_of_an_XMLHTTPRequest_over_SSL,
+    // but that source has gone out of date with Firefox 63.
 
     let info = {};
     info.status = xhr.channel.QueryInterface(Ci.nsIRequest).status;
@@ -111,44 +120,96 @@ function collect_request_info(xhr, report_certs) {
     }
 
     info.security_info_status = false;
-    info.transport_security_info_status = false;
+    info.security_state_status = false;
+    info.security_state = null;
     info.ssl_status_status = false;
+    info.ssl_status_errors = null;
+    info.certified_usages = null;
+    info.certificate_chain_length = null;
+    info.certificate_chain = null;
+    info.error_code = null;
+    info.raw_error = null;
+    info.short_error_message = null;
 
     // Try to query security info
     let sec_info = xhr.channel.securityInfo;
-    if (sec_info == null) return info;
+    if (sec_info == null)
+        return info;
+
+    // If sec_info is not null, it contains SSL state info
     info.security_info_status = true;
 
+    // Ci.nsISSLStatusProvider was removed in Firefox 63 and
+    // SSLStatus moved to Ci.nsITransportSecurityInfo, so only
+    // query the interface if it exists.
+    if (Ci.hasOwnProperty("nsISSLStatusProvider"))
+        if (sec_info instanceof Ci.nsISSLStatusProvider) {
+            sec_info.QueryInterface(Ci.nsISSLStatusProvider);
+        }
     if (sec_info instanceof Ci.nsITransportSecurityInfo) {
         sec_info.QueryInterface(Ci.nsITransportSecurityInfo);
-        info.transport_security_info_status = true;
+    }
+
+    // At this point, sec_info should be decorated with either one of the following property sets:
+    //
+    // Fx 63+
+    //   securityState, errorCode, errorCodeString, failedCertList, SSLStatus
+    // Fx 52-62
+    //   securityState, errorCode, errorMessage, failedCertList, SSLStatus
+
+    // Process available SSL state and transfer to info object
+    if (sec_info.securityState != null) {
+        info.security_state_status = true;
         info.security_state = sec_info.securityState;
-        info.raw_error = sec_info.errorMessage;
+    } else {
+        print("WARNING: securityInfo.securityState is null");
+    }
+
+    if (sec_info.SSLStatus != null) {
+        info.ssl_status_status = true;
+        info.ssl_status = sec_info.SSLStatus;
+        // TODO: Find way to extract this py-side.
         try {
-            info.short_error_message = info.raw_error.split("Error code:")[1].split(">")[1].split("<")[0];
+            let usages = {};
+            let usages_string = {};
+            info.ssl_status.server_cert.getUsagesString(true, usages, usages_string);
+            info.certified_usages = usages_string.value;
         } catch (e) {
-            info.short_error_message = info.raw_error;
+            info.certified_usages = null;
         }
+    } else {
+        // Warning is too noisy
+        // print("WARNING: securityInfo.SSLStatus is null");
     }
 
-    if (sec_info instanceof Ci.nsITransportSecurityInfo) {
-        info.ssl_status_status = false;
-        let ssl_status = sec_info.QueryInterface(Ci.nsITransportSecurityInfo).SSLStatus;
-        if (ssl_status != null) {
-            info.ssl_status_status = true;
-            info.ssl_status = ssl_status.QueryInterface(Ci.nsISSLStatus);
-            // TODO: Find way to extract this py-side.
+    // Process errorCodeString or errorMessage
+    if (sec_info.hasOwnProperty("errorMessage")) {
+        // Old message format wich needs to be parsed
+        info.raw_error = sec_info.errorMessage;
+        if (info.raw_error) {
             try {
-                let usages = {};
-                let usages_string = {};
-                info.ssl_status.server_cert.getUsagesString(true, usages, usages_string);
-                info.certified_usages = usages_string.value;
+                info.short_error_message = info.raw_error.split("Error code:")[1].split(">")[1].split("<")[0];
             } catch (e) {
-                info.certified_usages = null;
+                print("WARNING: unexpected errorMessage format: " + e.toString());
+                info.short_error_message = info.raw_error;
             }
+        } else {
+            info.raw_error = null;
+            info.short_error_message = null;
         }
+    } else if (sec_info.hasOwnProperty("errorCodeString")) {
+        info.raw_error = sec_info.errorCodeString;
+        info.raw_error = sec_info.errorCodeString;
+    } else {
+        print("WARNING: securityInfo has neither errorCodeString nor errorMessage");
+    }
+    if (sec_info.hasOwnProperty("errorCode")) {
+        info.error_code = sec_info.errorCode;
+    } else {
+        print("WARNING: securityInfo has no errorCode");
     }
 
+    // Extract certificate objects if requested
     if (info.ssl_status_status && report_certs) {
         let server_cert = info.ssl_status.serverCert;
         let cert_chain = [];
@@ -170,10 +231,10 @@ function collect_request_info(xhr, report_certs) {
         info.certificate_chain = cert_chain;
     }
 
+    // Some values might be missing from the connection state, for example due
+    // to a broken SSL handshake. Try to catch exceptions before report_result's
+    // JSON serializing does.
     if (info.ssl_status_status) {
-        // Some values might be missing from the connection state, for example due
-        // to a broken SSL handshake. Try to catch exceptions before report_result's
-        // JSON serializing does.
         let sane_ssl_status = {};
         info.ssl_status_errors = [];
         for (let key in info.ssl_status) {
@@ -227,7 +288,7 @@ function scan_host(args, response_cb) {
         getInterface: function (iid) {
             return this.QueryInterface(iid);
         },
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIChannelEventSink])
+        QueryInterface: generateQI([Ci.nsIChannelEventSink])
     };
 
     let request = new XMLHttpRequest();
