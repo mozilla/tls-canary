@@ -199,7 +199,7 @@ function collect_request_info(xhr, report_certs) {
         }
     } else if (sec_info.hasOwnProperty("errorCodeString")) {
         info.raw_error = sec_info.errorCodeString;
-        info.raw_error = sec_info.errorCodeString;
+        info.short_error_message = sec_info.errorCodeString;
     } else {
         print("WARNING: securityInfo has neither errorCodeString nor errorMessage");
     }
