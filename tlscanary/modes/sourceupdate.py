@@ -97,7 +97,7 @@ class SourceUpdateMode(BaseMode):
 
         self.start_time = datetime.datetime.now()
 
-        limit = 500000
+        limit = 1000000
         if self.args.limit is not None:
             limit = self.args.limit
 
