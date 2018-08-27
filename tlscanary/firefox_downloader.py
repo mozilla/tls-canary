@@ -6,7 +6,8 @@ import logging
 import os
 import struct
 import sys
-import urllib
+import urllib.error
+import urllib.request
 
 from . import cache
 
