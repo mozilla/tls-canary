@@ -86,7 +86,7 @@ def test_runlog_rw():
     assert_true(log.has_finished(), "completed log is marked as `finished`")
     meta = log.get_meta()
     # Metadata always has "format_revision", "log_lines" and "run_completed" keys
-    assert_equal(len(meta.keys()), 5, "log has correct number of meta data")
+    assert_equal(len(list(meta.keys())), 5, "log has correct number of meta data")
     log_lines = [line for line in log]
     assert_equal(len(log_lines), 3, "log has correct number of lines")
 

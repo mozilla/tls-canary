@@ -6,9 +6,9 @@ import logging
 import os
 import struct
 import sys
-import urllib2
+import urllib
 
-import cache
+from . import cache
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def get_to_file(url, filename):
 
     try:
         # TODO: Validate the server's SSL certificate
-        req = urllib2.urlopen(url)
+        req = urllib.request.urlopen(url)
         file_size = int(req.info().get('Content-Length').strip())
 
         # Caching logic is: don't re-download if file of same size is
@@ -45,13 +45,13 @@ def get_to_file(url, filename):
                 downloaded_size += len(chunk)
                 fp.write(chunk)
 
-    except urllib2.HTTPError, err:
+    except urllib.error.HTTPError as err:
         if os.path.isfile(filename):
             os.remove(filename)
         logger.error('HTTP error: %s, %s' % (err.code, url))
         return None
 
-    except urllib2.URLError, err:
+    except urllib.error.URLError as err:
         if os.path.isfile(filename):
             os.remove(filename)
         logger.error('URL error: %s, %s' % (err.reason, url))
@@ -61,7 +61,7 @@ def get_to_file(url, filename):
         if os.path.isfile(filename):
             os.remove(filename)
         if sys.stdout.isatty():
-            print
+            print()
         logger.critical('Download interrupted by user')
         return None
 
@@ -89,8 +89,8 @@ class FirefoxDownloader(object):
 
     @staticmethod
     def list():
-        build_list = FirefoxDownloader.build_urls.keys()
-        platform_list = FirefoxDownloader.__platforms.keys()
+        build_list = list(FirefoxDownloader.build_urls.keys())
+        platform_list = list(FirefoxDownloader.__platforms.keys())
         test_default = "nightly"
         base_default = "release"
         return build_list, platform_list, test_default, base_default

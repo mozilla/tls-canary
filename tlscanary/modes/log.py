@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 
-from basemode import BaseMode
+from .basemode import BaseMode
 import tlscanary.report as report
 import tlscanary.runlog as rl
 
@@ -79,7 +79,7 @@ class LogMode(BaseMode):
         log_handles = self.log_db.list()
 
         # Compile dict of all logs as {log handle => log object}
-        all_logs = dict(zip(log_handles, map(self.log_db.read_log, log_handles)))
+        all_logs = dict(list(zip(log_handles, list(map(self.log_db.read_log, log_handles)))))
 
         # Filter log list according to includes and excludes
         log_list = self.compile_match_list(all_logs, self.args.include, self.args.exclude)
@@ -111,7 +111,7 @@ class LogMode(BaseMode):
                     continue
                 log_data.append({"meta": log.get_meta(), "data": [line for line in log]})
 
-            print json.dumps(log_data, indent=4, sort_keys=True)
+            print(json.dumps(log_data, indent=4, sort_keys=True))
 
         elif self.args.action == "jsonreport":
             if self.args.output is None:
@@ -216,13 +216,13 @@ class LogMode(BaseMode):
             mode = meta["mode"] if "mode" in meta else "unknown"
             incomplete_marker = "" if log.has_finished() else "(*)"
             if not log.is_compatible():
-                print "%s\t\t\t\t\t\tINCOMPATIBLE LOG FORMAT" % log_name
+                print("%s\t\t\t\t\t\tINCOMPATIBLE LOG FORMAT" % log_name)
             elif mode == "regression" or mode == "performance":
                 size = os.path.getsize((log.part("log.bz2")))
                 if size > 100*1024*1024:
                     logger.warning("Log `%s` contains %.1f MBytes of data. counting may take a while"
                                    % (log.handle, size/1024.0/10124.0))
-                print "%s%s\tlines=%-6d\tmode=%-12s\tFx %s %s / %s vs. Fx %s %s / %s" % (
+                print("%s%s\tlines=%-6d\tmode=%-12s\tFx %s %s / %s vs. Fx %s %s / %s" % (
                     log_name,
                     incomplete_marker,
                     len(log),
@@ -232,23 +232,23 @@ class LogMode(BaseMode):
                     meta["test_metadata"]["nss_version"],
                     meta["base_metadata"]["app_version"],
                     meta["base_metadata"]["branch"].capitalize(),
-                    meta["base_metadata"]["nss_version"])
+                    meta["base_metadata"]["nss_version"]))
             elif mode == "scan":
                 size = os.path.getsize((log.part("log.bz2")))
                 if size > 100*1024*1024:
                     logger.warning("Log `%s` contains %.1f MBytes of data. Counting may take a while"
                                    % (log.handle, size/1024.0/1024.0))
-                print "%s%s\tlines=%-6d\tmode=%-12s\tFx %s %s / %s" % (
+                print("%s%s\tlines=%-6d\tmode=%-12s\tFx %s %s / %s" % (
                     log_name,
                     incomplete_marker,
                     len(log),
                     mode,
                     meta["test_metadata"]["app_version"],
                     meta["test_metadata"]["branch"].capitalize(),
-                    meta["test_metadata"]["nss_version"])
+                    meta["test_metadata"]["nss_version"]))
             else:
-                print "%s%s\t lines=%-6d\tmode=%-12s" % (
+                print("%s%s\t lines=%-6d\tmode=%-12s" % (
                     log_name,
                     incomplete_marker,
                     meta["log_lines"],
-                    mode)
+                    mode))

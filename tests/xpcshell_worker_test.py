@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import mock
 from nose import SkipTest
 from nose.tools import *
 from time import sleep
+import unittest.mock as mock
 
 import tests
 import tlscanary.xpcshell_worker as xw

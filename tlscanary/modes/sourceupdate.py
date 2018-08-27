@@ -9,7 +9,7 @@ import os
 import sys
 import zipfile
 
-from basemode import BaseMode
+from .basemode import BaseMode
 from tlscanary.firefox_downloader import get_to_file
 import tlscanary.progress as pr
 import tlscanary.sources_db as sdb
@@ -145,7 +145,7 @@ class SourceUpdateMode(BaseMode):
                             % (chunk_end - chunk_start, chunk_start, chunk_end - 1))
                 pass_errors = pass_chunk
 
-                for i in xrange(self.args.scans):
+                for i in range(self.args.scans):
 
                     logger.info("Pass %d with %d hosts" % (i + 1, len(pass_errors)))
 

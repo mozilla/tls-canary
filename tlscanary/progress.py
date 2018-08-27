@@ -5,6 +5,7 @@
 import logging
 import threading
 import time
+from functools import reduce
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,7 @@ class ProgressTracker(object):
         earliest_time = time.time() - window
         latest_entry = len(self.log)
         earliest_entry = latest_entry
-        for i in xrange(latest_entry - 1, -1, -1):
+        for i in range(latest_entry - 1, -1, -1):
             if self.log[i][0] >= earliest_time:
                 earliest_entry = i
             else:
@@ -127,16 +128,16 @@ class ProgressTracker(object):
 
         # Bail out if there is not enough data in the window
         if len(log_window) < 2:
-            s = u""
+            s = ""
             if self.show_percent:
-                s += u"%.0f%% " % net_percent
-            s += u"%d/%d" % (min(net_done, net_total), net_total)
-            s += u", %.0f%% overhead" % overhead_percent
+                s += "%.0f%% " % net_percent
+            s += "%d/%d" % (min(net_done, net_total), net_total)
+            s += ", %.0f%% overhead" % overhead_percent
             if self.show_speed:
-                s += u", --%s/s net" % self.unit
-                s += u", --%s/s gross" % self.unit
+                s += ", --%s/s net" % self.unit
+                s += ", --%s/s gross" % self.unit
             if self.show_eta:
-                s += u", ETA --"
+                s += ", ETA --"
             return s
 
         # Get values for current averaging window
@@ -154,11 +155,11 @@ class ProgressTracker(object):
             gross_eta = None
 
         # Build the string according to config
-        s = u""
+        s = ""
         if self.show_percent:
-            s += u"%.0f%% " % net_percent
-        s += u"%d/%d" % (min(net_done, net_total), net_total)
-        s += u", %.1f%% overhead" % overhead_percent
+            s += "%.0f%% " % net_percent
+        s += "%d/%d" % (min(net_done, net_total), net_total)
+        s += ", %.1f%% overhead" % overhead_percent
         if self.show_speed:
             match = [
                 (0.001, "%s/ms" % self.unit),
@@ -171,13 +172,13 @@ class ProgressTracker(object):
             for scale, unit in match:
                 if gross_speed * scale > 100:
                     break
-            s += u", %.0f%s net" % (scale * net_win_speed, unit)
-            s += u", %.0f%s gross" % (scale * gross_win_speed, unit)
+            s += ", %.0f%s net" % (scale * net_win_speed, unit)
+            s += ", %.0f%s gross" % (scale * gross_win_speed, unit)
         if self.show_eta:
             if gross_eta is not None:
-                s += u", ETA %s" % time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(gross_eta))
+                s += ", ETA %s" % time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(gross_eta))
             else:
-                s += u", ETA --"
+                s += ", ETA --"
         return s
 
     def start_reporting(self, interval, first_interval=None):
@@ -255,14 +256,14 @@ class ProgressLogger(threading.Thread):
 
         logger.debug("ProgressLogger thread starting")
         update_time = self.__update_time()
-        next_update = update_time.next()
+        next_update = next(update_time)
         while not self.__quit:
             time.sleep(1)
             now = time.time()
             if now >= next_update:
                 logger.info(str(self.pr))
                 self.updated_at = now
-                next_update = update_time.next()
+                next_update = next(update_time)
         logger.debug("ProgressLogger thread exiting")
 
     def quit(self):

@@ -19,14 +19,14 @@ class Cert(object):
 
         It can handle PEM and DER encoded strings and lists of int bytes.
 
-        :param data: str or list of int
+        :param data: bytes or list of int
         """
         if type(data) == list:
-            data = ''.join([chr(x) for x in data])
-        if type(data) != str:
-            raise Exception("data must be string or list of int bytes")
+            data = bytes(data)
+        if type(data) != bytes:
+            raise Exception("data must be bytes or list of int bytes")
         self.__raw_data = data
-        if "-----BEGIN CERTIFICATE-----" in data:
+        if b"-----BEGIN CERTIFICATE-----" in data:
             self.x509 = x509.load_pem_x509_certificate(data, backends.default_backend())
             self.__raw_type = "PEM"
         else:

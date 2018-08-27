@@ -7,7 +7,7 @@ import logging
 import pkg_resources as pkgr
 import sys
 
-from basemode import BaseMode
+from .basemode import BaseMode
 import tlscanary.progress as pr
 import tlscanary.runlog as rl
 import tlscanary.sources_db as sdb
@@ -190,7 +190,7 @@ class RegressionMode(BaseMode):
         timeout = self.args.timeout
         max_timeout = self.args.max_timeout
 
-        for current_scan in xrange(1, self.args.scans + 1):
+        for current_scan in range(1, self.args.scans + 1):
 
             # Specify different callback only for initial test scan
             if current_scan == 1:

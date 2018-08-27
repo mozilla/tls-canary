@@ -9,7 +9,7 @@ import logging
 import os
 import shutil
 
-import cert
+from . import cert
 
 
 logger = logging.getLogger(__name__)

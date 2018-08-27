@@ -9,8 +9,8 @@ import stat
 import subprocess
 import sys
 
-import cache
-from firefox_app import FirefoxApp
+from . import cache
+from .firefox_app import FirefoxApp
 
 
 logger = logging.getLogger(__name__)

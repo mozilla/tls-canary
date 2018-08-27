@@ -5,7 +5,7 @@
 import logging
 import sys
 
-import modes
+from . import modes
 
 
 # Eventually import other future tests, like
