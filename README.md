@@ -26,7 +26,7 @@ The project has a dedicated IRC channel: [#tlscanary on irc.mozilla.org](
 https://mibbit.com/?server=irc.mozilla.org&channel=%23tlscanary). Come talk to us!
 
 ## Requirements
-* Python 2.7
+* Python 3.6+
 * 7zip
 * Go 1.7 or later
 * OpenSSL-dev
@@ -35,7 +35,7 @@ https://mibbit.com/?server=irc.mozilla.org&channel=%23tlscanary). Come talk to u
 ### Dependencies for Debian and Ubuntu users
 Assuming that you run TLS Canary on a regular graphical desktop machine, these are the packages it requires:
 ```
-sudo apt-get install python python-dev gcc golang-go p7zip-full libssl-dev libffi-dev
+sudo apt-get install python3 python3-dev gcc golang-1.9-go p7zip-full libssl-dev libffi-dev
 ```
 
 The script [linux_bootstrap.sh](bootstrap/linux_bootstrap.sh) provides bootstrapping for a headless Ubuntu-based EC2
@@ -58,14 +58,14 @@ but expect minor unicode encoding issues in terminal logging output.
 First, [install Chocolatey](https://chocolatey.org/install), then run the following command in an admin PowerShell
 to install the dependencies:
 ```
-choco install 7zip.commandline git golang openssh python2
+choco install 7zip.commandline git golang openssh python3
 ```
 
 ## For end users
 TLS Canary can be installed as a stable package from PyPI and as experimental package directly from GitHub.
 The following command will install the latest stable release of TLS Canary to your current Python environment:
 ```
-pip install [--user] --upgrade tlscanary
+pip3 install [--user] --upgrade tlscanary
 ```
 
 Whether or not you require the `--user` flag depends on how your Python environment is set up. Most Linux distributions
@@ -73,7 +73,7 @@ require it when not installing Python packages as root.
 
 If you prefer the bleeding-edge developer version with the latest features and added instability, you can run
 ```
-pip install [--user] --upgrade git+git://github.com/mozilla/tls-canary.git
+pip3 install [--user] --upgrade git+git://github.com/mozilla/tls-canary.git
 ```
 
 Once it finishes the `tlscanary` binary is available in your Python environment:
@@ -172,7 +172,7 @@ These are the commands that set you up for TLS Canary development work:
 ```
 git clone https://github.com/mozilla/tls-canary
 cd tls-canary
-virtualenv -p python2.7 venv
+virtualenv -p python3 venv
 source venv/bin/activate
 pip install -e .[dev]
 ```
@@ -186,7 +186,7 @@ with user privileges, should set you up for TLS Canary development:
 ```
 git clone https://github.com/mozilla/tls-canary
 cd tls-canary
-virtualenv -p c:\python27\python.exe venv
+virtualenv -p c:\python36\python.exe venv
 venv\Scripts\activate
 pip install -e .[dev]
 ```
