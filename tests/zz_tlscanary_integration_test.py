@@ -3,11 +3,11 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import glob
+import io
 import json
-import mock
 from nose.tools import *
 import os
-import StringIO
+import unittest.mock as mock
 
 from tlscanary import main
 import tests
@@ -36,7 +36,7 @@ def test_tlscanary_regression_and_log():
         "-a", "json",
         "-i", "1"
     ]
-    with mock.patch('sys.stdout', new=StringIO.StringIO()) as mock_stdout:
+    with mock.patch('sys.stdout', new=io.StringIO()) as mock_stdout:
         ret = main.main(argv)
         stdout = mock_stdout.getvalue()
     assert_equal(ret, 0, "regression log dump finished without error")
@@ -104,7 +104,7 @@ def test_tlscanary_srcupdate_and_scan_and_log():
         "-a", "json",
         "-i", "1"
     ]
-    with mock.patch('sys.stdout', new=StringIO.StringIO()) as mock_stdout:
+    with mock.patch('sys.stdout', new=io.StringIO()) as mock_stdout:
         ret = main.main(argv)
         stdout = mock_stdout.getvalue()
     assert_equal(ret, 0, "scan log dump finished without error")

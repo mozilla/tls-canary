@@ -5,7 +5,7 @@
 import json
 import logging
 import os
-from Queue import Queue, Empty
+from queue import Queue, Empty
 import subprocess
 from threading import Thread
 
@@ -24,7 +24,7 @@ def read_from_worker(worker, response_queue):
 
     logger.debug('Reader thread started for worker %s' % worker)
     for line in iter(worker.stdout.readline, b''):
-        line = line.strip()
+        line = line.decode("utf-8").strip()
         try:
             response_queue.put(Response(line))
             logger.debug("Received worker message: %s" % line)

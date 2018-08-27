@@ -75,4 +75,3 @@ def test_win_extractor():
     assert_equal(app.platform, "win32", "platform is detected correctly")
     assert_equal(app.release, "Nightly", "release branch is detected correctly")
     assert_equal(app.version, "55.0a1", "version is detected correctly")
-

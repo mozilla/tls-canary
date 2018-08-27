@@ -97,7 +97,7 @@ class SourcesDB(object):
     be a special control line that modifies how the database file is handled. See
     sources_db.parse_csv_header().
 
-    The CSV files are required to contain a  regular CSV header line, the column
+    The CSV files are required to contain a regular CSV header line, the column
     `hostname`, and optionally the column `rank`.
     """
     def __init__(self, args=None):
@@ -108,7 +108,7 @@ class SourcesDB(object):
             self.__override_dir = None
         self.__list, self.default = list_sources(self.__override_dir)
         if self.default is None:
-            self.default = self.__list.keys()[0]
+            self.default = list(self.__list.keys())[0]
 
     def list(self):
         """
@@ -116,7 +116,7 @@ class SourcesDB(object):
 
         :return: list with handles
         """
-        handles_list = self.__list.keys()
+        handles_list = list(self.__list.keys())
         handles_list.sort()
         return handles_list
 
@@ -202,7 +202,7 @@ class Sources(object):
         self.handle, self.is_default = parse_csv_header(file_name)
         logger.debug("Reading `%s` sources from `%s`" % (self.handle, file_name))
         with open(file_name) as f:
-            csv_reader = csv.DictReader(filter(lambda r: not r.startswith("#"), f))
+            csv_reader = csv.DictReader([r for r in f if not r.startswith("#")])
         self.rows = [row for row in csv_reader]
 
     def trim(self, limit):
@@ -244,7 +244,7 @@ class Sources(object):
                 header_keywords.append("default")
             header_keywords += ["handle", self.handle]
             f.write("#%s\n" % ":".join(header_keywords))
-            csv_writer = csv.DictWriter(f, self.rows[0].keys())
+            csv_writer = csv.DictWriter(f, list(self.rows[0].keys()))
             csv_writer.writeheader()
             csv_writer.writerows(self.rows)
         return file_name
@@ -273,7 +273,7 @@ class Sources(object):
             return set()
         if end is None:
             end = len(self.rows)
-        if "rank" in self.rows[0].keys():
+        if "rank" in list(self.rows[0].keys()):
             return set([(int(row["rank"]), row["hostname"]) for row in self.rows[start:end]])
         else:
             return set([(0, row["hostname"]) for row in self.rows[start:end]])

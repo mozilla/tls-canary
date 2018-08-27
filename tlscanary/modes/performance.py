@@ -7,7 +7,7 @@ import logging
 import pkg_resources as pkgr
 import sys
 
-from regression import RegressionMode
+from .regression import RegressionMode
 import tlscanary.runlog as rl
 
 
@@ -68,7 +68,7 @@ class PerformanceMode(RegressionMode):
         test_speed_aggregate = 0
         base_speed_aggregate = 0
 
-        for i in xrange(0, self.args.scans):
+        for i in range(0, self.args.scans):
             test_uri_sets.append(self.run_test(self.test_app, self.sources, profile=self.test_profile,
                                                prefs=self.args.prefs_test, get_info=True,
                                                get_certs=not self.args.remove_certs, return_only_errors=False))

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import ConfigParser
+import configparser
 import glob
 import os
 import struct
@@ -68,17 +68,18 @@ class FirefoxApp(object):
 
         # For `linux`: byte 4 in ELF header is 01/02 for 32/64 bit
         if self.platform == "linux":
-            with open(self.exe) as f:
+            with open(self.exe, "rb") as f:
                 head = f.read(5)
-            if head[4] == '\x01':
+            if head[4] == 1:
                 self.platform = "linux32"
-            elif head[4] == '\x02':
+            elif head[4] == 2:
                 self.platform = "linux"
             else:
-                raise Exception("Unsupported ELF binary (%s)" % ord(head[4]))
+                print(type(head[4]))
+                raise Exception("Unsupported ELF binary (%s)" % head[4])
         # Windows PE header offset is at 0x3c. Bytes 4 and 5 there tell 32 from 64 bit
         elif self.platform == "win":
-            with open(self.exe) as f:
+            with open(self.exe, "rb") as f:
                 try:
                     f.seek(0x3c)
                     pe_header_offset = struct.unpack("<I", f.read(4))[0]
@@ -95,14 +96,14 @@ class FirefoxApp(object):
                     raise Exception("Unsupported PE binary format")
 
         # Determine Firefox version
-        ini_parser = ConfigParser.SafeConfigParser()
+        ini_parser = configparser.SafeConfigParser()
         ini_parser.read(self.app_ini)
         self.application_ini = dict(ini_parser.items("App"))
         self.version = ini_parser.get("App", "Version")
         # For versions that have no `CodeName` specified, extract it from the repo name.
         try:
             self.release = ini_parser.get("App", "CodeName")
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             self.release = ini_parser.get("App", "sourcerepository").split("-")[-1]
 
         # Field for optional package origin metadata (must be provided externally)

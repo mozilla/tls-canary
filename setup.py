@@ -5,7 +5,7 @@
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'tlscanary'
-PACKAGE_VERSION = '3.2.3a2'
+PACKAGE_VERSION = '3.3.0a1'
 
 INSTALL_REQUIRES = [
     'coloredlogs',
@@ -18,13 +18,11 @@ INSTALL_REQUIRES = [
 TESTS_REQUIRE = [
     'coverage',
     'nose',
-    'mock'
 ]
 
 DEV_REQUIRES = [
     'coverage',
     'nose',
-    'mock',
     'pep8'
 ]
 
@@ -44,7 +42,9 @@ setup(
         'Operating System :: Microsoft :: Windows :: Windows 8',
         'Operating System :: Microsoft :: Windows :: Windows 8.1',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Quality Assurance',
         'Topic :: Software Development :: Testing'
     ],
@@ -57,7 +57,6 @@ setup(
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,  # See MANIFEST.in
     zip_safe=False,
-    use_2to3=False,
     install_requires=INSTALL_REQUIRES,
     tests_require=TESTS_REQUIRE,
     extras_require={'dev': DEV_REQUIRES},  # For `pip install -e .[dev]`

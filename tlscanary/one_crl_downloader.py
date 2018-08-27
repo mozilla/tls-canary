@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 
-import cache
+from . import cache
 
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ def get_list(onecrl_env, workdir, commit, use_cache=True, cache_timeout=60*60):
 
         # Write OneCRL data to cache
         logger.debug("Caching OneCRL revocations data in `%s`" % cache_file)
-        with open(cache_file, "w") as f:
+        with open(cache_file, "wb") as f:
             f.write(revocations_data)
 
     else:

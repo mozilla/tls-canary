@@ -30,8 +30,8 @@ def test_sources_db_read():
     src = db.read("debug")
     assert_true(type(src) is sdb.Sources, "reading yields a Sources object")
     assert_equal(len(src), len(src.rows), "length seems to be correct")
-    assert_true("hostname" in src[0].keys(), "`hostname` is amongst keys")
-    assert_true("rank" in src[0].keys(), "`rank` is amongst keys")
+    assert_true("hostname" in list(src[0].keys()), "`hostname` is amongst keys")
+    assert_true("rank" in list(src[0].keys()), "`rank` is amongst keys")
     rows = [row for row in src]
     assert_equal(len(rows), len(src), "yields expected number of iterable rows")
 
@@ -105,7 +105,7 @@ def test_sources_chunking():
     read_set = set()
     next_chunk = src.iter_chunks(chunk_size=2)
     lengths = list()
-    for _ in xrange(10):
+    for _ in range(10):
         chunk = next_chunk(as_set=True)
         if chunk is None:
             break

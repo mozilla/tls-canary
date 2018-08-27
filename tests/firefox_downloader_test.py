@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import mock
 from nose.tools import *
 import os
 from time import sleep
+import unittest.mock as mock
 
 import tlscanary.firefox_downloader as fd
 import tests
@@ -41,7 +41,7 @@ def test_firefox_downloader_exceptions():
     assert_raises(Exception, fdl.download, test_default, "foobar")
 
 
-@mock.patch('urllib2.urlopen')
+@mock.patch('urllib.request.urlopen')
 @mock.patch('sys.stdout')  # to silence progress bar
 def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     """Test the download function"""
@@ -54,7 +54,7 @@ def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     fdl = fd.FirefoxDownloader(test_tmp_dir, cache_timeout=1)
 
     mock_req = mock.Mock()
-    mock_read = mock.Mock(side_effect=("foo", "bar", None))
+    mock_read = mock.Mock(side_effect=(b"foo", b"bar", None))
     mock_info = mock.Mock()
     mock_get = mock.Mock(return_value="6")
     mock_info.return_value = mock.Mock(get=mock_get)
@@ -71,13 +71,13 @@ def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     assert_true(output_file_name.endswith("firefox-nightly_linux.tar.bz2"), "uses expected file name")
     assert_true(output_file_name.startswith(test_tmp_dir), "writes file to expected directory")
     assert_true(os.path.isfile(output_file_name), "creates proper file")
-    with open(output_file_name, "r") as f:
+    with open(output_file_name, "rb") as f:
         content = f.read()
-    assert_equal(content, "foobar", "downloads expected content")
+    assert_equal(content, b"foobar", "downloads expected content")
 
     # Test caching by re-downloading
     mock_read.reset_mock()
-    mock_read.side_effect = ("foo", "bar", None)
+    mock_read.side_effect = (b"foo", b"bar", None)
     second_output_file_name = fdl.download("nightly", "linux", use_cache=True)
     assert_false(mock_read.called, "does not re-download")
     assert_equal(output_file_name, second_output_file_name, "uses cached file")
@@ -85,7 +85,7 @@ def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     # Test purging on obsolete cache. Cache is purged on fdl init.
     sleep(1.1)
     mock_read.reset_mock()
-    mock_read.side_effect = ("foo", "bar", None)
+    mock_read.side_effect = (b"foo", b"bar", None)
     fdl = fd.FirefoxDownloader(test_tmp_dir, cache_timeout=1)
     fdl.download("nightly", "linux", use_cache=True)
     assert_true(mock_read.called, "re-downloads when cache is stale")
@@ -94,6 +94,6 @@ def test_firefox_downloader_downloading(mock_stdout, mock_urlopen):
     mock_get.reset_mock()
     mock_get.return_value = "7"
     mock_read.reset_mock()
-    mock_read.side_effect = ("foo", "barr", None)
+    mock_read.side_effect = (b"foo", b"barr", None)
     fdl.download("nightly", "linux", use_cache=True)
     assert_true(mock_read.called, "re-downloads when upstream changes")

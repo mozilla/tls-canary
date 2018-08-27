@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import cStringIO
+import io
 import datetime
 import glob
 import bz2
@@ -30,11 +30,11 @@ class CertDB(object):
 
     def put(self, der_data):
         if type(der_data) is str:
-            hash_address = self.hash_fs.put(cStringIO.StringIO(str(der_data)), "der")
+            hash_address = self.hash_fs.put(io.StringIO(str(der_data)), "der")
             logger.debug("Wrote certificate data to `%s`" % hash_address.abspath)
             return hash_address.id
         elif type(der_data) is list:
-            return map(self.put, der_data)
+            return list(map(self.put, der_data))
         else:
             raise Exception("Unsupported argument type")
 
@@ -349,7 +349,7 @@ class RunLog(object):
             result_batch = [result_batch]
         for result in map(self.filter, result_batch):
             if result is not None:
-                self.log_fh.write("%s\n" % json.dumps(result))
+                self.log_fh.write(("%s\n" % json.dumps(result)).encode("utf-8"))
                 self.meta["log_lines"] += 1
 
     def stop(self, meta=None):
@@ -458,7 +458,7 @@ class RunLog(object):
             while True:
                 try:
                     line_number += 1
-                    line = f.readline()
+                    line = f.readline().decode("utf-8")
                 except EOFError:
                     logger.debug("EOFError on log `%s`. Log is truncated." % self.handle)
                     break

@@ -30,7 +30,7 @@ def ignore_file(filename):
 
 def main():
     modified = re.compile('^[AM]+\s+(?P<name>.*\.py)', re.MULTILINE)
-    files = system('git', 'status', '--porcelain')
+    files = system('git', 'status', '--porcelain').decode("utf-8")
     files = modified.findall(files)
 
     tempdir = tempfile.mkdtemp()
@@ -41,18 +41,18 @@ def main():
             filepath = os.path.dirname(filename)
             if not os.path.exists(filepath):
                 os.makedirs(filepath)
-            with file(filename, 'w') as f:
+            with open(filename, 'w') as f:
                 system('git', 'show', ':' + name, stdout=f)
     try:
         output = system('pep8', '--show-source', '--max-line-length=120', '.', cwd=tempdir)
     except OSError:
-        print "The `pip8` checker is required for commits."
-        print "You probably haven't activated TLS Canary's Python dev environment."
+        print("The `pip8` checker is required for commits.")
+        print("You probably haven't activated TLS Canary's Python dev environment.")
         sys.exit(1)
 
     shutil.rmtree(tempdir)
     if output:
-        print output,
+        print(output, end=' ')
         sys.exit(1)
 
 

@@ -13,11 +13,11 @@ import tempfile
 import threading
 import time
 
-import cleanup
-import firefox_downloader as fd
-import loader
-import modes
-import sources_db as sdb
+from . import cleanup
+from . import firefox_downloader as fd
+from . import loader
+from . import modes
+from . import sources_db as sdb
 
 
 # Initialize coloredlogs
@@ -177,16 +177,16 @@ def main(argv=None):
         coloredlogs.install(level='ERROR')
         db = sdb.SourcesDB(args)
         build_list, platform_list, _, _ = fd.FirefoxDownloader.list()
-        print "Available builds: %s" % ' '.join(build_list)
-        print "Available platforms: %s" % ' '.join(platform_list)
-        print "Available test sets:"
+        print("Available builds: %s" % ' '.join(build_list))
+        print("Available platforms: %s" % ' '.join(platform_list))
+        print("Available test sets:")
         for handle in db.list():
             test_set = db.read(handle)
             if handle == db.default:
                 default = " (default)"
             else:
                 default = ""
-            print "  - %s [%d hosts]%s" % (handle, len(test_set), default)
+            print("  - %s [%d hosts]%s" % (handle, len(test_set), default))
         return 0
 
     # Create workdir (usually ~/.tlscanary, used for caching etc.)
