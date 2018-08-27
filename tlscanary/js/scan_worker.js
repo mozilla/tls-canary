@@ -222,7 +222,10 @@ function collect_request_info(xhr, report_certs) {
                 chain = info.ssl_status.failedCertChain;
             }
             let enumerator = chain.getEnumerator();
-            let cert_enumerator = XPCOMUtils.IterSimpleEnumerator(enumerator, Ci.nsIX509Cert);
+
+            // XPCOMUtils.IterSimpleEnumerator removed in Firefox 63 (bug 1484496)
+            let cert_enumerator = XPCOMUtils.IterSimpleEnumerator ?
+                XPCOMUtils.IterSimpleEnumerator(enumerator, Ci.nsIX509Cert) : enumerator;
             for (let cert of cert_enumerator) {
                 cert_chain.push(cert);
             }
