@@ -23,7 +23,7 @@ TESTS_REQUIRE = [
 DEV_REQUIRES = [
     'coverage',
     'nose',
-    'pep8'
+    'pycodestyle'
 ]
 
 setup(
