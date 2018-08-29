@@ -142,7 +142,7 @@ class RegressionMode(BaseMode):
         limit = len(self.sources) if self.args.limit is None else self.args.limit
 
         # Split work into 50 chunks to conserve memory, but make no chunk smaller than 1000 hosts
-        next_chunk = self.sources.iter_chunks(chunk_size=limit/50, min_chunk_size=1000)
+        next_chunk = self.sources.iter_chunks(chunk_size=int(limit/50), min_chunk_size=1000)
 
         try:
             while True:
