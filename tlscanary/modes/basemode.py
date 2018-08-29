@@ -67,9 +67,8 @@ class BaseMode(object):
                            action="store_true",
                            default=False)
         group.add_argument("-o", "--onecrl",
-                           help="OneCRL set to test (default: production)",
-                           type=str.lower,
-                           choices=["production", "stage", "custom", "none"],
+                           help="OneCRL set to test. Can be production|stage|custom|none or a file name "
+                                "(default: production)",
                            action="store",
                            default="production")
         group.add_argument("--onecrlpin",
@@ -253,9 +252,16 @@ class BaseMode(object):
             logger.debug("Deleting existing revocations.txt file")
             profile_file = os.path.join(new_profile_dir, "revocations.txt")
             os.remove(profile_file)
-        else:
+        elif one_crl_env == "custom":
             # leave the existing revocations file alone
             logger.info("Testing with custom OneCRL entries from default profile")
+        elif os.path.isfile(one_crl_env):
+            # use referenced file as revocations.txt file
+            profile_file = os.path.join(new_profile_dir, "revocations.txt")
+            shutil.copyfile(one_crl_env, profile_file)
+            logger.info("Using `%s` as revocations.txt for test candidate" % one_crl_env)
+        else:
+            logger.error("Invalid OneCRL parameter. Assuming `custom`")
 
         logger.debug("Allow profile cache: %s" % self.args.cache)
         if not self.args.cache:
