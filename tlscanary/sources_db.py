@@ -292,6 +292,7 @@ class Sources(object):
         :param chunk_stop: int
         :return: function
         """
+        chunk_size = int(chunk_size)
         self.chunk_start = chunk_start
         self.chunk_stop = len(self) if chunk_stop is None else min(chunk_stop, len(self))
         self.chunk_size = (self.chunk_stop - self.chunk_start) / 20 if chunk_size is None else chunk_size
