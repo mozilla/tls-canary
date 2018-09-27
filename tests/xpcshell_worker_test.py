@@ -2,27 +2,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from nose import SkipTest
-from nose.tools import *
+import pytest
 from time import sleep
-import unittest.mock as mock
 
-import tests
 import tlscanary.xpcshell_worker as xw
 
 
-@mock.patch('sys.stdout')  # to silence progress bar
-def test_xpcshell_worker(mock_sys):
+def test_xpcshell_worker(nightly_app):
     """XPCShell worker runs and is responsive"""
 
     # Skip test if there is no app for this platform
-    if tests.test_app is None:
-        raise SkipTest("XPCShell worker can not be tested on this platform")
+    if nightly_app is None:
+        pytest.skip("XPCShell worker can not be tested on this platform")
 
     # Spawn a worker.
-    w = xw.XPCShellWorker(tests.test_app)
+    w = xw.XPCShellWorker(nightly_app)
     w.spawn()
-    assert_true(w.is_running())
+    assert w.is_running(), "XPCShell worker is starting"
 
     # Send commands
     w.send(xw.Command("info", id=1))
@@ -37,18 +33,17 @@ def test_xpcshell_worker(mock_sys):
     # Get the results
     responses = w.receive()
 
-    assert_equal(len(responses), 2, "XPCShell worker delivers expected number of responses")
-    assert_true(type(responses[0]) is xw.Response, "XPCShell worker delivers valid 1st response")
-    assert_true(type(responses[1]) is xw.Response, "XPCShell worker delivers valid 2nd response")
+    assert len(responses) == 2, "XPCShell worker delivers expected number of responses"
+    assert type(responses[0]) is xw.Response, "XPCShell worker delivers valid 1st response"
+    assert type(responses[1]) is xw.Response, "XPCShell worker delivers valid 2nd response"
 
     info_response, quit_response = responses
 
-    assert_equal(info_response.id, 1, "Info response has expected ID")
-    assert_true(info_response.success, "Info command was successful")
-    assert_true("appConstants" in info_response.result, "Info response contains `appConstants`")
-    assert_true("nssInfo" in info_response.result, "Info response contains `nssInfo`")
-    assert_equal(info_response.result["appConstants"]["MOZ_UPDATE_CHANNEL"], "nightly",
-                 "Info response has expected value")
+    assert info_response.id == 1, "Info response has expected ID"
+    assert info_response.success, "Info command was successful"
+    assert "appConstants" in info_response.result, "Info response contains `appConstants`"
+    assert "nssInfo" in info_response.result, "Info response contains `nssInfo`"
+    assert info_response.result["appConstants"]["MOZ_UPDATE_CHANNEL"] == "nightly", "Info response has expected value"
 
-    assert_equal(quit_response.id, 2, "Quit response has expected ID")
-    assert_true(info_response.success, "Quit command was successful")
+    assert quit_response.id == 2, "Quit response has expected ID"
+    assert info_response.success, "Quit command was successful"
