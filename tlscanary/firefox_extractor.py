@@ -70,5 +70,7 @@ def extract(archive_file, workdir, cache_timeout=24*60*60, use_cache=True):
 
     # Workaround until 7zip learns to maintain file attributes
     os.chmod(app.exe, stat.S_IREAD | stat.S_IEXEC | stat.S_IWUSR)
+    if os.path.exists(app.exe + "-bin"):
+        os.chmod(app.exe + "-bin", stat.S_IREAD | stat.S_IEXEC | stat.S_IWUSR)
 
     return app
