@@ -17,13 +17,15 @@ INSTALL_REQUIRES = [
 
 TESTS_REQUIRE = [
     'coverage',
-    'nose',
+    'pytest',
+    'pytest-runner'
 ]
 
 DEV_REQUIRES = [
     'coverage',
-    'nose',
-    'pycodestyle'
+    'pycodestyle',
+    'pytest',
+    'pytest-runner'
 ]
 
 setup(
@@ -60,7 +62,6 @@ setup(
     install_requires=INSTALL_REQUIRES,
     tests_require=TESTS_REQUIRE,
     extras_require={'dev': DEV_REQUIRES},  # For `pip install -e .[dev]`
-    test_suite='nose.collector',
     entry_points={
         'console_scripts': [
             'tlscanary = tlscanary.main:main'

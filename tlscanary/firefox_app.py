@@ -96,7 +96,7 @@ class FirefoxApp(object):
                     raise Exception("Unsupported PE binary format")
 
         # Determine Firefox version
-        ini_parser = configparser.SafeConfigParser()
+        ini_parser = configparser.ConfigParser()
         ini_parser.read(self.app_ini)
         self.application_ini = dict(ini_parser.items("App"))
         self.version = ini_parser.get("App", "Version")
