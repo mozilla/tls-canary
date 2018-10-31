@@ -29,9 +29,15 @@ let nssErrorsService = Cc['@mozilla.org/nss_errors_service;1'].getService(nsINSS
 
 
 function get_runtime_info() {
+    const ac = JSON.parse(JSON.stringify(AppConstants));
+    for (let key in ac) {
+        if (key.endsWith("API_KEY")) {
+            ac[key] = "__STRIPPED__";
+        }
+    }
     return {
         nssInfo: Cc["@mozilla.org/security/nssversion;1"].getService(Ci.nsINSSVersion),
-        appConstants: AppConstants
+        appConstants: ac
     };
 }
 
