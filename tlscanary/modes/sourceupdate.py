@@ -30,14 +30,19 @@ class SourceUpdateMode(BaseMode):
     # The other notable database is the notorious `Alexa Top 1M` which is available at
     # "http://s3.amazonaws.com/alexa-static/top-1m.csv.zip". It is based on usage data
     # gathered from the equally notorious Alexa browser toolbar, while the `Umbrella top 1M`
-    # used below is DNS-based and its ranking is hence considered to be more representative.
-    # `Umbrella` and `Alexa` use precisely the same format and their links are thus
+    # used is DNS-based and its ranking is hence considered to be more representative.
+    # It's available at "http://s3-us-west-1.amazonaws.com/umbrella-static/top-1m.csv.zip".
+    # In February 2019 we decided to switch to the new Tranco database which is comprised of
+    # a running 30-day average across Alexa, Umbrella, Majestic, and Quantcast, employing a
+    # Dowdall ranking system. This approach solves our noise problem introduced by frequent
+    # automatic database updates.
+    # `Tranco`, `Umbrella`, and `Alexa` use precisely the same format and their links are thus
     # interchangeable.
     # For future reference, there is also Ulfr's database at
     # "https://ulfr.io/f/top1m_has_tls_sorted.csv". It requires a different parser but
     # has the advantage of clustering hosts by shared certificates.
 
-    top_sites_location = "http://s3-us-west-1.amazonaws.com/umbrella-static/top-1m.csv.zip"
+    top_sites_location = "https://tranco-list.eu/top-1m.csv.zip"
 
     def __init__(self, args, module_dir, tmp_dir):
         super(SourceUpdateMode, self).__init__(args, module_dir, tmp_dir)
@@ -54,7 +59,7 @@ class SourceUpdateMode(BaseMode):
         self.profile = self.make_profile("base_profile")
 
         tmp_zip_name = os.path.join(self.tmp_dir, "top.zip")
-        logger.info("Fetching unfiltered top sites data from the `Umbrella Top 1M` online database")
+        logger.info("Fetching unfiltered top sites data from the `Tranco Top 1M` online database")
         get_to_file(self.top_sites_location, tmp_zip_name)
 
         try:
