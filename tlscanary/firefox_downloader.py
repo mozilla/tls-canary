@@ -15,12 +15,15 @@ from . import cache
 logger = logging.getLogger(__name__)
 
 
-def get_to_file(url, filename):
+def get_to_file(url, filename, agent=None):
     global logger
 
     try:
         # TODO: Validate the server's SSL certificate
-        req = urllib.request.urlopen(url)
+        if agent is None:
+            req = urllib.request.urlopen(url)
+        else:
+            req = urllib.request.urlopen(urllib.request.Request(url, data=None, headers={'User-Agent': agent}))
         file_size = int(req.info().get('Content-Length').strip())
 
         # Caching logic is: don't re-download if file of same size is
