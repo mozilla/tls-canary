@@ -52,7 +52,7 @@ class LogMode(BaseMode):
 
         group.add_argument("-e", "--exclude",
                            help=("Exclude certain logs from log actions. Can be any of "
-                                 "{complete,incomplete,incompatble}, any run mode of {%s}, an integer number "
+                                 "{complete,incomplete,incompatible}, any run mode of {%s}, an integer number "
                                  "specifying the N latest logs, or any log handle, or any tag. "
                                  "Can be specified repeatedly. (default: None") % ",".join(cls.logging_modes),
                            action="append",
@@ -95,7 +95,8 @@ class LogMode(BaseMode):
         # Filter log list according to includes and excludes
         log_list = self.compile_match_list(all_logs, self.args.include, self.args.exclude)
         if log_list is None:
-            sys.exit(5)
+            logger.warning("Include/exclude selection yielded no logs")
+            sys.exit(0)
 
         # See what to do with those logs
         if self.args.action is None or self.args.action == "list":
@@ -188,6 +189,12 @@ class LogMode(BaseMode):
     def compile_match_list(self, all_logs, include, exclude):
         global logger
 
+        if include is None or len(include) == 0:
+            include = ["all"]
+
+        if exclude is None:
+            exclude = []
+
         # TODO: method needs testing
         # Compile list of included logs
         matching_logs = {}
@@ -226,8 +233,7 @@ class LogMode(BaseMode):
                     log = all_logs[log_name]
                     matching_logs[log_name] = log
             else:
-                logger.warning("No match for -e/--exclude argument: `%s`" % arg)
-                return None
+                logger.debug("No match for -e/--exclude argument: `%s`" % arg)
 
         logger.debug("Included logs after exclusion: %s" % sorted(matching_logs.keys()))
         return matching_logs
