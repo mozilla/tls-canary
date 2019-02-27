@@ -188,7 +188,7 @@ class TagsDB(object):
         if tag in self.__tags and len(self.__tags[tag]) > 0:
             del self.__tags[tag]
         else:
-            logger.warning("Tag `%s` does not exist" % tag)
+            logger.debug("Not dropping non-existent tag `%s`" % tag)
             return  # No need to save
         if save:
             self.save()
