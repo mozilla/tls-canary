@@ -5,7 +5,7 @@
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'tlscanary'
-PACKAGE_VERSION = '3.3.0a4'
+PACKAGE_VERSION = '3.3.0a6'
 
 INSTALL_REQUIRES = [
     'coloredlogs',
@@ -15,20 +15,20 @@ INSTALL_REQUIRES = [
     'worq'
 ]
 
-TESTS_REQUIRE = [
-    'coverage',
-    'pytest',
-    'pytest-pycodestyle',
-    'pytest-runner'
+SCHEDULER_REQUIRES = [
+        'matplotlib',
+        'schedule'
 ]
 
-DEV_REQUIRES = [
+TESTS_REQUIRE = [
     'coverage',
     'pycodestyle',
     'pytest',
     'pytest-pycodestyle',
     'pytest-runner'
 ]
+
+DEV_REQUIRES = TESTS_REQUIRE + SCHEDULER_REQUIRES
 
 setup(
     name=PACKAGE_NAME,
@@ -63,10 +63,14 @@ setup(
     zip_safe=False,
     install_requires=INSTALL_REQUIRES,
     tests_require=TESTS_REQUIRE,
-    extras_require={'dev': DEV_REQUIRES},  # For `pip install -e .[dev]`
+    extras_require={
+        'dev': DEV_REQUIRES,  # For `pip install -e .[dev]`
+        'scheduler': SCHEDULER_REQUIRES  # For `pip install -e .[scheduler]`
+    },
     entry_points={
         'console_scripts': [
-            'tlscanary = tlscanary.main:main'
+            'tlscanary = tlscanary.main:main',
+            'tlscscheduler = tlscanary.scheduler.main:main'
         ]
     }
 )
