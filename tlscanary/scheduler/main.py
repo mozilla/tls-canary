@@ -5,19 +5,22 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import argparse
 import coloredlogs
 import json
 import logging
 from multiprocessing import Pool
 import os
 import schedule
+from shutil import which
 from subprocess import check_output, CalledProcessError, run
 import sys
 import time
 
 # Load Matplotlib in "headless" mode to prevent carnage
-from . import matplotlib_agg as matplotlib
-from matplotlib.dates import datestr2num, DateFormatter
+# CAVE: Every matplotlib property used by this code must be explicitly imported in the dummy
+from .matplotlib_agg import matplotlib
+from matplotlib.dates import datestr2num
 import matplotlib.pyplot as plt
 
 # Initialize coloredlogs
@@ -102,19 +105,26 @@ def process_log(log: dict, mode: str):
 
 class SymantecJob(object):
 
-    def __init__(self, tlscanary_binary: str, plot_file: str):
+    def __init__(self, tlscanary_binary: str, output_path: str):
         self.log_tag = "symantec"
         self.tlscanary_binary = tlscanary_binary
-        self.plot_file = plot_file
+        self.output_path = output_path
+        self.plot_file = os.path.join(output_path, "symantec-plot.svg")
+        self.carnage_file = os.path.join(output_path, "symantec-carnage.txt")
 
     def run(self):
         logger.info("Starting Symantec scan")
         self.scan()
         logger.info("Processing Symantec logs")
+        self.update_plot()
+        logger.info("Completed Symantec job")
+
+    def update_plot(self):
         data = self.process_logs()
         logger.info("Writing Symantec plot to `%s`" % self.plot_file)
         self.generate_plot(data)
-        logger.info("Completed Symantec job")
+        logger.info("Writing carnage to `%s`" % self.carnage_file)
+        self.write_latest_carnage()
 
     def scan(self):
         cmd = [self.tlscanary_binary,
@@ -172,6 +182,19 @@ class SymantecJob(object):
 
         return data
 
+    def write_latest_carnage(self):
+        try:
+            ref = list_logs(self.tlscanary_binary, tag=self.log_tag)[-1]
+        except IndexError:
+            logger.warning("Nothing logged for `%s`" % self.log_tag)
+            return
+
+        _, _, data, _ = process_log(get_log(self.tlscanary_binary, ref), mode=self.log_tag)
+
+        with open(self.carnage_file, "w") as f:
+            f.writelines(["rank,host\n"])
+            f.writelines(["%s,%s\n" % (rank, host) for rank, host in sorted(data)])
+
     def generate_plot(self, data: dict):
         # Tips about matplotlib styling:
         # http://messymind.net/making-matplotlib-look-like-ggplot/
@@ -183,7 +206,6 @@ class SymantecJob(object):
         cmap = plt.cm.get_cmap('tab10', 10)
 
         for i, k in enumerate(sorted(data.keys())):
-            logger.debug(i, k, data[k])
             ax.plot_date(data[k]["timestamps"], data[k]["values"],
                          color=cmap(i), linestyle='-', markersize=0, label="Top %s" % k)
 
@@ -213,19 +235,26 @@ class SymantecJob(object):
 
 class TLSDeprecationJob(object):
 
-    def __init__(self, tlscanary_binary, plot_file):
+    def __init__(self, tlscanary_binary, output_path: str):
         self.log_tag = "tlsdeprecation"
         self.tlscanary_binary = tlscanary_binary
-        self.plot_file = plot_file
+        self.output_path = output_path
+        self.plot_file = os.path.join(output_path, "tlsdeprecation-plot.svg")
+        self.carnage_file = os.path.join(output_path, "tlsdeprecation-carnage.txt")
 
     def run(self):
         logger.info("Starting TLS Deprecation scan")
         self.scan()
         logger.info("Processing TLS Deprecation logs")
+        self.update_plot()
+        logger.info("Completed TLS Deprecation job")
+
+    def update_plot(self):
         data = self.process_logs()
         logger.info("Writing TLS Deprecation plot to `%s`" % self.plot_file)
         self.generate_plot(data)
-        logger.info("Completed TLS Deprecation job")
+        logger.info("Writing carnage to `%s`" % self.carnage_file)
+        self.write_latest_carnage()
 
     def scan(self):
         cmd = [self.tlscanary_binary,
@@ -266,6 +295,19 @@ class TLSDeprecationJob(object):
 
         return data
 
+    def write_latest_carnage(self):
+        try:
+            ref = list_logs(self.tlscanary_binary, tag=self.log_tag)[-1]
+        except IndexError:
+            logger.warning("Nothing logged for `%s`" % self.log_tag)
+            return
+
+        _, _, data, _ = process_log(get_log(self.tlscanary_binary, ref), mode=self.log_tag)
+
+        with open(self.carnage_file, "w") as f:
+            f.writelines(["rank,host\n"])
+            f.writelines(["%s,%s\n" % (rank, host) for rank, host in sorted(data)])
+
     def generate_plot(self, data: dict):
         # Tips about matplotlib styling:
         # http://messymind.net/making-matplotlib-look-like-ggplot/
@@ -277,7 +319,6 @@ class TLSDeprecationJob(object):
         cmap = plt.cm.get_cmap('tab10', 10)
 
         for i, k in enumerate(sorted(data.keys())):
-            logger.debug(i, k, data[k])
             ax.plot_date(data[k]["timestamps"], data[k]["values"],
                          color=cmap(i), linestyle='-', markersize=0, label="Top %s" % k)
 
@@ -327,14 +368,14 @@ class Scheduler(object):
         logger.info("Scheduler is alive")
 
     @staticmethod
-    def run(output_directory):
+    def run(output_directory: str) -> int:
         tlscanary_binary = "tlscanary"
 
         output_directory = os.path.abspath(output_directory)
         logger.info("Output directory is `%s`" % output_directory)
 
-        symantec = SymantecJob(tlscanary_binary, os.path.join(output_directory, "symantec.svg"))
-        tlsdeprecation = TLSDeprecationJob(tlscanary_binary, os.path.join(output_directory, "tlsdeprecation.svg"))
+        symantec = SymantecJob(tlscanary_binary, os.path.join(output_directory))
+        tlsdeprecation = TLSDeprecationJob(tlscanary_binary, os.path.join(output_directory))
         srcupdate = SrcUpdateJob(tlscanary_binary)
 
         # ####################################################################
@@ -354,10 +395,47 @@ class Scheduler(object):
             logger.critical("\nUser interrupt. Quitting...")
             return 10
 
+    @staticmethod
+    def update_plots(output_directory: str) -> int:
+        tlscanary_binary = "tlscanary"
+        symantec = SymantecJob(tlscanary_binary, output_directory)
+        tlsdeprecation = TLSDeprecationJob(tlscanary_binary, output_directory)
+        symantec.update_plot()
+        tlsdeprecation.update_plot()
+        return 0
+
 
 def main() -> int:
-    output_directory = sys.argv[1]
-    return Scheduler.run(output_directory)
+    parser = argparse.ArgumentParser(description="Scheduler for TLS Canary scan jobs")
+    parser.add_argument("--debug",
+                        help="enable debug-level logging",
+                        action="store_true")
+    parser.add_argument("--update",
+                        help="just update the plots and exit",
+                        action="store_true")
+    parser.add_argument("path",
+                        help="path to output directory for jobs",
+                        metavar="output path",
+                        type=str)
+    args = parser.parse_args()
+
+    if args.debug:
+        coloredlogs.install(level="DEBUG")
+
+    logger.debug("Parsed args: %s" % args)
+
+    if not os.path.isdir(args.path):
+        logger.critical("output path is not a valid directory")
+        return 10
+
+    if not which("tlscanary"):
+        logger.critical("`tlscanary` binary is not in path. Did you activate the Python env?")
+        return 11
+
+    if args.update:
+        return Scheduler.update_plots(args.path)
+
+    return Scheduler.run(args.path)
 
 
 if __name__ == "__main__":
