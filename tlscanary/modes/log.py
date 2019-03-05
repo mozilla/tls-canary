@@ -75,6 +75,7 @@ class LogMode(BaseMode):
         super(LogMode, self).__init__(args, module_dir, tmp_dir)
         self.log_db = rl.RunLogDB(self.args)
         self.tag_db = tdb.TagsDB(self.args)
+        self.tag_db.remove_dangling(self.log_db.list_logs(), save=True)
 
         # Check arguments
         if len(self.args.include) == 0:
