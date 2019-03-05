@@ -38,6 +38,22 @@ class TagsDB(object):
             assert type(parsed[tag]) is list
             self.__tags[tag] = set(parsed[tag])
 
+    def remove_dangling(self, existing_refs: list, save: bool = False):
+        """
+        Remove all tag references to non-existent refs
+        :param existing_refs: list of existing references
+        :param save: optional bool whether TagDB to be saved to disk
+        :return: None
+        """
+        changed = False
+        for tag in self:
+            for ref in self[tag]:
+                if ref not in existing_refs:
+                    self.remove(tag, ref, save=False)
+                    changed = True
+        if changed and save:
+            self.save()
+
     def save(self):
         """
         Save TagDB to disk
