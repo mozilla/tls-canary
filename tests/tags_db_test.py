@@ -64,3 +64,21 @@ def test_tags_db_persistence(tmpdir):
     assert "newnewtag" in db, "a TaskDB does not forget about tags"
     assert "newnewhandleA" in db["newnewtag"] and "newnewhandleB" in db["newnewtag"], "a TaskDB does not forget handles"
     assert "newnewhandleC" not in db["newnewtag"], "a TaskDB does not dream about deleted handles"
+
+
+def test_tags_db_dangling(tmpdir):
+    """TagDB discards of dangling references"""
+
+    db = tdb.TagsDB(ArgsMock(workdir=tmpdir))
+    db["tag"] = "handleA"
+    db["tag"] = "handleB"
+    db["tag"] = "handleC"
+    db["newtag"] = "handleB"
+    db["newtag"] = "handleC"
+    db["newtag"] = "handleD"
+
+    # Assume B and C were deleted elsewhere, so all their references should be dropped
+    db.remove_dangling(["handleA", "handleD"])
+    assert "handleA" in db["tag"] and "handleD" in db["newtag"], "handles rememberd after un-dangling"
+    assert "handleB" not in db["tag"] and "handleB" not in db["newtag"], "handle B forgotten after un-dangling"
+    assert "handleC" not in db["tag"] and "handleC" not in db["newtag"], "handle C forgotten after un-dangling"
