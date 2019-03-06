@@ -244,7 +244,7 @@ class Sources(object):
                 header_keywords.append("default")
             header_keywords += ["handle", self.handle]
             f.write("#%s\n" % ":".join(header_keywords))
-            csv_writer = csv.DictWriter(f, list(self.rows[0].keys()))
+            csv_writer = csv.DictWriter(f, list(self.rows[0].keys()), lineterminator="\n")
             csv_writer.writeheader()
             csv_writer.writerows(self.rows)
         return file_name
