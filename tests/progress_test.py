@@ -4,7 +4,7 @@
 
 import time
 
-import tlscanary.progress as pr
+import tlscanary.tools.progress as pr
 
 
 def test_progress_logger_instance():

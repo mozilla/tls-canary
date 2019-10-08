@@ -11,7 +11,7 @@ from threading import Thread
 
 
 logger = logging.getLogger(__name__)
-module_dir = os.path.split(__file__)[0]
+module_dir = os.path.realpath(os.path.join(os.path.split(__file__)[0], os.path.pardir))
 
 
 def read_from_worker(worker, response_queue):

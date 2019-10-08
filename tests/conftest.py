@@ -5,8 +5,8 @@
 import pytest
 from subprocess import check_output
 
-import tlscanary.firefox_downloader as fd
-import tlscanary.firefox_extractor as fe
+import tlscanary.tools.firefox_downloader as fd
+import tlscanary.tools.firefox_extractor as fe
 
 
 @pytest.fixture(scope="session")

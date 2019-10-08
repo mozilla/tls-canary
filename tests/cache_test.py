@@ -6,7 +6,7 @@ from math import floor
 import os
 from time import sleep, time
 
-import tlscanary.cache as cache
+import tlscanary.tools.cache as cache
 
 
 def test_cache_instance(tmpdir):

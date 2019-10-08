@@ -10,9 +10,9 @@ import sys
 import zipfile
 
 from .basemode import BaseMode
-from tlscanary.firefox_downloader import get_to_file
-import tlscanary.progress as pr
 import tlscanary.sources_db as sdb
+from tlscanary.tools.firefox_downloader import get_to_file
+import tlscanary.tools.progress as pr
 
 
 logger = logging.getLogger(__name__)

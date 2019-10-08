@@ -4,7 +4,7 @@
 
 import pytest
 
-import tlscanary.tags_db as tdb
+import tlscanary.tools.tags_db as tdb
 from tests import ArgsMock
 
 

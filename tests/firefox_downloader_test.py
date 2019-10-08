@@ -7,7 +7,7 @@ import pytest
 from time import sleep
 import unittest.mock as mock
 
-import tlscanary.firefox_downloader as fd
+import tlscanary.tools.firefox_downloader as fd
 
 
 def test_firefox_downloader_instance(tmpdir):
