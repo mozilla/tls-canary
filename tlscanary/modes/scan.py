@@ -8,9 +8,9 @@ import pkg_resources as pkgr
 import sys
 
 from .basemode import BaseMode
-import tlscanary.progress as pr
 import tlscanary.runlog as rl
 import tlscanary.sources_db as sdb
+import tlscanary.tools.progress as pr
 
 
 logger = logging.getLogger(__name__)

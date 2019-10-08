@@ -5,7 +5,7 @@
 import logging
 import sys
 
-from . import modes
+from tlscanary import modes
 
 
 # Eventually import other future tests, like

@@ -5,7 +5,7 @@
 import os
 import pkg_resources as pkgr
 
-import tlscanary.cert as cert
+import tlscanary.tools.cert as cert
 
 
 def test_cert_instance_with_pem():

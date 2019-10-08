@@ -8,8 +8,8 @@ import pytest
 import subprocess
 
 
-import tlscanary.firefox_extractor as fe
-import tlscanary.firefox_app as fa
+import tlscanary.tools.firefox_extractor as fe
+import tlscanary.tools.firefox_app as fa
 
 
 def test_osx_extractor(tmpdir):

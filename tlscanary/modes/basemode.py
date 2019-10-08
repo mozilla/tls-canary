@@ -12,13 +12,13 @@ import stat
 import sys
 import zipfile
 
-import tlscanary.firefox_app as fa
-import tlscanary.firefox_downloader as fd
-import tlscanary.firefox_extractor as fe
-import tlscanary.one_crl_downloader as one_crl
 import tlscanary.sources_db as sdb
 import tlscanary.worker_pool as wp
-import tlscanary.xpcshell_worker as xw
+import tlscanary.tools.firefox_app as fa
+import tlscanary.tools.firefox_downloader as fd
+import tlscanary.tools.firefox_extractor as fe
+import tlscanary.tools.one_crl_downloader as one_crl
+import tlscanary.tools.xpcshell_worker as xw
 
 
 logger = logging.getLogger(__name__)

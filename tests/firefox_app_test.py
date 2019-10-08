@@ -6,7 +6,7 @@ import os
 import pytest
 import subprocess
 
-import tlscanary.firefox_app as fa
+import tlscanary.tools.firefox_app as fa
 
 
 def __check_app(app):

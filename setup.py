@@ -16,8 +16,8 @@ INSTALL_REQUIRES = [
 ]
 
 SCHEDULER_REQUIRES = [
-        'matplotlib',
-        'schedule'
+    'matplotlib',
+    'schedule'
 ]
 
 TESTS_REQUIRE = [

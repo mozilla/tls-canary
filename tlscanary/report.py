@@ -9,7 +9,7 @@ import logging
 import os
 import shutil
 
-from . import cert
+from tlscanary.tools import cert
 
 
 logger = logging.getLogger(__name__)

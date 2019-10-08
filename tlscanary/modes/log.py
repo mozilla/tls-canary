@@ -10,7 +10,7 @@ import sys
 from .basemode import BaseMode
 import tlscanary.report as report
 import tlscanary.runlog as rl
-import tlscanary.tags_db as tdb
+import tlscanary.tools.tags_db as tdb
 
 logger = logging.getLogger(__name__)
 

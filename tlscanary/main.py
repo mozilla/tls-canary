@@ -13,11 +13,11 @@ import tempfile
 import threading
 import time
 
-from . import cleanup
-from . import firefox_downloader as fd
-from . import loader
-from . import modes
-from . import sources_db as sdb
+from tlscanary import loader
+from tlscanary import modes
+from tlscanary import sources_db as sdb
+from tlscanary.tools import cleanup
+from tlscanary.tools import firefox_downloader as fd
 
 
 # Initialize coloredlogs

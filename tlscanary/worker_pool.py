@@ -7,7 +7,7 @@ import time
 from worq.pool.thread import WorkerPool
 from worq import get_broker, get_queue, TaskSpace
 
-from . import xpcshell_worker as xw
+from tlscanary.tools import xpcshell_worker as xw
 
 
 logger = logging.getLogger(__name__)

@@ -5,7 +5,7 @@
 import pytest
 from time import sleep
 
-import tlscanary.xpcshell_worker as xw
+import tlscanary.tools.xpcshell_worker as xw
 
 
 def test_xpcshell_worker(nightly_app):
