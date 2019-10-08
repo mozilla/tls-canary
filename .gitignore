@@ -19,3 +19,6 @@ dist/
 .eggs/
 doc/
 .coverage
+Pipfile
+Pipfile.lock
+.vscode/
