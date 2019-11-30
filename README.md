@@ -29,6 +29,7 @@ https://mibbit.com/?server=irc.mozilla.org&channel=%23tlscanary). Come talk to u
 * Python 3.6+
 * 7zip
 * Go 1.7 or later
+* Rust 1.39 or later
 * OpenSSL-dev
 * libffi-dev
 

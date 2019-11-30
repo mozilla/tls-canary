@@ -100,9 +100,7 @@ def get_list(onecrl_env, workdir, commit, use_cache=True, cache_timeout=60*60):
 # OneCRL environment (one of either "stage" or "production"). The created database will be
 # located at <WORKDIR>/cache/<ONE_CRL_ENV>_cert_storage/security/data.safe.bin. This database
 # should in turn be copied to <FIREFOX_PROFILE>/security_state/data.safe.bin.
-def populate_cert_storage(onecrl_env, workdir, commit, use_cache=True, cache_timeout=60*60):
-
-    # @TODO PATH needs `/.cargo/bin
+def populate_cert_storage(onecrl_env, workdir, commit="master", use_cache=True, cache_timeout=60*60):
     global logger
 
     dc = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout, purge=True)
@@ -111,17 +109,15 @@ def populate_cert_storage(onecrl_env, workdir, commit, use_cache=True, cache_tim
         # Enforce re-extraction even if cached
         dc.delete(cache_id)
     if cache_id in dc:
-        logger.warning("Using cached OneCRL cert_storage data from `%s`" % cached_security_state)
+        logger.warning("Using cached OneCRL cert_storage data from `%s`" % dc[cache_id])
         return
 
     cached_security_state = dc[cache_id]
     os.makedirs(cached_security_state)
-    # @TODO
-    # What should this be? Above, we were essentially relying on the GOPATH as
-    # a default place to have a cloned repo.
-    repo_dir = "/Users/chris/Documents/Contracting/mozilla/OneCRL-Tools"
 
-    os.putenv("")
+    repo_dir = @TODO
+
+    # os.putenv("")
     cargo_bin = find_executable("cargo")
     if cargo_bin is None:
         logger.critical("Cannot find Cargo toolchain")

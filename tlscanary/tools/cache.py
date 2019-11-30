@@ -46,7 +46,7 @@ class DiskCache(object):
         if id_or_path is None:
             self.__clear()
             return
-        path = self[id_or_path.lstrip(self.__root)]
+        path = id_or_path if id_or_path.startswith(self.__root) else self[id_or_path]
         if os.path.isdir(path):
             rmtree(path)
         elif os.path.exists(path):
