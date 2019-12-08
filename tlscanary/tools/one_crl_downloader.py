@@ -21,6 +21,9 @@ _ONE_CRL_TOOLS_REPO = "OneCRL-Tools"
 # OneCRL environment (one of either "stage" or "production"). The created database will be
 # located at <WORKDIR>/cache/<ONE_CRL_ENV>_cert_storage/security/data.safe.bin. This database
 # should in turn be copied to <FIREFOX_PROFILE>/security_state/data.safe.bin.
+#
+# The string returned is the absolute path to the data.safe.bin that should be installed
+# to <FIREFOX_PROFILE>/security_state/data.safe.bin.
 def populate_cert_storage(onecrl_env, workdir, commit="master", use_cache=True, cache_timeout=60*60):
     global logger
 
