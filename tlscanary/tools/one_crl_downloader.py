@@ -96,8 +96,7 @@ def get_list(onecrl_env, workdir, commit, use_cache=True, cache_timeout=60*60):
 
     return cache_file
 
-_ONE_CRL_TOOLS_GIT_URL = "https://github.com/christopher-henderson/OneCRL-Tools.git"
-# _ONE_CRL_TOOLS_GIT_URL = "https://github.com/mozilla/OneCRL-Tools.git"
+_ONE_CRL_TOOLS_GIT_URL = "https://github.com/mozilla/OneCRL-Tools.git"
 _ONE_CRL_TOOLS_REPO = "OneCRL-Tools"
 
 # populate_cert_storage creates an LMDB database populated with the contents of the provided
@@ -151,3 +150,4 @@ def populate_cert_storage(onecrl_env, workdir, commit="master", use_cache=True, 
     if result != 0:
         logger.critical("Cannot populate cert_storage from OneCRL")
         sys.exit(5)
+    return os.path.join(cached_security_state, "security_state", "data.safe.bin")
