@@ -96,6 +96,10 @@ def get_list(onecrl_env, workdir, commit, use_cache=True, cache_timeout=60*60):
 
     return cache_file
 
+_ONE_CRL_TOOLS_GIT_URL = "https://github.com/christopher-henderson/OneCRL-Tools.git"
+# _ONE_CRL_TOOLS_GIT_URL = "https://github.com/mozilla/OneCRL-Tools.git"
+_ONE_CRL_TOOLS_REPO = "OneCRL-Tools"
+
 # populate_cert_storage creates an LMDB database populated with the contents of the provided
 # OneCRL environment (one of either "stage" or "production"). The created database will be
 # located at <WORKDIR>/cache/<ONE_CRL_ENV>_cert_storage/security/data.safe.bin. This database
@@ -112,12 +116,14 @@ def populate_cert_storage(onecrl_env, workdir, commit="master", use_cache=True, 
         logger.warning("Using cached OneCRL cert_storage data from `%s`" % dc[cache_id])
         return
 
+    if _ONE_CRL_TOOLS_REPO not in dc:
+        subprocess.call(["git", "clone", _ONE_CRL_TOOLS_GIT_URL, dc[_ONE_CRL_TOOLS_REPO]])
+
     cached_security_state = dc[cache_id]
     os.makedirs(cached_security_state)
 
-    repo_dir = @TODO
+    repo_dir = dc[_ONE_CRL_TOOLS_REPO]
 
-    # os.putenv("")
     cargo_bin = find_executable("cargo")
     if cargo_bin is None:
         logger.critical("Cannot find Cargo toolchain")
