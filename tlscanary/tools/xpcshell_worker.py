@@ -9,7 +9,6 @@ from queue import Queue, Empty
 import subprocess
 from threading import Thread
 
-
 logger = logging.getLogger(__name__)
 module_dir = os.path.realpath(os.path.join(os.path.split(__file__)[0], os.path.pardir))
 
@@ -42,12 +41,16 @@ def read_from_worker(worker, response_queue):
 class XPCShellWorker(object):
     """XPCShell worker implementing an asynchronous, JSON-based message system"""
 
-    def __init__(self, app, script=None, profile=None, prefs=None):
+    def __init__(self, app, script=None, head_script=None, profile=None, prefs=None):
         global module_dir
 
         self.__app = app
         if script is None:
             self.__script = os.path.join(module_dir, "js", "scan_worker.js")
+        else:
+            self.__script = script
+        if head_script is None:
+            self.__head_script = os.path.join(module_dir, "js", "worker_common.js")
         else:
             self.__script = script
         self.__profile = profile
@@ -60,7 +63,7 @@ class XPCShellWorker(object):
         """Spawn the worker process and its dedicated reader thread"""
         global logger, module_dir
 
-        cmd = [self.__app.exe, '-xpcshell', "-g", self.__app.gredir, "-a", self.__app.browser, self.__script]
+        cmd = [self.__app.exe, '-xpcshell', "-g", self.__app.gredir, "-a", self.__app.browser, "-f", self.__head_script, self.__script]
         logger.debug("Executing worker shell command `%s`" % ' '.join(cmd))
 
         self.__worker_thread = subprocess.Popen(
