@@ -243,23 +243,27 @@ class BaseMode(object):
         logger.info("Updating OneCRL revocation data")
         if one_crl_env == "production" or one_crl_env == "stage":
             # overwrite revocations file in test profile with live OneCRL entries from requested environment
-            revocations_file = one_crl.get_list(one_crl_env, self.args.workdir, self.args.onecrlpin)
-            profile_file = os.path.join(new_profile_dir, "revocations.txt")
-            logger.debug("Writing OneCRL revocations data to `%s`" % profile_file)
-            shutil.copyfile(revocations_file, profile_file)
+            cert_storage = one_crl.populate_cert_storage(one_crl_env, self.args.workdir, commit=self.args.onecrlpin)
+            profile_security_state = os.path.join(new_profile_dir, "security_state")
+            if not os.path.exists(profile_security_state):
+              # <PROFILE>/security_state may not necessarily exist yet in a fresh, uninitialized, Firefox profile.
+              os.makedirs(profile_security_state)
+            profile_cert_storage = os.path.join(profile_security_state, os.path.basename(cert_storage))
+            logger.debug("Writing OneCRL revocations data to `%s`" % profile_cert_storage)
+            shutil.copyfile(cert_storage, profile_cert_storage)
         elif one_crl_env == "none":
             # delete revocations file completely
-            logger.debug("Deleting existing revocations.txt file")
-            profile_file = os.path.join(new_profile_dir, "revocations.txt")
-            os.remove(profile_file)
+            logger.debug("Deleting existing data.safe.bin file")
+            profile_cert_storage = os.path.join(new_profile_dir, "security_state", "data.safe.bin")
+            os.remove(profile_cert_storage)
         elif one_crl_env == "custom":
             # leave the existing revocations file alone
             logger.info("Testing with custom OneCRL entries from default profile")
         elif os.path.isfile(one_crl_env):
             # use referenced file as revocations.txt file
-            profile_file = os.path.join(new_profile_dir, "revocations.txt")
-            shutil.copyfile(one_crl_env, profile_file)
-            logger.info("Using `%s` as revocations.txt for test candidate" % one_crl_env)
+            profile_cert_storage = os.path.join(new_profile_dir, "security_state", "data.safe.bin")
+            shutil.copyfile(one_crl_env, profile_cert_storage)
+            logger.info("Using `%s` as data.safe.bin for test candidate" % one_crl_env)
         else:
             logger.error("Invalid OneCRL parameter. Assuming `custom`")
 
