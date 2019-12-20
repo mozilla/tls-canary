@@ -34,8 +34,6 @@ def read_from_worker(worker, response_queue):
                 logger.warning("JS warning from worker %s: %s" % (worker, line))
             else:
                 logger.critical("Invalid output from worker %s: %s" % (worker, line))
-                #TODO: MDG - remove debug below
-                print("Invalid output from worker %s: %s" % (worker, line))
     logger.debug('Reader thread finished for worker %s' % worker)
     worker.stdout.close()
 
@@ -66,8 +64,6 @@ class XPCShellWorker(object):
         global logger, module_dir
 
         cmd = [self.__app.exe, '-xpcshell', "-g", self.__app.gredir, "-a", self.__app.browser, "-f", self.__head_script, self.__script]
-        #TODO: MDG - remove debug below
-        print("Executing worker shell command `%s`" % ' '.join(cmd))
         logger.debug("Executing worker shell command `%s`" % ' '.join(cmd))
 
         self.__worker_thread = subprocess.Popen(
