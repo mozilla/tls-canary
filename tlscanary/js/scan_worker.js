@@ -158,6 +158,7 @@ function collect_request_info(xhr, report_certs) {
     return info;
 }
 
+
 function scan_host(args, response_cb) {
 
     let host = args.host;
