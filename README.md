@@ -107,7 +107,7 @@ to save disk space. Canary logs can get very big very fast when a run returns ma
 
 Here are some usage examples how to interact with TLS Canary's run log database:
 ```bash
-# List all logs in database, including incomplete ones markes with (*)
+# List all logs in database, including incomplete ones marked with (*)
 tlscanary log
 
 # List and then delete incomplete logs
