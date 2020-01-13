@@ -104,6 +104,49 @@ function set_profile(profile_path) {
     return file.clone();
 }
 
+// Allow extended information (including preferences) to be obtained from the worker.
+const PREF_INVALID = 0;
+const PREF_STRING = 32;
+const PREF_INT = 64;
+const PREF_BOOL = 128;
+
+// Create a command to obtain extended info.
+// config - a javascript object with an element 'preference_keys' - an array of
+// the names of the preferences to fetch
+var create_extended_info_command = function(config) {
+    return async function(args, response_cb) {
+        try {
+            var  prefs = {};
+
+            for (let key of config.preference_keys) {
+                let pref_type = _Services.prefs.getPrefType(key);
+                switch (pref_type) {
+                    case PREF_STRING:
+                        prefs[key] = _Services.prefs.getCharPref(key);
+                        break;
+                    case PREF_INT:
+                        prefs[key] = _Services.prefs.getIntPref(key);
+                        break;
+                    case PREF_BOOL:
+                        prefs[key] = _Services.prefs.getBoolPref(key);
+                        break;
+                    default:
+                        prefs[key] = "pref invalid";
+                }
+            }
+
+            response_cb(true,
+                {
+                    runtime_info: get_runtime_info(),
+                    preferences: prefs
+                });
+        } catch (e) {
+            response_cb(false, {origin: "get_worker_info", exception: e});
+        }
+    }
+}
+
+// register_command allows worker scripts to register their own commands. See use of custom_commands in _handle
 function register_command(name, callback) {
     custom_commands[name] = callback;
 }
