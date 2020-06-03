@@ -3,11 +3,14 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from distutils.spawn import find_executable
+import bz2
+import io
 import logging
 import os
 import stat
 import subprocess
 import sys
+import tarfile
 
 from . import cache
 from .firefox_app import FirefoxApp
@@ -24,9 +27,10 @@ def extract(archive_file, workdir, cache_timeout=24*60*60, use_cache=True):
 
     # Find 7zip binary
     sz_bin = find_executable("7z")
+    native_extraction = True
     if sz_bin is None:
-        logger.critical("Cannot find 7zip")
-        sys.exit(5)
+        logger.warn("Cannot find 7zip")
+        native_extraction = False
     logger.debug("Using 7zip executable at `%s`" % sz_bin)
 
     # Name in cache is file name without extensions
@@ -43,28 +47,35 @@ def extract(archive_file, workdir, cache_timeout=24*60*60, use_cache=True):
     cache_dir = dc[cache_id]
 
     if cache_id not in dc:
-        cmd = [sz_bin, "x", "-y", "-bd", "-o%s" % cache_dir, archive_file]
-        logger.debug("Executing shell command `%s`" % " ".join(cmd))
-        try:
-            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            logger.error("7zip failed: %s" % repr(e.output))
-            raise Exception("Unable to extract Firefox archive")
-        logger.debug("7zip succeeded: %s" % repr(output))
-
-        # Check whether we have just extracted a tar file (from a .tar.bz2 archive)
-        inner_tar = os.path.join(cache_dir, "%s.tar" % cache_id)
-        if os.path.isfile(inner_tar):
-            logger.debug("Running second 7zip pass on inner TAR archive `%s`" % inner_tar)
-            cmd = [sz_bin, "x", "-y", "-bd", "-o%s" % cache_dir, inner_tar]
+        if native_extraction:
+            cmd = [sz_bin, "x", "-y", "-bd", "-o%s" % cache_dir, archive_file]
             logger.debug("Executing shell command `%s`" % " ".join(cmd))
             try:
                 output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
                 logger.error("7zip failed: %s" % repr(e.output))
-                raise Exception("Unable to extract inner Firefox archive")
-            logger.debug("7zip succeeded at second pass: %s" % repr(output))
-            os.remove(inner_tar)
+                raise Exception("Unable to extract Firefox archive")
+            logger.debug("7zip succeeded: %s" % repr(output))
+
+            # Check whether we have just extracted a tar file (from a .tar.bz2 archive)
+            inner_tar = os.path.join(cache_dir, "%s.tar" % cache_id)
+            if os.path.isfile(inner_tar):
+                logger.debug("Running second 7zip pass on inner TAR archive `%s`" % inner_tar)
+                cmd = [sz_bin, "x", "-y", "-bd", "-o%s" % cache_dir, inner_tar]
+                logger.debug("Executing shell command `%s`" % " ".join(cmd))
+                try:
+                    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+                except subprocess.CalledProcessError as e:
+                    logger.error("7zip failed: %s" % repr(e.output))
+                    raise Exception("Unable to extract inner Firefox archive")
+                logger.debug("7zip succeeded at second pass: %s" % repr(output))
+                os.remove(inner_tar)
+        else: #if we don't  have a 7zip binary, attempt to extract as a tar.bz
+            decompressor = bz2.BZ2Decompressor()
+            f = io.BytesIO(decompressor.decompress(open(archive_file,'rb').read()))
+            ta = tarfile.open(fileobj = f)
+            print("extracting tar file to %s" % cache_dir)
+            ta.extractall(path = cache_dir)
 
     app = FirefoxApp(cache_dir)
 
