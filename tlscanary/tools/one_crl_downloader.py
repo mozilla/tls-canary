@@ -24,7 +24,7 @@ _ONE_CRL_TOOLS_REPO = "OneCRL-Tools"
 #
 # The string returned is the absolute path to the data.safe.bin that should be installed
 # to <FIREFOX_PROFILE>/security_state/data.safe.bin.
-def populate_cert_storage(onecrl_env, workdir, commit="master", use_cache=True, cache_timeout=60*60):
+def populate_cert_storage(onecrl_env, workdir, commit="stable", use_cache=True, cache_timeout=60*60):
     global logger
 
     dc = cache.DiskCache(os.path.join(workdir, "cache"), cache_timeout, purge=True)
@@ -34,7 +34,7 @@ def populate_cert_storage(onecrl_env, workdir, commit="master", use_cache=True, 
         dc.delete(cache_id)
     if cache_id in dc:
         logger.warning("Using cached OneCRL cert_storage data from `%s`" % dc[cache_id])
-        return
+        return os.path.join(dc[cache_id], "security_state", "data.safe.bin")
 
     if _ONE_CRL_TOOLS_REPO not in dc:
         subprocess.call(["git", "clone", _ONE_CRL_TOOLS_GIT_URL, dc[_ONE_CRL_TOOLS_REPO]])
