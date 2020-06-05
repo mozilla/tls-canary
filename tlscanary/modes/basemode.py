@@ -255,7 +255,8 @@ class BaseMode(object):
             # delete revocations file completely
             logger.debug("Deleting existing data.safe.bin file")
             profile_cert_storage = os.path.join(new_profile_dir, "security_state", "data.safe.bin")
-            os.remove(profile_cert_storage)
+            if os.path.exists(profile_cert_storage):
+                os.remove(profile_cert_storage)
         elif one_crl_env == "custom":
             # leave the existing revocations file alone
             logger.info("Testing with custom OneCRL entries from default profile")
