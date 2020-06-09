@@ -75,6 +75,9 @@ class BaseMode(object):
                            help="OneCRL-Tools git branch, tag, or commit to use (default: stable)",
                            action="store",
                            default=os.environ.get("ONECRLPIN", "stable"))
+        group = parser.add_argument_group(title="preferences", description="Preferences are of the form "
+                                          + "'key;value' and one per argument. Use multiple --pref* calls"
+                                          + " to set additional preferences.")
         group.add_argument("-p", "--prefs",
                            help="Prefs to apply to all builds",
                            type=str,
