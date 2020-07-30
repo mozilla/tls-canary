@@ -61,7 +61,7 @@ function set_prefs(prefs) {
                 Services.prefs.setIntPref(prop, value);
                 break;
             case "string":
-                Services.prefs.setPref(prop, value);
+                Services.prefs.setStringPref(prop, value);
                 break;
             default:
                 throw "Unsupported pref type " + type;
@@ -224,3 +224,4 @@ function run_loop() {
         }
     }
 }
+
