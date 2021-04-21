@@ -52,7 +52,7 @@ class XPCShellWorker(object):
         if head_script is None:
             self.__head_script = os.path.join(module_dir, "js", "worker_common.js")
         else:
-            self.__script = script
+            self.__head_script = head_script
         self.__profile = profile
         self.__prefs = prefs
         self.__worker_thread = None
