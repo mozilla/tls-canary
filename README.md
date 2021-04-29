@@ -36,7 +36,12 @@ https://mibbit.com/?server=irc.mozilla.org&channel=%23tlscanary). Come talk to u
 ### Dependencies for Debian and Ubuntu users
 Assuming that you run TLS Canary on a regular graphical desktop machine, these are the packages it requires:
 ```
-sudo apt-get install python3 python3-dev gcc golang-1.9-go p7zip-full libssl-dev libffi-dev
+sudo apt-get install python3 python3-dev gcc golang-1.9-go p7zip-full libssl-dev libffi-dev libx11-xcb-dev
+```
+
+In addition, you'll need to install the Rust Cargo toolchain:
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 The script [linux_bootstrap.sh](bootstrap/linux_bootstrap.sh) provides bootstrapping for a headless Ubuntu-based EC2
@@ -190,6 +195,13 @@ cd tls-canary
 virtualenv -p c:\python36\python.exe venv
 venv\Scripts\activate
 pip install -e .[dev]
+```
+
+### Building and running tls-canary
+
+```
+python setup.py build
+python setup.py install
 ```
 
 ### Running tests
