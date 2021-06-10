@@ -128,9 +128,9 @@ class XPCShellWorker(object):
         try:
             self.__worker_thread.stdin.write((cmd_string + "\n").encode("utf-8"))
             self.__worker_thread.stdin.flush()
-        except IOError:
+        except IOError as err:
             logger.debug("Can't write to worker. Message `%s` wasn't heard." % cmd_string)
-            return False
+            raise err
         return True
 
     def receive(self):
