@@ -5,7 +5,7 @@
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'tlscanary'
-PACKAGE_VERSION = '4.0.1a1'
+PACKAGE_VERSION = '4.0.2'
 
 INSTALL_REQUIRES = [
     'coloredlogs',
@@ -30,13 +30,18 @@ TESTS_REQUIRE = [
 
 DEV_REQUIRES = TESTS_REQUIRE + SCHEDULER_REQUIRES
 
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name=PACKAGE_NAME,
     version=PACKAGE_VERSION,
     description='TLS/SSL Test Suite for Mozilla Firefox',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[
         'Environment :: Console',
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
         'Natural Language :: English',

@@ -1,17 +1,22 @@
 # TLS Canary
 
-[![Build Status](https://travis-ci.org/mozilla/tls-canary.svg?branch=master)](https://travis-ci.org/mozilla/tls-canary)
+## Status : Archived
+
+This project is no longer maintained and has been archived. No further work will
+be done on it including security fixes. Feel free to fork the project if you'd
+like to extend it.
+
+## Description
+TLS Canary was a [TLS/SSL](https://en.wikipedia.org/wiki/Transport_Layer_Security) testing framework for the
+[Mozilla Firefox](https://www.mozilla.org/firefox) web browser. It was used by developers to run regression and
+performance tests against a large number of HTTPS-enabled hosts on the Internet.
+
 [![License](https://img.shields.io/badge/license-MPL2-blue.svg)](https://raw.githubusercontent.com/mozilla/tls-canary/master/LICENSE.txt)
 [![PyPI Package version](https://badge.fury.io/py/tlscanary.svg)](https://pypi.python.org/pypi/tlscanary)
 
-TLS Canary is a [TLS/SSL](https://en.wikipedia.org/wiki/Transport_Layer_Security) testing framework for the
-[Mozilla Firefox](https://www.mozilla.org/firefox) web browser. It is used by developers to run regression and
-performance tests against a large number of HTTPS-enabled hosts on the Internet.
-
-Results of the regression scans are published in HTML format here:
-* http://tlscanary.mozilla.org
-
 ## This project
+
+ 
 * Downloads a test build and a base build of Firefox for comparison.
 * Automatically queries thousands of secure sites with those builds.
 * Diffs the results and presents potential regressions in an report for further diagnosis.
@@ -20,10 +25,6 @@ Results of the regression scans are published in HTML format here:
 * Can also use local Firefox build trees or package files for testing.
 * Can maintain an updated list of HTTPS-enabled top sites.
 * Requires a highly reliable network link. **WiFi will give unstable results.**
-
-## IRC channel
-The project has a dedicated IRC channel: [#tlscanary on irc.mozilla.org](
-https://mibbit.com/?server=irc.mozilla.org&channel=%23tlscanary). Come talk to us!
 
 ## Requirements
 * Python 3.6+
@@ -76,11 +77,6 @@ pip3 install [--user] --upgrade tlscanary
 
 Whether or not you require the `--user` flag depends on how your Python environment is set up. Most Linux distributions
 require it when not installing Python packages as root.
-
-If you prefer the bleeding-edge developer version with the latest features and added instability, you can run
-```
-pip3 install [--user] --upgrade git+git://github.com/mozilla/tls-canary.git
-```
 
 Once it finishes the `tlscanary` binary is available in your Python environment:
 ```
