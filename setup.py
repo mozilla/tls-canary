@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from os import path
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'tlscanary'
@@ -30,7 +31,7 @@ TESTS_REQUIRE = [
 
 DEV_REQUIRES = TESTS_REQUIRE + SCHEDULER_REQUIRES
 
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
